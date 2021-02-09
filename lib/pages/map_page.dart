@@ -12,8 +12,8 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   final CameraPosition _initialLocation = const CameraPosition(
-    target: LatLng(0.0, 0.0),
-    // target: LatLng(53.557192580892306, 9.98927563086055),
+    // target: LatLng(0.0, 0.0),
+    target: LatLng(51.1657, 10.45),
     zoom: 12,
   );
   final Map<String, Marker> _markers = {};

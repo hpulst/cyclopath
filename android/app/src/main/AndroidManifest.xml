@@ -14,7 +14,7 @@
         android:label="cyclopath"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyAMCa97Kiuf2HbFtfAYVPwCtnHEPbWrnNw"/>
+               android:value="AIzaSyAdYj2Nu7Ck60Euz2HRJ6U9FGCzPlilJus"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

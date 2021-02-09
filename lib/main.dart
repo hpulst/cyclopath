@@ -13,8 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme:
-          ThemeData(accentColor: Colors.grey[100], primarySwatch: Colors.grey),
+      theme: ThemeData(accentColor: Colors.black, primarySwatch: Colors.grey),
       title: 'Cyclopath',
       home: LoginPage(),
       routes: {
