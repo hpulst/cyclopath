@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cyclopath/pages/login_page.dart';
+import 'package:cyclopath/theme.dart';
 import 'package:flutter/material.dart';
 
 import 'pages/map_page.dart';
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(accentColor: Colors.black, primarySwatch: Colors.grey),
+      theme: AppTheme.light(),
       title: 'Cyclopath',
       home: LoginPage(),
       routes: {

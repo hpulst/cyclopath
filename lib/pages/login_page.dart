@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 const users = {
   'dribbble@gmail.com': '12345',
@@ -108,6 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     onPressed: () {
+                      print('Login');
                       Navigator.pushNamed(context, '/map');
                     },
                     child: const Text('Login'),

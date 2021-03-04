@@ -12,15 +12,13 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: null
-  flutter_login: ^1.0.14
   geolocator: null
   google_maps_flutter: null
   http: null
   json_serializable: null
-  location: null
   pedantic: null
-  shared_preferences: null
-  transparent_image: ^1.0.0
+  shared_preferences: ^2.0.1
+  sliding_up_panel: ^1.0.2
 
 dev_dependencies:
   flutter_test:

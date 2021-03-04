@@ -12,6 +12,8 @@ apply from: "$flutterSdkPath/packages/flutter_tools/gradle/app_plugin_loader.gra
 
 
 
+// include ':app'
+
 // def flutterProjectRoot = rootProject.projectDir.parentFile.toPath()
 
 // def plugins = new Properties()
