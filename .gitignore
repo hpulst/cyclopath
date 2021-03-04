@@ -42,4 +42,4 @@ app.*.map.json
 android/app/src/main/AndroidManifest.xml
 ios/Runner/AppDelegate.swift
 config.dart
-android/app/src/main/AndroidManifest.xml
+ios/Runner/AppDelegate.swift
