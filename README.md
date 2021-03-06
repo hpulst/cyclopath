@@ -5,7 +5,12 @@ A Courrier app that includes functionality that allows the courier to receive or
 **Must have features:**
 
 - [x] Sign in as a courier
-- [ ] Select starting time
+- [ ] Select starting time using bottom sheet
+  - [ ] Tap to open
+  - [ ] Drag to open
+  - [ ] Open to specific height
+  - [ ] Tap to close
+  - [ ] Drag to close
 - [ ] View status(online/offline)
 - [ ] View list of new orders
   - [ ] Live orders receiving function

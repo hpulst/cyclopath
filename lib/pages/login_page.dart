@@ -107,7 +107,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     onPressed: () {
-                      print('Login');
                       Navigator.pushNamed(context, '/map');
                     },
                     child: const Text('Login'),

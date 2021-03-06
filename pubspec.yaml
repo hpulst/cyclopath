@@ -18,7 +18,6 @@ dependencies:
   json_serializable: null
   pedantic: null
   shared_preferences: ^2.0.1
-  sliding_up_panel: ^1.0.2
 
 dev_dependencies:
   flutter_test:
