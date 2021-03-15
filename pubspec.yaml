@@ -11,18 +11,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: null
-  geolocator: null
-  google_maps_flutter: null
-  http: null
-  json_serializable: null
-  pedantic: null
-  shared_preferences: ^2.0.1
+  cupertino_icons: 
+  geolocator: 
+  google_maps_flutter: 
+  http: 
+  json_serializable: 
+  pedantic:
+  shared_preferences:
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: null
+  build_runner: 
 
 flutter:
   uses-material-design: true

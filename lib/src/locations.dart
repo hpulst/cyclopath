@@ -79,17 +79,17 @@ class Locations {
 }
 
 Future<Locations> getGoogleOffices() async {
-  final googleLocationsURL =
-      Uri.parse('https://about.google/static/data/locations.json');
+  const googleLocationsURL = 'https://about.google/static/data/locations.json';
 
   // Retrieve the locations of Google offices
-  final response = await http.get(googleLocationsURL);
+  final url = Uri.parse('https://about.google/static/data/locations.json');
+  final response = await http.get(url);
   if (response.statusCode == 200) {
     return Locations.fromJson(json.decode(response.body));
   } else {
     throw HttpException(
         'Unexpected status code ${response.statusCode}:'
         ' ${response.reasonPhrase}',
-        uri: googleLocationsURL);
+        uri: Uri.parse(googleLocationsURL));
   }
 }
