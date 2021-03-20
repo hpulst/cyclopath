@@ -1,12 +1,10 @@
-import 'dart:async';
-
 import 'package:cyclopath/pages/login_page.dart';
 import 'package:cyclopath/theme.dart';
 import 'package:flutter/material.dart';
 
 import 'pages/map_page.dart';
 
-Future<void> main() async {
+void main() {
   runApp(MyApp());
 }
 

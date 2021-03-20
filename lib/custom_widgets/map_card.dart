@@ -3,14 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:cyclopath/src/locations.dart' as locations;
+import 'package:cyclopath/models/locations.dart' as locations;
 
 class MapCard extends StatefulWidget {
-  const MapCard({Key key, VoidCallback onSelected})
-      : _onSelected = onSelected,
-        super(key: key);
-
-  final VoidCallback _onSelected;
+  const MapCard({Key key}) : super(key: key);
 
   @override
   _MapCardState createState() => _MapCardState();

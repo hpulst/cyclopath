@@ -1,13 +1,25 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
-import 'package:cyclopath/util/bottom_drawer.dart';
-import 'package:cyclopath/util/map_card.dart';
+import 'package:cyclopath/custom_widgets/bottom_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:cyclopath/models/locations.dart' as locations;
 
 const double _kFlingVelocity = 2.0;
 const _kAnimationDuration = Duration(milliseconds: 300);
+final Map<String, Marker> _markers = {};
+final Completer<GoogleMapController> _controller = Completer();
+GoogleMapController mapController;
+Position _currentPosition;
+
+const _initialLocation = CameraPosition(
+  target: LatLng(51.1657, 10.45),
+  zoom: 12,
+);
 
 class MapView extends StatefulWidget {
   @override
@@ -29,6 +41,7 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _getCurrentLocation();
     _drawerController = AnimationController(
       value: 0,
       duration: _kAnimationDuration,
@@ -136,6 +149,58 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> _getCurrentLocation() async {
+    final controller = await _controller.future;
+    _currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    final _current = CameraPosition(
+        target: LatLng(_currentPosition.latitude, _currentPosition.longitude),
+        zoom: 15);
+    setState(() {
+      controller.animateCamera(CameraUpdate.newCameraPosition(_current));
+    });
+    await _onMapCreated(controller);
+  }
+
+  Future<void> _onMapCreated(GoogleMapController controller) async {
+    final googleOffices = await locations.getGoogleOffices();
+
+    setState(
+      () {
+        _markers.clear();
+        for (final office in googleOffices.offices) {
+          final marker = Marker(
+            markerId: MarkerId(office.name),
+            position: LatLng(office.lat, office.lng),
+            infoWindow: InfoWindow(
+              title: office.name,
+              snippet: office.address,
+            ),
+          );
+          _markers[office.name] = marker;
+        }
+      },
+    );
+  }
+
+  Widget _buildMap(BuildContext context) {
+    return GoogleMap(
+      initialCameraPosition: _initialLocation,
+      myLocationEnabled: true,
+      myLocationButtonEnabled: false,
+      zoomGesturesEnabled: true,
+      zoomControlsEnabled: false,
+      markers: _markers.values.toSet(),
+      onMapCreated: (GoogleMapController controller) {
+        if (!_controller.isCompleted) {
+          _controller.complete(controller);
+        } else {
+          _controller.isCompleted;
+        }
+      },
+    );
+  }
+
   Widget _bodyStack(context, constraints) {
     final drawerSize = constraints.biggest;
     final drawerTop = drawerSize.height;
@@ -148,7 +213,7 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
     return Stack(
       key: _bottomDrawerKey,
       children: [
-        const MapCard(),
+        _buildMap(context),
         GestureDetector(
           onTap: () {
             _drawerController.reverse();
@@ -188,8 +253,7 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
     return Scaffold(
       body: LayoutBuilder(builder: _bodyStack),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        // onPressed: _getCurrentLocation,
+        onPressed: _getCurrentLocation,
         child: const Icon(
           Icons.my_location,
           size: 30,
@@ -199,6 +263,7 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
       bottomNavigationBar: _AnimatedBottomAppBar(
         bottomDrawerVisible: _bottomDrawerVisible,
         toggleBottomDrawerVisibility: _toggleBottomDrawerVisibility,
+        dropArrowCurve: _dropArrowCurve,
       ),
     );
   }
@@ -208,15 +273,17 @@ class _AnimatedBottomAppBar extends StatelessWidget {
   const _AnimatedBottomAppBar({
     this.toggleBottomDrawerVisibility,
     this.bottomDrawerVisible,
+    this.dropArrowCurve,
   });
 
   final bool bottomDrawerVisible;
+  final Animation<double> dropArrowCurve;
   final ui.VoidCallback toggleBottomDrawerVisibility;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.only(top: 0),
+      padding: const EdgeInsetsDirectional.only(top: 2),
       child: BottomAppBar(
         // elevation: 10.0,
         child: Container(
@@ -231,23 +298,32 @@ class _AnimatedBottomAppBar extends StatelessWidget {
                 child: Row(
                   children: [
                     const SizedBox(width: 20),
-                    // RotationTransition(
-                    //   turns: Tween(
-                    //     begin: 0.0,
-                    //     end: 1.0,
-                    //   ).animate(),
-                    //   child: const
-                    const Icon(
-                      Icons.arrow_drop_up,
+                    RotationTransition(
+                      turns: Tween(
+                        begin: 0.0,
+                        end: 1.0,
+                      ).animate(dropArrowCurve),
+                      child: const Icon(
+                        Icons.arrow_drop_up,
+                      ),
                     ),
                     const SizedBox(width: 20),
                     Text(
                       'Du bist offline',
                       style: Theme.of(context).textTheme.headline5,
                     ),
+                    const SizedBox(width: 20),
                   ],
                 ),
-              )
+              ),
+              const Expanded(
+                  child: Align(
+                alignment: Alignment.centerRight,
+                child: Icon(
+                  Icons.playlist_play,
+                ),
+              )),
+              const SizedBox(width: 20),
             ],
           ),
         ),

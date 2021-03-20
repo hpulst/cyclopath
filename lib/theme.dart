@@ -5,6 +5,19 @@ class AppTheme {
     return ThemeData(
       primaryColor: _primaryColor,
       accentColor: _accentColor,
+      buttonColor: _primaryColor,
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          primary: _primaryColor,
+          onPrimary: _accentColor,
+          textStyle: const TextStyle(
+            fontSize: 20,
+          ),
+        ),
+      ),
+      iconTheme: const IconThemeData(
+        color: _primaryColor,
+      ),
     );
   }
 

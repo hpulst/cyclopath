@@ -33,8 +33,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Form(
+    return Scaffold(
+      body: SingleChildScrollView(
+        reverse: true,
+        child: Form(
           key: _formKey,
           child: Container(
             padding: const EdgeInsets.fromLTRB(50, 60, 50, 20),
@@ -46,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
                 Image.asset('assets/images/logo_black.png',
                     width: 150, height: 150),
                 const SizedBox(
-                  height: 40,
+                  height: 100,
                 ),
                 TextFormField(
                   controller: _emailController,
@@ -71,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
                         _passwordVisible
                             ? Icons.visibility
                             : Icons.visibility_off,
-                        color: Theme.of(context).primaryColorDark,
+                        // color: Theme.of(context).iconTheme,
                       ),
                       onPressed: () {
                         setState(
@@ -99,8 +101,6 @@ class _LoginPageState extends State<LoginPage> {
                   height: 50.0,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.black,
-                      onPrimary: Colors.white,
                       textStyle: const TextStyle(
                         fontSize: 20,
                         // fontWeight: FontWeight.bold,
@@ -112,11 +112,11 @@ class _LoginPageState extends State<LoginPage> {
                     child: const Text('Login'),
                   ),
                 ),
-                const Expanded(
-                  child: SizedBox(
-                    height: 40,
-                  ),
+                // const Expanded(
+                const SizedBox(
+                  height: 40,
                 ),
+                // ),
                 TextButton(
                   onPressed: () {
                     showDialog(
@@ -127,10 +127,10 @@ class _LoginPageState extends State<LoginPage> {
                           content: const Text('Even more crazy good content'),
                           actions: [
                             TextButton(
-                              child: const Text('Ok Danke'),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
+                              child: const Text('Ok Danke'),
                             )
                           ],
                         );
@@ -141,7 +141,9 @@ class _LoginPageState extends State<LoginPage> {
                 )
               ],
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 }
