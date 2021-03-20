@@ -11,10 +11,10 @@ import 'package:cyclopath/models/locations.dart' as locations;
 
 const double _kFlingVelocity = 2.0;
 const _kAnimationDuration = Duration(milliseconds: 300);
-final Map<String, Marker> _markers = {};
+final Map<String?, Marker> _markers = {};
 final Completer<GoogleMapController> _controller = Completer();
-GoogleMapController mapController;
-Position _currentPosition;
+GoogleMapController? mapController;
+late Position _currentPosition;
 
 const _initialLocation = CameraPosition(
   target: LatLng(51.1657, 10.45),
@@ -29,14 +29,14 @@ class MapView extends StatefulWidget {
 class _MapViewState extends State<MapView> with TickerProviderStateMixin {
   final _bottomDrawerKey = GlobalKey(debugLabel: 'Bottom Drawer');
 
-  AnimationController _drawerController;
-  AnimationController _dropArrowController;
+  late AnimationController _drawerController;
+  late AnimationController _dropArrowController;
 
-  AnimationController _bottomAppBarController;
-  Animation<double> _drawerCurve;
-  Animation<double> _dropArrowCurve;
-  Animation<double> _bottomAppBarCurve;
-  VoidCallback onSelected;
+  late AnimationController _bottomAppBarController;
+  late Animation<double> _drawerCurve;
+  late Animation<double>? _dropArrowCurve;
+  late Animation<double>? _bottomAppBarCurve;
+  VoidCallback? onSelected;
 
   @override
   void initState() {
@@ -100,7 +100,7 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
 
   double get _bottomDrawerHeight {
     final renderBox =
-        _bottomDrawerKey.currentContext.findRenderObject() as RenderBox;
+        _bottomDrawerKey.currentContext!.findRenderObject() as RenderBox;
     return renderBox.size.height;
   }
 
@@ -117,7 +117,7 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    _drawerController.value -= details.primaryDelta / _bottomDrawerHeight;
+    _drawerController.value -= details.primaryDelta! / _bottomDrawerHeight;
   }
 
   void _handleDragEnd(DragEndDetails details) {
@@ -168,10 +168,10 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
     setState(
       () {
         _markers.clear();
-        for (final office in googleOffices.offices) {
+        for (final office in googleOffices.offices!) {
           final marker = Marker(
-            markerId: MarkerId(office.name),
-            position: LatLng(office.lat, office.lng),
+            markerId: MarkerId(office.name!),
+            position: LatLng(office.lat!, office.lng!),
             infoWindow: InfoWindow(
               title: office.name,
               snippet: office.address,
@@ -276,9 +276,9 @@ class _AnimatedBottomAppBar extends StatelessWidget {
     this.dropArrowCurve,
   });
 
-  final bool bottomDrawerVisible;
-  final Animation<double> dropArrowCurve;
-  final ui.VoidCallback toggleBottomDrawerVisibility;
+  final bool? bottomDrawerVisible;
+  final Animation<double>? dropArrowCurve;
+  final ui.VoidCallback? toggleBottomDrawerVisibility;
 
   @override
   Widget build(BuildContext context) {
@@ -302,7 +302,7 @@ class _AnimatedBottomAppBar extends StatelessWidget {
                       turns: Tween(
                         begin: 0.0,
                         end: 1.0,
-                      ).animate(dropArrowCurve),
+                      ).animate(dropArrowCurve!),
                       child: const Icon(
                         Icons.arrow_drop_up,
                       ),

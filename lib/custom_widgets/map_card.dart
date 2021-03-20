@@ -6,7 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cyclopath/models/locations.dart' as locations;
 
 class MapCard extends StatefulWidget {
-  const MapCard({Key key}) : super(key: key);
+  const MapCard({Key? key}) : super(key: key);
 
   @override
   _MapCardState createState() => _MapCardState();
@@ -18,10 +18,10 @@ class _MapCardState extends State<MapCard> {
     zoom: 12,
   );
 
-  final Map<String, Marker> _markers = {};
+  final Map<String?, Marker> _markers = {};
   final Completer<GoogleMapController> _controller = Completer();
-  GoogleMapController mapController;
-  Position _currentPosition;
+  GoogleMapController? mapController;
+  late Position _currentPosition;
 
   @override
   void initState() {
@@ -48,10 +48,10 @@ class _MapCardState extends State<MapCard> {
     setState(
       () {
         _markers.clear();
-        for (final office in googleOffices.offices) {
+        for (final office in googleOffices.offices!) {
           final marker = Marker(
-            markerId: MarkerId(office.name),
-            position: LatLng(office.lat, office.lng),
+            markerId: MarkerId(office.name!),
+            position: LatLng(office.lat!, office.lng!),
             infoWindow: InfoWindow(
               title: office.name,
               snippet: office.address,

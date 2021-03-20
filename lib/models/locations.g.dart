@@ -8,8 +8,8 @@ part of 'locations.dart';
 
 LatLng _$LatLngFromJson(Map<String, dynamic> json) {
   return LatLng(
-    lat: (json['lat'] as num)?.toDouble(),
-    lng: (json['lng'] as num)?.toDouble(),
+    lat: (json['lat'] as num?)?.toDouble(),
+    lng: (json['lng'] as num?)?.toDouble(),
   );
 }
 
@@ -23,9 +23,9 @@ Region _$RegionFromJson(Map<String, dynamic> json) {
     coords: json['coords'] == null
         ? null
         : LatLng.fromJson(json['coords'] as Map<String, dynamic>),
-    id: json['id'] as String,
-    name: json['name'] as String,
-    zoom: (json['zoom'] as num)?.toDouble(),
+    id: json['id'] as String?,
+    name: json['name'] as String?,
+    zoom: (json['zoom'] as num?)?.toDouble(),
   );
 }
 
@@ -38,14 +38,14 @@ Map<String, dynamic> _$RegionToJson(Region instance) => <String, dynamic>{
 
 Office _$OfficeFromJson(Map<String, dynamic> json) {
   return Office(
-    address: json['address'] as String,
-    id: json['id'] as String,
-    image: json['image'] as String,
-    lat: (json['lat'] as num)?.toDouble(),
-    lng: (json['lng'] as num)?.toDouble(),
-    name: json['name'] as String,
-    phone: json['phone'] as String,
-    region: json['region'] as String,
+    address: json['address'] as String?,
+    id: json['id'] as String?,
+    image: json['image'] as String?,
+    lat: (json['lat'] as num?)?.toDouble(),
+    lng: (json['lng'] as num?)?.toDouble(),
+    name: json['name'] as String?,
+    phone: json['phone'] as String?,
+    region: json['region'] as String?,
   );
 }
 
@@ -62,14 +62,12 @@ Map<String, dynamic> _$OfficeToJson(Office instance) => <String, dynamic>{
 
 Locations _$LocationsFromJson(Map<String, dynamic> json) {
   return Locations(
-    offices: (json['offices'] as List)
-        ?.map((dynamic e) =>
-            e == null ? null : Office.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
-    regions: (json['regions'] as List)
-        ?.map((dynamic e) =>
-            e == null ? null : Region.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
+    offices: (json['offices'] as List<dynamic>?)
+        ?.map((e) => Office.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    regions: (json['regions'] as List<dynamic>?)
+        ?.map((e) => Region.fromJson(e as Map<String, dynamic>))
+        .toList(),
   );
 }
 

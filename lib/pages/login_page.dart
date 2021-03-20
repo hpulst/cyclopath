@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 
 const users = {
@@ -16,7 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _passwordVisible;
+  late bool _passwordVisible;
 
   @override
   void initState() {
@@ -55,8 +53,8 @@ class _LoginPageState extends State<LoginPage> {
                   decoration: const InputDecoration(
                       labelText: 'Email', border: OutlineInputBorder()),
                   autofocus: false,
-                  validator: (String value) {
-                    if (value.isEmpty) {
+                  validator: (String? value) {
+                    if (value!.isEmpty) {
                       return 'Please enter some text';
                     }
                     return null;
@@ -86,8 +84,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   obscureText: true,
                   autofocus: false,
-                  validator: (String value) {
-                    if (value.isEmpty) {
+                  validator: (String? value) {
+                    if (value!.isEmpty) {
                       return 'Please enter some text';
                     }
                     return null;

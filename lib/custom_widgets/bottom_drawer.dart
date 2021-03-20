@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 
 class BottomDrawer extends StatelessWidget {
   const BottomDrawer({
-    Key key,
+    Key? key,
     this.onVerticalDragUpdate,
     this.onVerticalDragEnd,
     this.leading,
   }) : super(key: key);
 
-  final GestureDragUpdateCallback onVerticalDragUpdate;
-  final GestureDragEndCallback onVerticalDragEnd;
-  final Widget leading;
+  final GestureDragUpdateCallback? onVerticalDragUpdate;
+  final GestureDragEndCallback? onVerticalDragEnd;
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context) {
@@ -73,59 +73,99 @@ class SelectTime extends StatelessWidget {
               //       '${TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(minutes: TimeOfDay.now().minute % 5))).format(context)} (vor  ${now.minute % 5} Minuten)'),
               // ),
               const SizedBox(height: 10),
-              OutlinedButton(
-                onPressed: () {},
-                // style: ElevatedButton.styleFrom(
-                //   padding: const EdgeInsets.all(20),
-                //   minimumSize: const Size(260, 0.0),
-                // ),
-                child: const Text(
-                  'JETZT',
-                ),
-              ),
-              const SizedBox(height: 10),
-              OutlinedButton(
-                onPressed: () {},
-                // style: OutlinedButton.styleFrom(
-                //   padding: const EdgeInsets.all(20),
-                //   minimumSize: const Size(260, 0.0),
-                // ),
-                child: Text(TimeOfDay.fromDateTime(
-                  timely.add(
-                    const Duration(minutes: 5),
-                  ),
-                ).format(context)),
-              ),
-              const SizedBox(height: 10),
-              // ElevatedButton(
+              ChipsFactory(),
+              // OutlinedButton(
               //   onPressed: () {},
-              //   style: ElevatedButton.styleFrom(
-              //     padding: const EdgeInsets.all(20),
-              //     minimumSize: const Size(260, 0.0),
+              //   // style: ElevatedButton.styleFrom(
+              //   //   padding: const EdgeInsets.all(20),
+              //   //   minimumSize: const Size(260, 0.0),
+              //   // ),
+              //   child: const Text(
+              //     'JETZT',
               //   ),
+              // ),
+              // const SizedBox(height: 10),
+              // OutlinedButton(
+              //   onPressed: () {},
+              //   // style: OutlinedButton.styleFrom(
+              //   //   padding: const EdgeInsets.all(20),
+              //   //   minimumSize: const Size(260, 0.0),
+              //   // ),
               //   child: Text(TimeOfDay.fromDateTime(
               //     timely.add(
-              //       const Duration(minutes: 10),
+              //       const Duration(minutes: 5),
               //     ),
               //   ).format(context)),
               // ),
               // const SizedBox(height: 10),
-              // ElevatedButton(
-              //   onPressed: () {},
-              //   style: ElevatedButton.styleFrom(
-              //     padding: const EdgeInsets.all(20),
-              //     minimumSize: const Size(260, 0.0),
-              //   ),
-              //   child: Text(TimeOfDay.fromDateTime(
-              //     timely.add(
-              //       const Duration(minutes: 15),
-              //     ),
-              //   ).format(context)),
-              // ),
+              // // ElevatedButton(
+              // //   onPressed: () {},
+              // //   style: ElevatedButton.styleFrom(
+              // //     padding: const EdgeInsets.all(20),
+              // //     minimumSize: const Size(260, 0.0),
+              // //   ),
+              // //   child: Text(TimeOfDay.fromDateTime(
+              // //     timely.add(
+              // //       const Duration(minutes: 10),
+              // //     ),
+              // //   ).format(context)),
+              // // ),
+              // // const SizedBox(height: 10),
+              // // ElevatedButton(
+              // //   onPressed: () {},
+              // //   style: ElevatedButton.styleFrom(
+              // //     padding: const EdgeInsets.all(20),
+              // //     minimumSize: const Size(260, 0.0),
+              // //   ),
+              // //   child: Text(TimeOfDay.fromDateTime(
+              // //     timely.add(
+              // //       const Duration(minutes: 15),
+              // //     ),
+              // //   ).format(context)),
+              // // ),
             ],
           ),
         ],
       ),
     );
+  }
+}
+
+class ChipsFactory extends StatelessWidget {
+  final TimeOfDay now = TimeOfDay.now();
+  final DateTime timely =
+      DateTime.now().subtract(Duration(minutes: TimeOfDay.now().minute % 5));
+
+  final int _value = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> chips;
+    chips = [];
+
+    chips.add(
+      ChoiceChip(
+          label: Text(
+              '${TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(minutes: TimeOfDay.now().minute % 5))).format(context)} (vor  ${now.minute % 5} Minuten)'),
+          selected: _value == 0),
+    );
+    chips.add(
+      ChoiceChip(label: const Text('JETZT'), selected: _value == 0),
+    );
+
+    for (var i = 1; i < 6; i++) {
+      chips.add(
+        ChoiceChip(
+            label: Text(
+              TimeOfDay.fromDateTime(
+                timely.add(
+                  Duration(minutes: 5 * i),
+                ),
+              ).format(context),
+            ),
+            selected: _value == i + 2),
+      );
+    }
+    return Container();
   }
 }
