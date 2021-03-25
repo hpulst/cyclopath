@@ -82,8 +82,7 @@ Future<Locations> getGoogleOffices() async {
   const googleLocationsURL = 'https://about.google/static/data/locations.json';
 
   // Retrieve the locations of Google offices
-  final url = Uri.parse('https://about.google/static/data/locations.json');
-  final response = await http.get(url);
+  final response = await http.get(Uri.parse(googleLocationsURL));
   if (response.statusCode == 200) {
     return Locations.fromJson(json.decode(response.body));
   } else {

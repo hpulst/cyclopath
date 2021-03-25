@@ -3,11 +3,14 @@ import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:cyclopath/custom_widgets/bottom_drawer.dart';
+import 'package:cyclopath/models/user_session.dart';
+import 'package:cyclopath/utils/destination.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cyclopath/models/locations.dart' as locations;
+import 'package:provider/provider.dart';
 
 const double _kFlingVelocity = 2.0;
 const _kAnimationDuration = Duration(milliseconds: 300);
@@ -37,6 +40,29 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
   late Animation<double>? _dropArrowCurve;
   late Animation<double>? _bottomAppBarCurve;
   VoidCallback? onSelected;
+
+  final _navigationDestinations = <Destination>[
+    Destination(
+      type: UserSessionType.offline,
+      textLabel: UserSessionType.offline.title,
+    ),
+    Destination(
+      type: UserSessionType.online,
+      textLabel: UserSessionType.online.title,
+    ),
+    Destination(
+      type: UserSessionType.waiting,
+      textLabel: UserSessionType.offline.title,
+    ),
+    Destination(
+      type: UserSessionType.delivering,
+      textLabel: UserSessionType.offline.title,
+    ),
+    Destination(
+      type: UserSessionType.returning,
+      textLabel: UserSessionType.offline.title,
+    ),
+  ];
 
   @override
   void initState() {
@@ -240,7 +266,16 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
             child: BottomDrawer(
               onVerticalDragUpdate: _handleDragUpdate,
               onVerticalDragEnd: _handleDragEnd,
-              // leading: TimeOfDay,
+              leading: Consumer<UserSession>(
+                builder: (context, model, child) {
+                  return _BottomDrawerDestinations(
+                    drawerController: _drawerController,
+                    dropArrowController: _dropArrowController,
+                    selectedUserSessionType: model.selectedUserSessionType,
+                    destinations: _navigationDestinations,
+                  );
+                },
+              ),
             ),
           ),
         )
@@ -252,13 +287,15 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       body: LayoutBuilder(builder: _bodyStack),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _getCurrentLocation,
-        child: const Icon(
-          Icons.my_location,
-          size: 30,
-        ),
-      ),
+      floatingActionButton: _bottomDrawerVisible
+          ? null
+          : FloatingActionButton(
+              onPressed: _getCurrentLocation,
+              child: const Icon(
+                Icons.my_location,
+                size: 30,
+              ),
+            ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: _AnimatedBottomAppBar(
         bottomDrawerVisible: _bottomDrawerVisible,
@@ -328,6 +365,124 @@ class _AnimatedBottomAppBar extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _BottomDrawerDestinations extends StatelessWidget {
+  _BottomDrawerDestinations({
+    @required this.drawerController,
+    @required this.dropArrowController,
+    @required this.destinations,
+    @required this.selectedUserSessionType,
+  });
+
+  final AnimationController? drawerController;
+  final AnimationController? dropArrowController;
+  final List<Destination>? destinations;
+  final UserSessionType? selectedUserSessionType;
+
+  final TimeOfDay now = TimeOfDay.now();
+  final DateTime timely =
+      DateTime.now().subtract(Duration(minutes: TimeOfDay.now().minute % 5));
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ListView(
+        padding: const EdgeInsets.all(12),
+        physics: const NeverScrollableScrollPhysics(),
+        children: [
+          Column(
+            children: [
+              const SizedBox(
+                height: 3.0,
+              ),
+              Container(
+                width: 30,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(12.0),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Schichtstart um',
+                style: Theme.of(context).textTheme.headline5,
+              ),
+              const SizedBox(height: 20),
+              ShiftStarts(
+                drawerController: drawerController,
+                dropArrowController: dropArrowController,
+              ),
+              const IconButton(
+                iconSize: 50.0,
+                onPressed: null,
+                icon: Icon(Icons.stop_circle_outlined),
+              ),
+              const Text('Offline'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ShiftStarts extends StatelessWidget {
+  ShiftStarts({
+    @required this.drawerController,
+    @required this.dropArrowController,
+    // required this.onItemTapped,
+  });
+
+  final AnimationController? drawerController;
+  final AnimationController? dropArrowController;
+  // final void Function(DateTime, UserSessionType) onItemTapped;
+
+  final TimeOfDay now = TimeOfDay.now();
+  final DateTime timely =
+      DateTime.now().subtract(Duration(minutes: TimeOfDay.now().minute % 5));
+
+  @override
+  Widget build(BuildContext context) {
+    final timingButtons = <Widget>[];
+
+    for (var i = 0; i < 6; i++) {
+      timingButtons.add(
+        Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: ElevatedButton(
+            onPressed: () {
+              drawerController!.reverse();
+              dropArrowController!.reverse();
+              context.read<UserSession>().selectedUserSessionType =
+                  UserSessionType.online;
+            },
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.all(20),
+              minimumSize: const Size(260, 0.0),
+            ),
+            child: Text(i < 2
+                ? i < 1
+                    ? '${TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(minutes: now.minute % 5))).format(context)} (vor ${now.minute % 5} Minuten)'
+                    : 'JETZT'
+                : TimeOfDay.fromDateTime(
+                    timely.add(
+                      Duration(minutes: 5 * (i - 1)),
+                    ),
+                  ).format(context)),
+          ),
+        ),
+        // const SizedBox(height: 10),
+      );
+    }
+
+    return Column(
+      children: timingButtons,
     );
   }
 }
