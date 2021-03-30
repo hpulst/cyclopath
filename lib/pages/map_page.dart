@@ -297,10 +297,16 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
               ),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: _AnimatedBottomAppBar(
-        bottomDrawerVisible: _bottomDrawerVisible,
-        toggleBottomDrawerVisibility: _toggleBottomDrawerVisibility,
-        dropArrowCurve: _dropArrowCurve,
+      bottomNavigationBar: Consumer<UserSession>(
+        builder: (context, model, child) {
+          return _AnimatedBottomAppBar(
+            bottomDrawerVisible: _bottomDrawerVisible,
+            toggleBottomDrawerVisibility: _toggleBottomDrawerVisibility,
+            dropArrowCurve: _dropArrowCurve,
+            selectedUserSessionType: model.selectedUserSessionType,
+            destinations: _navigationDestinations,
+          );
+        },
       ),
     );
   }
@@ -311,11 +317,15 @@ class _AnimatedBottomAppBar extends StatelessWidget {
     this.toggleBottomDrawerVisibility,
     this.bottomDrawerVisible,
     this.dropArrowCurve,
+    this.destinations,
+    this.selectedUserSessionType,
   });
 
   final bool? bottomDrawerVisible;
   final Animation<double>? dropArrowCurve;
   final ui.VoidCallback? toggleBottomDrawerVisibility;
+  final List<Destination>? destinations;
+  final UserSessionType? selectedUserSessionType;
 
   @override
   Widget build(BuildContext context) {
@@ -341,12 +351,15 @@ class _AnimatedBottomAppBar extends StatelessWidget {
                         end: 1.0,
                       ).animate(dropArrowCurve!),
                       child: const Icon(
-                        Icons.arrow_drop_up,
+                        Icons.expand_less,
+                        size: 30,
                       ),
                     ),
                     const SizedBox(width: 20),
                     Text(
-                      'Du bist offline',
+                      destinations!.firstWhere((item) {
+                        return item.type == selectedUserSessionType;
+                      }).textLabel!,
                       style: Theme.of(context).textTheme.headline5,
                     ),
                     const SizedBox(width: 20),
@@ -371,10 +384,10 @@ class _AnimatedBottomAppBar extends StatelessWidget {
 
 class _BottomDrawerDestinations extends StatelessWidget {
   _BottomDrawerDestinations({
-    @required this.drawerController,
-    @required this.dropArrowController,
-    @required this.destinations,
-    @required this.selectedUserSessionType,
+    this.drawerController,
+    this.dropArrowController,
+    this.selectedUserSessionType,
+    this.destinations,
   });
 
   final AnimationController? drawerController;
@@ -410,7 +423,7 @@ class _BottomDrawerDestinations extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'Schichtstart um',
+                'Schichtstart',
                 style: Theme.of(context).textTheme.headline5,
               ),
               const SizedBox(height: 20),
