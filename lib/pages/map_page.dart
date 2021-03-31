@@ -32,13 +32,13 @@ class MapView extends StatefulWidget {
 class _MapViewState extends State<MapView> with TickerProviderStateMixin {
   final _bottomDrawerKey = GlobalKey(debugLabel: 'Bottom Drawer');
 
-  late AnimationController _drawerController;
-  late AnimationController _dropArrowController;
+  static const double minExtent = 0.12;
+  static const double maxExtent = 0.6;
 
-  late AnimationController _bottomAppBarController;
-  late Animation<double> _drawerCurve;
-  late Animation<double>? _dropArrowCurve;
-  late Animation<double>? _bottomAppBarCurve;
+  double initialExtent = minExtent;
+  bool isExpanded = false;
+  late BuildContext draggableSheetContext;
+
   VoidCallback? onSelected;
 
   final _navigationDestinations = <Destination>[
@@ -63,117 +63,6 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
       textLabel: UserSessionType.offline.title,
     ),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    _getCurrentLocation();
-    _drawerController = AnimationController(
-      value: 0,
-      duration: _kAnimationDuration,
-      vsync: this,
-    )..addListener(
-        () {
-          if (_drawerController.value < 0.01) {
-            setState(() {});
-          }
-        },
-      );
-
-    _dropArrowController = AnimationController(
-      duration: _kAnimationDuration,
-      vsync: this,
-    );
-
-    _bottomAppBarController = AnimationController(
-      vsync: this,
-      value: 1,
-      duration: const Duration(milliseconds: 250),
-    );
-
-    _drawerCurve = CurvedAnimation(
-      parent: _drawerController,
-      curve: standardEasing,
-      reverseCurve: standardEasing.flipped,
-    );
-
-    _dropArrowCurve = CurvedAnimation(
-      parent: _dropArrowController,
-      curve: standardEasing,
-      reverseCurve: standardEasing.flipped,
-    );
-
-    _bottomAppBarCurve = CurvedAnimation(
-      parent: _bottomAppBarController,
-      curve: standardEasing,
-      reverseCurve: standardEasing.flipped,
-    );
-  }
-
-  @override
-  void dispose() {
-    _drawerController.dispose();
-    _dropArrowController.dispose();
-    _bottomAppBarController.dispose();
-    super.dispose();
-  }
-
-  bool get _bottomDrawerVisible {
-    final status = _drawerController.status;
-    return status == AnimationStatus.completed ||
-        status == AnimationStatus.forward;
-  }
-
-  double get _bottomDrawerHeight {
-    final renderBox =
-        _bottomDrawerKey.currentContext!.findRenderObject() as RenderBox;
-    return renderBox.size.height;
-  }
-
-  void _toggleBottomDrawerVisibility() {
-    if (_drawerController.value < 0.4) {
-      _drawerController.animateTo(0.4, curve: standardEasing);
-      _dropArrowController.animateTo(0.35, curve: standardEasing);
-      return;
-    }
-
-    _dropArrowController.forward();
-    _drawerController.fling(
-        velocity: _bottomDrawerVisible ? -_kFlingVelocity : _kFlingVelocity);
-  }
-
-  void _handleDragUpdate(DragUpdateDetails details) {
-    _drawerController.value -= details.primaryDelta! / _bottomDrawerHeight;
-  }
-
-  void _handleDragEnd(DragEndDetails details) {
-    if (_drawerController.isAnimating ||
-        _drawerController.status == AnimationStatus.completed) {
-      return;
-    }
-
-    final flingVelocity =
-        details.velocity.pixelsPerSecond.dy / _bottomDrawerHeight;
-
-    if (flingVelocity < 0.0) {
-      _drawerController.fling(
-        velocity: math.max(_kFlingVelocity, -flingVelocity),
-      );
-    } else if (flingVelocity > 0.0) {
-      _dropArrowController.forward();
-      _drawerController.fling(
-        velocity: math.min(-_kFlingVelocity, -flingVelocity),
-      );
-    } else {
-      if (_drawerController.value < 0.6) {
-        _dropArrowController.forward();
-      }
-      _drawerController.fling(
-        velocity:
-            _drawerController.value < 0.6 ? -_kFlingVelocity : _kFlingVelocity,
-      );
-    }
-  }
 
   Future<void> _getCurrentLocation() async {
     final controller = await _controller.future;
@@ -227,58 +116,20 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
     );
   }
 
-  Widget _bodyStack(context, constraints) {
-    final drawerSize = constraints.biggest;
-    final drawerTop = drawerSize.height;
-
-    final drawerAnimation = RelativeRectTween(
-      begin: RelativeRect.fromLTRB(0.0, drawerTop, 0.0, 0.0),
-      end: const RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0),
-    ).animate(_drawerCurve);
-
+  Widget _bodyStack(context) {
     return Stack(
       key: _bottomDrawerKey,
       children: [
         _buildMap(context),
-        GestureDetector(
-          onTap: () {
-            _drawerController.reverse();
-            _dropArrowController.reverse();
-          },
-          child: Visibility(
-            maintainAnimation: true,
-            maintainState: true,
-            visible: _bottomDrawerVisible,
-            child: FadeTransition(
-              opacity: _drawerCurve,
-              child: Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                color: Theme.of(context).bottomSheetTheme.modalBackgroundColor,
-              ),
-            ),
+        DraggableScrollableActuator(
+          child: DraggableScrollableSheet(
+            key: Key(initialExtent.toString()),
+            minChildSize: minExtent,
+            maxChildSize: maxExtent,
+            initialChildSize: initialExtent,
+            builder: _draggableScrollableSheetBuilder,
           ),
         ),
-        PositionedTransition(
-          rect: drawerAnimation,
-          child: Visibility(
-            visible: _bottomDrawerVisible,
-            child: BottomDrawer(
-              onVerticalDragUpdate: _handleDragUpdate,
-              onVerticalDragEnd: _handleDragEnd,
-              leading: Consumer<UserSession>(
-                builder: (context, model, child) {
-                  return _BottomDrawerDestinations(
-                    drawerController: _drawerController,
-                    dropArrowController: _dropArrowController,
-                    selectedUserSessionType: model.selectedUserSessionType,
-                    destinations: _navigationDestinations,
-                  );
-                },
-              ),
-            ),
-          ),
-        )
       ],
     );
   }
@@ -286,174 +137,264 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: LayoutBuilder(builder: _bodyStack),
-      floatingActionButton: _bottomDrawerVisible
-          ? null
-          : FloatingActionButton(
-              onPressed: _getCurrentLocation,
-              child: const Icon(
-                Icons.my_location,
-                size: 30,
+      body: _bodyStack(context),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 100),
+        child: isExpanded
+            ? null
+            : FloatingActionButton(
+                onPressed: _getCurrentLocation,
+                tooltip: 'Increment',
+                child: const Icon(Icons.my_location),
               ),
-            ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      bottomNavigationBar: Consumer<UserSession>(
-        builder: (context, model, child) {
-          return _AnimatedBottomAppBar(
-            bottomDrawerVisible: _bottomDrawerVisible,
-            toggleBottomDrawerVisibility: _toggleBottomDrawerVisibility,
-            dropArrowCurve: _dropArrowCurve,
-            selectedUserSessionType: model.selectedUserSessionType,
-            destinations: _navigationDestinations,
-          );
-        },
       ),
     );
   }
-}
 
-class _AnimatedBottomAppBar extends StatelessWidget {
-  const _AnimatedBottomAppBar({
-    this.toggleBottomDrawerVisibility,
-    this.bottomDrawerVisible,
-    this.dropArrowCurve,
-    this.destinations,
-    this.selectedUserSessionType,
-  });
-
-  final bool? bottomDrawerVisible;
-  final Animation<double>? dropArrowCurve;
-  final ui.VoidCallback? toggleBottomDrawerVisibility;
-  final List<Destination>? destinations;
-  final UserSessionType? selectedUserSessionType;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(top: 2),
-      child: BottomAppBar(
-        // elevation: 10.0,
-        child: Container(
-          height: 80.0,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              InkWell(
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                onTap: toggleBottomDrawerVisibility,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 20),
-                    RotationTransition(
-                      turns: Tween(
-                        begin: 0.0,
-                        end: 1.0,
-                      ).animate(dropArrowCurve!),
-                      child: const Icon(
-                        Icons.expand_less,
-                        size: 30,
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Text(
-                      destinations!.firstWhere((item) {
-                        return item.type == selectedUserSessionType;
-                      }).textLabel!,
-                      style: Theme.of(context).textTheme.headline5,
-                    ),
-                    const SizedBox(width: 20),
-                  ],
-                ),
-              ),
-              const Expanded(
-                  child: Align(
-                alignment: Alignment.centerRight,
-                child: Icon(
-                  Icons.playlist_play,
-                ),
-              )),
-              const SizedBox(width: 20),
-            ],
-          ),
+  Widget _draggableScrollableSheetBuilder(context, scrollController) {
+    draggableSheetContext = context;
+    return Material(
+      elevation: 100,
+      borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+      child: SingleChildScrollView(
+        controller: scrollController,
+        child: Consumer<UserSession>(
+          builder: (context, model, child) {
+            return _draggableScrollableSheetContent(model, context);
+          },
         ),
       ),
     );
   }
-}
 
-class _BottomDrawerDestinations extends StatelessWidget {
-  _BottomDrawerDestinations({
-    this.drawerController,
-    this.dropArrowController,
-    this.selectedUserSessionType,
-    this.destinations,
-  });
-
-  final AnimationController? drawerController;
-  final AnimationController? dropArrowController;
-  final List<Destination>? destinations;
-  final UserSessionType? selectedUserSessionType;
-
-  final TimeOfDay now = TimeOfDay.now();
-  final DateTime timely =
-      DateTime.now().subtract(Duration(minutes: TimeOfDay.now().minute % 5));
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ListView(
-        padding: const EdgeInsets.all(12),
-        physics: const NeverScrollableScrollPhysics(),
-        children: [
-          Column(
-            children: [
-              const SizedBox(
-                height: 3.0,
-              ),
-              Container(
-                width: 30,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(12.0),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Schichtstart',
-                style: Theme.of(context).textTheme.headline5,
-              ),
-              const SizedBox(height: 20),
-              ShiftStarts(
-                drawerController: drawerController,
-                dropArrowController: dropArrowController,
-              ),
-              const IconButton(
-                iconSize: 50.0,
-                onPressed: null,
-                icon: Icon(Icons.stop_circle_outlined),
-              ),
-              const Text('Offline'),
-            ],
+  Widget _draggableScrollableSheetContent(
+      UserSession model, BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 6.0,
+        ),
+        Container(
+          width: 30,
+          height: 5,
+          decoration: BoxDecoration(
+            color: Colors.grey[600],
+            borderRadius: const BorderRadius.all(
+              Radius.circular(12.0),
+            ),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(
+          height: 12,
+        ),
+        Row(
+          children: [
+            const SizedBox(
+              width: 15,
+            ),
+            IconButton(
+              icon: const Icon(Icons.expand_less),
+              iconSize: 30,
+              onPressed: _toggleDraggableScrollableSheet,
+            ),
+            const SizedBox(
+              width: 1,
+            ),
+            Expanded(
+              child: Text(
+                '${model.selectedUserSessionType.title}',
+                style: TextStyle(fontSize: 25.0),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(
+              width: 45,
+            ),
+          ],
+        ),
+        const Divider(
+          height: 20,
+        ),
+        ShiftStarts(),
+        // Container(
+        //   height: 200,
+        //   child: Column(
+        //     mainAxisAlignment: MainAxisAlignment.center,
+        //     children: <Widget>[
+        //       ElevatedButton(
+        //         onPressed: () {
+        //           _toggleDraggableScrollableSheet();
+        //           context.read<UserSession>().selectedUserSessionType =
+        //               UserSessionType.offline;
+        //         },
+        //         child: const Text('Go online'),
+        //       ),
+        //     ],
+        //   ),
+        // ),
+      ],
     );
+  }
+
+  void _toggleDraggableScrollableSheet() {
+    if (draggableSheetContext != null) {
+      setState(
+        () {
+          initialExtent = isExpanded ? minExtent : maxExtent;
+          isExpanded = !isExpanded;
+        },
+      );
+    }
+
+    DraggableScrollableActuator.reset(draggableSheetContext);
   }
 }
 
-class ShiftStarts extends StatelessWidget {
-  ShiftStarts({
-    @required this.drawerController,
-    @required this.dropArrowController,
-    // required this.onItemTapped,
-  });
+// class _AnimatedBottomAppBar extends StatelessWidget {
+//   const _AnimatedBottomAppBar({
+//     this.toggleBottomDrawerVisibility,
+//     this.bottomDrawerVisible,
+//     this.dropArrowCurve,
+//     this.destinations,
+//     this.selectedUserSessionType,
+//   });
 
-  final AnimationController? drawerController;
-  final AnimationController? dropArrowController;
+//   final bool? bottomDrawerVisible;
+//   final Animation<double>? dropArrowCurve;
+//   final ui.VoidCallback? toggleBottomDrawerVisibility;
+//   final List<Destination>? destinations;
+//   final UserSessionType? selectedUserSessionType;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsetsDirectional.only(top: 2),
+//       child: BottomAppBar(
+//         // elevation: 10.0,
+//         child: Container(
+//           height: 80.0,
+//           child: Row(
+//             mainAxisSize: MainAxisSize.max,
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: [
+//               InkWell(
+//                 borderRadius: const BorderRadius.all(Radius.circular(16)),
+//                 onTap: toggleBottomDrawerVisibility,
+//                 child: Row(
+//                   children: [
+//                     const SizedBox(width: 20),
+//                     RotationTransition(
+//                       turns: Tween(
+//                         begin: 0.0,
+//                         end: 1.0,
+//                       ).animate(dropArrowCurve!),
+//                       child: const Icon(
+//                         Icons.expand_less,
+//                         size: 30,
+//                       ),
+//                     ),
+//                     const SizedBox(width: 20),
+//                     Text(
+//                       destinations!.firstWhere((item) {
+//                         return item.type == selectedUserSessionType;
+//                       }).textLabel!,
+//                       style: Theme.of(context).textTheme.headline5,
+//                     ),
+//                     const SizedBox(width: 20),
+//                   ],
+//                 ),
+//               ),
+//               const Expanded(
+//                   child: Align(
+//                 alignment: Alignment.centerRight,
+//                 child: Icon(
+//                   Icons.playlist_play,
+//                 ),
+//               )),
+//               const SizedBox(width: 20),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class _BottomDrawerDestinations extends StatelessWidget {
+//   _BottomDrawerDestinations({
+//     this.drawerController,
+//     this.dropArrowController,
+//     this.selectedUserSessionType,
+//     this.destinations,
+//   });
+
+//   final AnimationController? drawerController;
+//   final AnimationController? dropArrowController;
+//   final List<Destination>? destinations;
+//   final UserSessionType? selectedUserSessionType;
+
+//   final TimeOfDay now = TimeOfDay.now();
+//   final DateTime timely =
+//       DateTime.now().subtract(Duration(minutes: TimeOfDay.now().minute % 5));
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Center(
+//       child: ListView(
+//         padding: const EdgeInsets.all(12),
+//         physics: const NeverScrollableScrollPhysics(),
+//         children: [
+//           Column(
+//             children: [
+//               const SizedBox(
+//                 height: 3.0,
+//               ),
+//               Container(
+//                 width: 30,
+//                 height: 5,
+//                 decoration: BoxDecoration(
+//                   color: Colors.grey[300],
+//                   borderRadius: const BorderRadius.all(
+//                     Radius.circular(12.0),
+//                   ),
+//                 ),
+//               ),
+//               const SizedBox(height: 10),
+//               Text(
+//                 'Schichtstart',
+//                 style: Theme.of(context).textTheme.headline5,
+//               ),
+//               const SizedBox(height: 20),
+//               ShiftStarts(
+//                 drawerController: drawerController,
+//                 dropArrowController: dropArrowController,
+//               ),
+//               const IconButton(
+//                 iconSize: 50.0,
+//                 onPressed: null,
+//                 icon: Icon(Icons.stop_circle_outlined),
+//               ),
+//               const Text('Offline'),
+//             ],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+class ShiftStarts extends StatelessWidget {
+  // ShiftStarts(
+  // {
+  // @required this.drawerController,
+  // @required this.dropArrowController,
+  // required this.onItemTapped,
+  // }
+  // );
+
+  // final AnimationController? drawerController;
+  // final AnimationController? dropArrowController;
   // final void Function(DateTime, UserSessionType) onItemTapped;
 
   final TimeOfDay now = TimeOfDay.now();
@@ -470,8 +411,8 @@ class ShiftStarts extends StatelessWidget {
           padding: const EdgeInsets.all(5.0),
           child: ElevatedButton(
             onPressed: () {
-              drawerController!.reverse();
-              dropArrowController!.reverse();
+              // drawerController!.reverse();
+              // dropArrowController!.reverse();
               context.read<UserSession>().selectedUserSessionType =
                   UserSessionType.online;
             },
