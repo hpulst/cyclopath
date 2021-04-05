@@ -1,8 +1,10 @@
 import 'dart:async';
-import 'dart:math' as math;
-import 'dart:ui' as ui;
 
-import 'package:cyclopath/custom_widgets/bottom_drawer.dart';
+import 'package:cyclopath/draggable_scrollable_sheets/delivering_sheet.dart';
+import 'package:cyclopath/draggable_scrollable_sheets/offline_sheet.dart';
+import 'package:cyclopath/draggable_scrollable_sheets/online_sheet.dart';
+import 'package:cyclopath/draggable_scrollable_sheets/returning_sheet.dart';
+import 'package:cyclopath/draggable_scrollable_sheets/waiting_sheet.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:cyclopath/utils/destination.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +39,7 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
 
   double initialExtent = minExtent;
   bool isExpanded = false;
+  // bool isVisible = true;
   late BuildContext draggableSheetContext;
 
   VoidCallback? onSelected;
@@ -49,6 +52,8 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
     Destination(
       type: UserSessionType.online,
       textLabel: UserSessionType.online.title,
+      color: Colors.blueGrey,
+      iconIsVisible: false,
     ),
     Destination(
       type: UserSessionType.waiting,
@@ -122,12 +127,28 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
       children: [
         _buildMap(context),
         DraggableScrollableActuator(
-          child: DraggableScrollableSheet(
-            key: Key(initialExtent.toString()),
-            minChildSize: minExtent,
-            maxChildSize: maxExtent,
-            initialChildSize: initialExtent,
-            builder: _draggableScrollableSheetBuilder,
+          child: NotificationListener<DraggableScrollableNotification>(
+            onNotification: (notification) {
+              if (notification.extent > minExtent) {
+                setState(() {
+                  isExpanded = true;
+                });
+                // print('moves
+              } else if (notification.extent <= minExtent) {
+                setState(() {
+                  isExpanded = false;
+                });
+              }
+
+              return true;
+            },
+            child: DraggableScrollableSheet(
+              key: Key(initialExtent.toString()),
+              minChildSize: minExtent,
+              maxChildSize: maxExtent,
+              initialChildSize: initialExtent,
+              builder: _draggableScrollableSheetBuilder,
+            ),
           ),
         ),
       ],
@@ -140,13 +161,14 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
       body: _bodyStack(context),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 100),
-        child: isExpanded
-            ? null
-            : FloatingActionButton(
-                onPressed: _getCurrentLocation,
-                tooltip: 'Increment',
-                child: const Icon(Icons.my_location),
-              ),
+        child: Visibility(
+          visible: !isExpanded,
+          child: FloatingActionButton(
+            onPressed: _getCurrentLocation,
+            tooltip: 'Increment',
+            child: const Icon(Icons.my_location),
+          ),
+        ),
       ),
     );
   }
@@ -170,273 +192,36 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
 
   Widget _draggableScrollableSheetContent(
       UserSession model, BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(
-          height: 6.0,
-        ),
-        Container(
-          width: 30,
-          height: 5,
-          decoration: BoxDecoration(
-            color: Colors.grey[600],
-            borderRadius: const BorderRadius.all(
-              Radius.circular(12.0),
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 12,
-        ),
-        Row(
+    return Consumer<UserSession>(
+      builder: (context, model, child) {
+        return IndexedStack(
+          index: model.selectedUserSessionTypeIndex,
           children: [
-            const SizedBox(
-              width: 15,
+            OfflineSheet(
+              model: model,
+              toggleDraggableScrollableSheet: toggleDraggableScrollableSheet,
             ),
-            IconButton(
-              icon: const Icon(Icons.expand_less),
-              iconSize: 30,
-              onPressed: _toggleDraggableScrollableSheet,
+            OnlineSheet(model: model),
+            WaitingSheet(
+              model: model,
+              toggleDraggableScrollableSheet: toggleDraggableScrollableSheet,
             ),
-            const SizedBox(
-              width: 1,
-            ),
-            Expanded(
-              child: Text(
-                '${model.selectedUserSessionType.title}',
-                style: TextStyle(fontSize: 25.0),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(
-              width: 45,
-            ),
+            DeliveringSheet(model: model),
+            ReturningSheet(model: model),
           ],
-        ),
-        const Divider(
-          height: 20,
-        ),
-        ShiftStarts(),
-        // Container(
-        //   height: 200,
-        //   child: Column(
-        //     mainAxisAlignment: MainAxisAlignment.center,
-        //     children: <Widget>[
-        //       ElevatedButton(
-        //         onPressed: () {
-        //           _toggleDraggableScrollableSheet();
-        //           context.read<UserSession>().selectedUserSessionType =
-        //               UserSessionType.offline;
-        //         },
-        //         child: const Text('Go online'),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-      ],
+        );
+      },
     );
   }
 
-  void _toggleDraggableScrollableSheet() {
-    if (draggableSheetContext != null) {
-      setState(
-        () {
-          initialExtent = isExpanded ? minExtent : maxExtent;
-          isExpanded = !isExpanded;
-        },
-      );
-    }
-
+  void toggleDraggableScrollableSheet() {
+    print('hi voidcallback');
+    setState(
+      () {
+        initialExtent = isExpanded ? minExtent : maxExtent;
+        isExpanded = !isExpanded;
+      },
+    );
     DraggableScrollableActuator.reset(draggableSheetContext);
-  }
-}
-
-// class _AnimatedBottomAppBar extends StatelessWidget {
-//   const _AnimatedBottomAppBar({
-//     this.toggleBottomDrawerVisibility,
-//     this.bottomDrawerVisible,
-//     this.dropArrowCurve,
-//     this.destinations,
-//     this.selectedUserSessionType,
-//   });
-
-//   final bool? bottomDrawerVisible;
-//   final Animation<double>? dropArrowCurve;
-//   final ui.VoidCallback? toggleBottomDrawerVisibility;
-//   final List<Destination>? destinations;
-//   final UserSessionType? selectedUserSessionType;
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsetsDirectional.only(top: 2),
-//       child: BottomAppBar(
-//         // elevation: 10.0,
-//         child: Container(
-//           height: 80.0,
-//           child: Row(
-//             mainAxisSize: MainAxisSize.max,
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             children: [
-//               InkWell(
-//                 borderRadius: const BorderRadius.all(Radius.circular(16)),
-//                 onTap: toggleBottomDrawerVisibility,
-//                 child: Row(
-//                   children: [
-//                     const SizedBox(width: 20),
-//                     RotationTransition(
-//                       turns: Tween(
-//                         begin: 0.0,
-//                         end: 1.0,
-//                       ).animate(dropArrowCurve!),
-//                       child: const Icon(
-//                         Icons.expand_less,
-//                         size: 30,
-//                       ),
-//                     ),
-//                     const SizedBox(width: 20),
-//                     Text(
-//                       destinations!.firstWhere((item) {
-//                         return item.type == selectedUserSessionType;
-//                       }).textLabel!,
-//                       style: Theme.of(context).textTheme.headline5,
-//                     ),
-//                     const SizedBox(width: 20),
-//                   ],
-//                 ),
-//               ),
-//               const Expanded(
-//                   child: Align(
-//                 alignment: Alignment.centerRight,
-//                 child: Icon(
-//                   Icons.playlist_play,
-//                 ),
-//               )),
-//               const SizedBox(width: 20),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class _BottomDrawerDestinations extends StatelessWidget {
-//   _BottomDrawerDestinations({
-//     this.drawerController,
-//     this.dropArrowController,
-//     this.selectedUserSessionType,
-//     this.destinations,
-//   });
-
-//   final AnimationController? drawerController;
-//   final AnimationController? dropArrowController;
-//   final List<Destination>? destinations;
-//   final UserSessionType? selectedUserSessionType;
-
-//   final TimeOfDay now = TimeOfDay.now();
-//   final DateTime timely =
-//       DateTime.now().subtract(Duration(minutes: TimeOfDay.now().minute % 5));
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Center(
-//       child: ListView(
-//         padding: const EdgeInsets.all(12),
-//         physics: const NeverScrollableScrollPhysics(),
-//         children: [
-//           Column(
-//             children: [
-//               const SizedBox(
-//                 height: 3.0,
-//               ),
-//               Container(
-//                 width: 30,
-//                 height: 5,
-//                 decoration: BoxDecoration(
-//                   color: Colors.grey[300],
-//                   borderRadius: const BorderRadius.all(
-//                     Radius.circular(12.0),
-//                   ),
-//                 ),
-//               ),
-//               const SizedBox(height: 10),
-//               Text(
-//                 'Schichtstart',
-//                 style: Theme.of(context).textTheme.headline5,
-//               ),
-//               const SizedBox(height: 20),
-//               ShiftStarts(
-//                 drawerController: drawerController,
-//                 dropArrowController: dropArrowController,
-//               ),
-//               const IconButton(
-//                 iconSize: 50.0,
-//                 onPressed: null,
-//                 icon: Icon(Icons.stop_circle_outlined),
-//               ),
-//               const Text('Offline'),
-//             ],
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-class ShiftStarts extends StatelessWidget {
-  // ShiftStarts(
-  // {
-  // @required this.drawerController,
-  // @required this.dropArrowController,
-  // required this.onItemTapped,
-  // }
-  // );
-
-  // final AnimationController? drawerController;
-  // final AnimationController? dropArrowController;
-  // final void Function(DateTime, UserSessionType) onItemTapped;
-
-  final TimeOfDay now = TimeOfDay.now();
-  final DateTime timely =
-      DateTime.now().subtract(Duration(minutes: TimeOfDay.now().minute % 5));
-
-  @override
-  Widget build(BuildContext context) {
-    final timingButtons = <Widget>[];
-
-    for (var i = 0; i < 6; i++) {
-      timingButtons.add(
-        Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: ElevatedButton(
-            onPressed: () {
-              // drawerController!.reverse();
-              // dropArrowController!.reverse();
-              context.read<UserSession>().selectedUserSessionType =
-                  UserSessionType.online;
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.all(20),
-              minimumSize: const Size(260, 0.0),
-            ),
-            child: Text(i < 2
-                ? i < 1
-                    ? '${TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(minutes: now.minute % 5))).format(context)} (vor ${now.minute % 5} Minuten)'
-                    : 'JETZT'
-                : TimeOfDay.fromDateTime(
-                    timely.add(
-                      Duration(minutes: 5 * (i - 1)),
-                    ),
-                  ).format(context)),
-          ),
-        ),
-        // const SizedBox(height: 10),
-      );
-    }
-
-    return Column(
-      children: timingButtons,
-    );
   }
 }

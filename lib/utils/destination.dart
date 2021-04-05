@@ -5,11 +5,13 @@ class Destination {
   const Destination({
     required this.type,
     required this.textLabel,
-    this.icon,
+    this.iconIsVisible,
+    this.color,
   });
 
   // Which drawer to display
   final UserSessionType? type;
   final String? textLabel;
-  final String? icon;
+  final bool? iconIsVisible;
+  final Color? color;
 }

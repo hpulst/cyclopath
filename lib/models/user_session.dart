@@ -9,9 +9,21 @@ class UserSession with ChangeNotifier {
 
   set selectedUserSessionType(UserSessionType sessionType) {
     _selectedUserSessionType = sessionType;
+    if (sessionType == UserSessionType.online) {
+      Future.delayed(const Duration(seconds: 2), () {
+        _selectedUserSessionType = UserSessionType.waiting;
+      });
+    }
     notifyListeners();
   }
+
+  int get selectedUserSessionTypeIndex => _selectedUserSessionType.index;
 }
+
+// enum UserSessionDrag {
+//   WaitingSheet(),
+//   OfflineSheet(),
+// }
 
 enum UserSessionType {
   offline,
@@ -32,7 +44,3 @@ extension UserSessionTypeExtension on UserSessionType {
 
   String? get title => titles[this];
 }
-
-
-  // final cat = Cat.white;
-  // print('cat name: ${cat.name}');

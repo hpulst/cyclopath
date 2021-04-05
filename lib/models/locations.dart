@@ -87,8 +87,9 @@ Future<Locations> getGoogleOffices() async {
     return Locations.fromJson(json.decode(response.body));
   } else {
     throw HttpException(
-        'Unexpected status code ${response.statusCode}:'
-        ' ${response.reasonPhrase}',
-        uri: Uri.parse(googleLocationsURL));
+      'Unexpected status code ${response.statusCode}:'
+      ' ${response.reasonPhrase}',
+      uri: Uri.parse(googleLocationsURL),
+    );
   }
 }

@@ -16,6 +16,7 @@ class User {
 
 enum UserStatus {
   offline,
+  online,
   waiting,
   delivering,
   returning,
