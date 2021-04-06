@@ -10,8 +10,12 @@ class UserSession with ChangeNotifier {
   set selectedUserSessionType(UserSessionType sessionType) {
     _selectedUserSessionType = sessionType;
     if (sessionType == UserSessionType.online) {
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(
+          const Duration(
+            milliseconds: 1500,
+          ), () {
         _selectedUserSessionType = UserSessionType.waiting;
+        notifyListeners();
       });
     }
     notifyListeners();

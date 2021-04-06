@@ -101,8 +101,8 @@ class ShiftStarts extends StatelessWidget {
           child: ElevatedButton(
             onPressed: () {
               toggleDraggableScrollableSheet();
-              context.read<UserSession>().selectedUserSessionType =
-                  UserSessionType.online;
+              // context.read<UserSession>().selectedUserSessionType =
+              //     UserSessionType.online;
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.all(20),

@@ -39,7 +39,8 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
 
   double initialExtent = minExtent;
   bool isExpanded = false;
-  // bool isVisible = true;
+  bool fabVisiblility = true;
+  double heightNote = minExtent;
   late BuildContext draggableSheetContext;
 
   VoidCallback? onSelected;
@@ -129,14 +130,18 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
         DraggableScrollableActuator(
           child: NotificationListener<DraggableScrollableNotification>(
             onNotification: (notification) {
-              if (notification.extent > minExtent) {
+              // print('Notification fabVisibility: $fabVisiblility');
+              if (fabVisiblility && notification.extent > minExtent) {
                 setState(() {
                   isExpanded = true;
+                  heightNote = notification.extent;
+                  fabVisiblility = false;
                 });
                 // print('moves
-              } else if (notification.extent <= minExtent) {
+              } else if (!fabVisiblility && notification.extent <= minExtent) {
                 setState(() {
-                  isExpanded = false;
+                  fabVisiblility = true;
+                  heightNote = notification.extent;
                 });
               }
 
@@ -162,7 +167,7 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 100),
         child: Visibility(
-          visible: !isExpanded,
+          visible: fabVisiblility,
           child: FloatingActionButton(
             onPressed: _getCurrentLocation,
             tooltip: 'Increment',
@@ -215,11 +220,11 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
   }
 
   void toggleDraggableScrollableSheet() {
-    print('hi voidcallback');
+    print('fabVisibility of the toggler: $heightNote');
     setState(
       () {
-        initialExtent = isExpanded ? minExtent : maxExtent;
-        isExpanded = !isExpanded;
+        initialExtent = fabVisiblility ? maxExtent : minExtent;
+        fabVisiblility = !fabVisiblility;
       },
     );
     DraggableScrollableActuator.reset(draggableSheetContext);

@@ -15,12 +15,6 @@ class OnlineSheet extends StatelessWidget {
         Container(
           width: 30,
           height: 5,
-          decoration: BoxDecoration(
-            color: Colors.grey[600],
-            borderRadius: const BorderRadius.all(
-              Radius.circular(12.0),
-            ),
-          ),
         ),
         const SizedBox(
           height: 12,
