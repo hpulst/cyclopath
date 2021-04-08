@@ -11,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cyclopath/models/locations.dart' as locations;
 import 'package:provider/provider.dart';
+import 'package:animations/animations.dart';
 
 const double _kFlingVelocity = 2.0;
 const _kAnimationDuration = Duration(milliseconds: 300);
@@ -37,8 +38,8 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
 
   late AnimationController _bottomAppBarController;
   late Animation<double> _drawerCurve;
-  late Animation<double>? _dropArrowCurve;
-  late Animation<double>? _bottomAppBarCurve;
+  late Animation<double> _dropArrowCurve;
+  late Animation<double> _bottomAppBarCurve;
   VoidCallback? onSelected;
 
   final _navigationDestinations = <Destination>[
@@ -242,8 +243,10 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
         _buildMap(context),
         GestureDetector(
           onTap: () {
+            print('this is gesturedetector, whats the ish?');
             _drawerController.reverse();
             _dropArrowController.reverse();
+            // _bottomAppBarController.forward();
           },
           child: Visibility(
             maintainAnimation: true,
@@ -278,7 +281,7 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
               ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -300,11 +303,14 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
       bottomNavigationBar: Consumer<UserSession>(
         builder: (context, model, child) {
           return _AnimatedBottomAppBar(
+            bottomAppBarController: _bottomAppBarController,
+            bottomAppBarCurve: _bottomAppBarCurve,
+            drawerController: _drawerController,
             bottomDrawerVisible: _bottomDrawerVisible,
-            toggleBottomDrawerVisibility: _toggleBottomDrawerVisibility,
             dropArrowCurve: _dropArrowCurve,
             selectedUserSessionType: model.selectedUserSessionType,
             destinations: _navigationDestinations,
+            toggleBottomDrawerVisibility: _toggleBottomDrawerVisibility,
           );
         },
       ),
@@ -314,14 +320,20 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
 
 class _AnimatedBottomAppBar extends StatelessWidget {
   const _AnimatedBottomAppBar({
-    this.toggleBottomDrawerVisibility,
-    this.bottomDrawerVisible,
+    required this.bottomAppBarController,
+    required this.bottomAppBarCurve,
+    required this.bottomDrawerVisible,
+    required this.drawerController,
     this.dropArrowCurve,
     this.destinations,
     this.selectedUserSessionType,
+    this.toggleBottomDrawerVisibility,
   });
 
-  final bool? bottomDrawerVisible;
+  final AnimationController bottomAppBarController;
+  final Animation<double> bottomAppBarCurve;
+  final bool bottomDrawerVisible;
+  final AnimationController drawerController;
   final Animation<double>? dropArrowCurve;
   final ui.VoidCallback? toggleBottomDrawerVisibility;
   final List<Destination>? destinations;
@@ -329,52 +341,71 @@ class _AnimatedBottomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.only(top: 2),
-      child: BottomAppBar(
-        // elevation: 10.0,
-        child: Container(
-          height: 80.0,
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              InkWell(
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-                onTap: toggleBottomDrawerVisibility,
-                child: Row(
-                  children: [
-                    const SizedBox(width: 20),
-                    RotationTransition(
-                      turns: Tween(
-                        begin: 0.0,
-                        end: 1.0,
-                      ).animate(dropArrowCurve!),
-                      child: const Icon(
-                        Icons.expand_less,
-                        size: 30,
+    final fadeOut = Tween<double>(begin: 1, end: -1).animate(
+      drawerController.drive(
+        CurveTween(curve: standardEasing),
+      ),
+    );
+
+    bottomAppBarController.forward();
+    // bottomAppBarController.reverse();
+
+    return SizeTransition(
+      sizeFactor: bottomAppBarCurve,
+      axisAlignment: -1,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.only(top: 2),
+        child: BottomAppBar(
+          // elevation: 10.0,
+          child: Container(
+            height: 80.0,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  borderRadius: const BorderRadius.all(Radius.circular(16)),
+                  onTap: toggleBottomDrawerVisibility,
+                  child: Row(
+                    children: [
+                      const SizedBox(width: 20),
+                      RotationTransition(
+                        turns: Tween(
+                          begin: 0.0,
+                          end: 1.0,
+                        ).animate(dropArrowCurve!),
+                        child: const Icon(
+                          Icons.expand_less,
+                          size: 30,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 20),
-                    Text(
-                      destinations!.firstWhere((item) {
-                        return item.type == selectedUserSessionType;
-                      }).textLabel!,
-                      style: Theme.of(context).textTheme.headline5,
-                    ),
-                    const SizedBox(width: 20),
-                  ],
+                      const SizedBox(width: 40),
+                      _FadeThroughTransitionSwitcher(
+                        fillColor: Colors.transparent,
+                        child:
+                            // bottomDrawerVisible
+                            // ? const SizedBox(width: 48)
+                            // :
+                            FadeTransition(
+                          opacity: fadeOut,
+                          child: Text(
+                              destinations!.firstWhere((item) {
+                                return item.type == selectedUserSessionType;
+                              }).textLabel!,
+                              style: Theme.of(context).textTheme.headline5,
+                              textAlign: TextAlign.center),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                    ],
+                  ),
                 ),
-              ),
-              const Expanded(
-                  child: Align(
-                alignment: Alignment.centerRight,
-                child: Icon(
+                const SizedBox(width: 20),
+                const Icon(
                   Icons.playlist_play,
                 ),
-              )),
-              const SizedBox(width: 20),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -423,7 +454,7 @@ class _BottomDrawerDestinations extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'Schichtstart',
+                'Schichtstart auswählen:',
                 style: Theme.of(context).textTheme.headline5,
               ),
               const SizedBox(height: 20),
@@ -471,7 +502,7 @@ class ShiftStarts extends StatelessWidget {
           child: ElevatedButton(
             onPressed: () {
               drawerController!.reverse();
-              dropArrowController!.reverse();
+              // dropArrowController!.reverse();
               context.read<UserSession>().selectedUserSessionType =
                   UserSessionType.online;
             },
@@ -496,6 +527,30 @@ class ShiftStarts extends StatelessWidget {
 
     return Column(
       children: timingButtons,
+    );
+  }
+}
+
+class _FadeThroughTransitionSwitcher extends StatelessWidget {
+  const _FadeThroughTransitionSwitcher({
+    this.fillColor,
+    this.child,
+  });
+  final Widget? child;
+  final Color? fillColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return PageTransitionSwitcher(
+      transitionBuilder: (child, animation, secondaryAnimation) {
+        return FadeThroughTransition(
+          fillColor: fillColor,
+          child: child,
+          animation: animation,
+          secondaryAnimation: secondaryAnimation,
+        );
+      },
+      child: child,
     );
   }
 }

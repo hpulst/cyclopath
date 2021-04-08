@@ -18,6 +18,9 @@ class AppTheme {
       iconTheme: const IconThemeData(
         color: _primaryColor,
       ),
+      bottomSheetTheme: BottomSheetThemeData(
+        modalBackgroundColor: Colors.black.withOpacity(0.7),
+      ),
     );
   }
 
