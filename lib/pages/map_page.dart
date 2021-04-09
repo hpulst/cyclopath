@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:cyclopath/custom_widgets/bottom_drawer.dart';
+import 'package:cyclopath/draggable_scrollable_sheets/delivering_sheet.dart';
+import 'package:cyclopath/draggable_scrollable_sheets/offline_sheet.dart';
+import 'package:cyclopath/draggable_scrollable_sheets/online_sheet.dart';
+import 'package:cyclopath/draggable_scrollable_sheets/returning_sheet.dart';
+import 'package:cyclopath/draggable_scrollable_sheets/waiting_sheet.dart';
 import 'package:cyclopath/models/user_session.dart';
-import 'package:cyclopath/utils/destination.dart';
+import 'package:cyclopath/models/destination.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
@@ -35,7 +39,6 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
 
   late AnimationController _drawerController;
   late AnimationController _dropArrowController;
-
   late AnimationController _bottomAppBarController;
   late Animation<double> _drawerCurve;
   late Animation<double> _dropArrowCurve;
@@ -46,22 +49,27 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
     Destination(
       type: UserSessionType.offline,
       textLabel: UserSessionType.offline.title,
+      showIcon: false,
     ),
     Destination(
       type: UserSessionType.online,
       textLabel: UserSessionType.online.title,
+      showIcon: false,
     ),
     Destination(
       type: UserSessionType.waiting,
-      textLabel: UserSessionType.offline.title,
+      textLabel: UserSessionType.waiting.title,
+      showIcon: false,
     ),
     Destination(
       type: UserSessionType.delivering,
-      textLabel: UserSessionType.offline.title,
+      textLabel: UserSessionType.delivering.title,
+      showIcon: false,
     ),
     Destination(
       type: UserSessionType.returning,
-      textLabel: UserSessionType.offline.title,
+      textLabel: UserSessionType.returning.title,
+      showIcon: false,
     ),
   ];
 
@@ -125,12 +133,6 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
         status == AnimationStatus.forward;
   }
 
-  double get _bottomDrawerHeight {
-    final renderBox =
-        _bottomDrawerKey.currentContext!.findRenderObject() as RenderBox;
-    return renderBox.size.height;
-  }
-
   void _toggleBottomDrawerVisibility() {
     if (_drawerController.value < 0.4) {
       _drawerController.animateTo(0.4, curve: standardEasing);
@@ -141,6 +143,12 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
     _dropArrowController.forward();
     _drawerController.fling(
         velocity: _bottomDrawerVisible ? -_kFlingVelocity : _kFlingVelocity);
+  }
+
+  double get _bottomDrawerHeight {
+    final renderBox =
+        _bottomDrawerKey.currentContext!.findRenderObject() as RenderBox;
+    return renderBox.size.height;
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
@@ -228,6 +236,24 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
     );
   }
 
+  bool _handleScrollNotification(ScrollNotification notification) {
+    if (notification.depth == 0) {
+      if (notification is UserScrollNotification) {
+        switch (notification.direction) {
+          case ScrollDirection.forward:
+            _bottomAppBarController.forward();
+            break;
+          case ScrollDirection.reverse:
+            _bottomAppBarController.reverse();
+            break;
+          case ScrollDirection.idle:
+            break;
+        }
+      }
+    }
+    return false;
+  }
+
   Widget _bodyStack(context, constraints) {
     final drawerSize = constraints.biggest;
     final drawerTop = drawerSize.height;
@@ -241,9 +267,13 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
       key: _bottomDrawerKey,
       children: [
         _buildMap(context),
+        // NotificationListener(
+        //   onNotification: _handleScrollNotification,
+        //   child: _buildMap(context),
+        // ),
         GestureDetector(
           onTap: () {
-            print('this is gesturedetector, whats the ish?');
+            // print('this is gesturedetector, whats the ish?');
             _drawerController.reverse();
             _dropArrowController.reverse();
             // _bottomAppBarController.forward();
@@ -272,10 +302,11 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
               leading: Consumer<UserSession>(
                 builder: (context, model, child) {
                   return _BottomDrawerDestinations(
+                    model: model,
                     drawerController: _drawerController,
                     dropArrowController: _dropArrowController,
-                    selectedUserSessionType: model.selectedUserSessionType,
                     destinations: _navigationDestinations,
+                    toggleBottomDrawerVisibility: _toggleBottomDrawerVisibility,
                   );
                 },
               ),
@@ -335,9 +366,9 @@ class _AnimatedBottomAppBar extends StatelessWidget {
   final bool bottomDrawerVisible;
   final AnimationController drawerController;
   final Animation<double>? dropArrowCurve;
-  final ui.VoidCallback? toggleBottomDrawerVisibility;
   final List<Destination>? destinations;
   final UserSessionType? selectedUserSessionType;
+  final VoidCallback? toggleBottomDrawerVisibility;
 
   @override
   Widget build(BuildContext context) {
@@ -347,8 +378,12 @@ class _AnimatedBottomAppBar extends StatelessWidget {
       ),
     );
 
+    // if (selectedUserSessionType == UserSessionType.delivering) {
+    //   bottomAppBarController.reverse();
+    // } else {
+    //   bottomAppBarController.forward();
+    // }
     bottomAppBarController.forward();
-    // bottomAppBarController.reverse();
 
     return SizeTransition(
       sizeFactor: bottomAppBarCurve,
@@ -415,16 +450,18 @@ class _AnimatedBottomAppBar extends StatelessWidget {
 
 class _BottomDrawerDestinations extends StatelessWidget {
   _BottomDrawerDestinations({
-    this.drawerController,
-    this.dropArrowController,
-    this.selectedUserSessionType,
+    required this.model,
+    required this.drawerController,
+    required this.dropArrowController,
     this.destinations,
+    this.toggleBottomDrawerVisibility,
   });
 
-  final AnimationController? drawerController;
-  final AnimationController? dropArrowController;
+  final UserSession model;
+  final AnimationController drawerController;
+  final AnimationController dropArrowController;
   final List<Destination>? destinations;
-  final UserSessionType? selectedUserSessionType;
+  final VoidCallback? toggleBottomDrawerVisibility;
 
   final TimeOfDay now = TimeOfDay.now();
   final DateTime timely =
@@ -433,100 +470,28 @@ class _BottomDrawerDestinations extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: ListView(
-        padding: const EdgeInsets.all(12),
-        physics: const NeverScrollableScrollPhysics(),
+      child: IndexedStack(
+        index: model.selectedUserSessionTypeIndex,
         children: [
-          Column(
-            children: [
-              const SizedBox(
-                height: 3.0,
-              ),
-              Container(
-                width: 30,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(12.0),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                'Schichtstart auswählen:',
-                style: Theme.of(context).textTheme.headline5,
-              ),
-              const SizedBox(height: 20),
-              ShiftStarts(
-                drawerController: drawerController,
-                dropArrowController: dropArrowController,
-              ),
-              const IconButton(
-                iconSize: 50.0,
-                onPressed: null,
-                icon: Icon(Icons.stop_circle_outlined),
-              ),
-              const Text('Offline'),
-            ],
+          OfflineSheet(
+            model: model,
+            drawerController: drawerController,
+            dropArrowController: dropArrowController,
           ),
+          OnlineSheet(model: model),
+          WaitingSheet(
+            model: model,
+            drawerController: drawerController,
+            dropArrowController: dropArrowController,
+          ),
+          DeliveringSheet(
+            model: model,
+            drawerController: drawerController,
+            dropArrowController: dropArrowController,
+          ),
+          ReturningSheet(model: model),
         ],
       ),
-    );
-  }
-}
-
-class ShiftStarts extends StatelessWidget {
-  ShiftStarts({
-    @required this.drawerController,
-    @required this.dropArrowController,
-    // required this.onItemTapped,
-  });
-
-  final AnimationController? drawerController;
-  final AnimationController? dropArrowController;
-  // final void Function(DateTime, UserSessionType) onItemTapped;
-
-  final TimeOfDay now = TimeOfDay.now();
-  final DateTime timely =
-      DateTime.now().subtract(Duration(minutes: TimeOfDay.now().minute % 5));
-
-  @override
-  Widget build(BuildContext context) {
-    final timingButtons = <Widget>[];
-
-    for (var i = 0; i < 6; i++) {
-      timingButtons.add(
-        Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: ElevatedButton(
-            onPressed: () {
-              drawerController!.reverse();
-              // dropArrowController!.reverse();
-              context.read<UserSession>().selectedUserSessionType =
-                  UserSessionType.online;
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.all(20),
-              minimumSize: const Size(260, 0.0),
-            ),
-            child: Text(i < 2
-                ? i < 1
-                    ? '${TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(minutes: now.minute % 5))).format(context)} (vor ${now.minute % 5} Minuten)'
-                    : 'JETZT'
-                : TimeOfDay.fromDateTime(
-                    timely.add(
-                      Duration(minutes: 5 * (i - 1)),
-                    ),
-                  ).format(context)),
-          ),
-        ),
-        // const SizedBox(height: 10),
-      );
-    }
-
-    return Column(
-      children: timingButtons,
     );
   }
 }

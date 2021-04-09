@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 class UserSession with ChangeNotifier {
@@ -8,10 +6,49 @@ class UserSession with ChangeNotifier {
   UserSessionType get selectedUserSessionType => _selectedUserSessionType;
 
   set selectedUserSessionType(UserSessionType sessionType) {
-    _selectedUserSessionType = sessionType;
+    switch (sessionType) {
+      case UserSessionType.offline:
+        _selectedUserSessionType = sessionType;
+        break;
+      case UserSessionType.online:
+        Future.delayed(
+          const Duration(
+            seconds: 3,
+          ),
+          () {
+            _selectedUserSessionType = UserSessionType.waiting;
+            notifyListeners();
+          },
+        );
+        break;
+      case UserSessionType.waiting:
+        Future.delayed(
+          const Duration(
+            seconds: 6,
+          ),
+          () {
+            _selectedUserSessionType = UserSessionType.delivering;
+            notifyListeners();
+          },
+        );
+        break;
+      case UserSessionType.delivering:
+        _selectedUserSessionType = sessionType;
+        break;
+      case UserSessionType.returning:
+        _selectedUserSessionType = sessionType;
+        break;
+    }
     notifyListeners();
   }
+
+  int get selectedUserSessionTypeIndex => _selectedUserSessionType.index;
 }
+
+// enum UserSessionDrag {
+//   WaitingSheet(),
+//   OfflineSheet(),
+// }
 
 enum UserSessionType {
   offline,
@@ -32,7 +69,3 @@ extension UserSessionTypeExtension on UserSessionType {
 
   String? get title => titles[this];
 }
-
-
-  // final cat = Cat.white;
-  // print('cat name: ${cat.name}');
