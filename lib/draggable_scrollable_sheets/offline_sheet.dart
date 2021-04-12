@@ -109,12 +109,17 @@ class ShiftStarts extends StatelessWidget {
           padding: const EdgeInsets.all(5.0),
           child: ElevatedButton(
             onPressed: () {
-              print('hihihihihihihii');
               drawerController.reverse();
               dropArrowController.forward();
-              // context.read<UserSession>().selectedUserSessionType =
-              //     UserSessionType.online;
+              // Future.delayed(
+              //   const Duration(seconds: 1),
+              //   () {
+              print('Delay');
+              context.read<UserSession>().selectedUserSessionType =
+                  UserSessionType.online;
             },
+            // ),
+            // };
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.all(20),
               minimumSize: const Size(260, 0.0),

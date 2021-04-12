@@ -142,7 +142,8 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
 
     _dropArrowController.forward();
     _drawerController.fling(
-        velocity: _bottomDrawerVisible ? -_kFlingVelocity : _kFlingVelocity);
+      velocity: _bottomDrawerVisible ? -_kFlingVelocity : _kFlingVelocity,
+    );
   }
 
   double get _bottomDrawerHeight {
@@ -236,23 +237,23 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
     );
   }
 
-  bool _handleScrollNotification(ScrollNotification notification) {
-    if (notification.depth == 0) {
-      if (notification is UserScrollNotification) {
-        switch (notification.direction) {
-          case ScrollDirection.forward:
-            _bottomAppBarController.forward();
-            break;
-          case ScrollDirection.reverse:
-            _bottomAppBarController.reverse();
-            break;
-          case ScrollDirection.idle:
-            break;
-        }
-      }
-    }
-    return false;
-  }
+  // bool _handleScrollNotification(ScrollNotification notification) {
+  //   if (notification.depth == 0) {
+  //     if (notification is UserScrollNotification) {
+  //       switch (notification.direction) {
+  //         case ScrollDirection.forward:
+  //           _bottomAppBarController.forward();
+  //           break;
+  //         case ScrollDirection.reverse:
+  //           _bottomAppBarController.reverse();
+  //           break;
+  //         case ScrollDirection.idle:
+  //           break;
+  //       }
+  //     }
+  //   }
+  //   return false;
+  // }
 
   Widget _bodyStack(context, constraints) {
     final drawerSize = constraints.biggest;
@@ -273,7 +274,6 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
         // ),
         GestureDetector(
           onTap: () {
-            // print('this is gesturedetector, whats the ish?');
             _drawerController.reverse();
             _dropArrowController.reverse();
             // _bottomAppBarController.forward();
@@ -417,28 +417,28 @@ class _AnimatedBottomAppBar extends StatelessWidget {
                       const SizedBox(width: 40),
                       _FadeThroughTransitionSwitcher(
                         fillColor: Colors.transparent,
-                        child:
-                            // bottomDrawerVisible
-                            // ? const SizedBox(width: 48)
-                            // :
-                            FadeTransition(
-                          opacity: fadeOut,
-                          child: Text(
-                              destinations!.firstWhere((item) {
-                                return item.type == selectedUserSessionType;
-                              }).textLabel!,
-                              style: Theme.of(context).textTheme.headline5,
-                              textAlign: TextAlign.center),
-                        ),
+                        child: bottomDrawerVisible
+                            ? const SizedBox(width: 48)
+                            : FadeTransition(
+                                opacity: fadeOut,
+                                child: Text(
+                                    destinations!.firstWhere((item) {
+                                      return item.type ==
+                                          selectedUserSessionType;
+                                    }).textLabel!,
+                                    style:
+                                        Theme.of(context).textTheme.headline5,
+                                    textAlign: TextAlign.center),
+                              ),
                       ),
                       const SizedBox(width: 20),
                     ],
                   ),
                 ),
                 const SizedBox(width: 20),
-                const Icon(
-                  Icons.playlist_play,
-                ),
+                // const Icon(
+                //   Icons.playlist_play,
+                // ),
               ],
             ),
           ),
@@ -449,7 +449,7 @@ class _AnimatedBottomAppBar extends StatelessWidget {
 }
 
 class _BottomDrawerDestinations extends StatelessWidget {
-  _BottomDrawerDestinations({
+  const _BottomDrawerDestinations({
     required this.model,
     required this.drawerController,
     required this.dropArrowController,
@@ -463,35 +463,46 @@ class _BottomDrawerDestinations extends StatelessWidget {
   final List<Destination>? destinations;
   final VoidCallback? toggleBottomDrawerVisibility;
 
-  final TimeOfDay now = TimeOfDay.now();
-  final DateTime timely =
-      DateTime.now().subtract(Duration(minutes: TimeOfDay.now().minute % 5));
-
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: IndexedStack(
-        index: model.selectedUserSessionTypeIndex,
-        children: [
-          OfflineSheet(
-            model: model,
-            drawerController: drawerController,
-            dropArrowController: dropArrowController,
-          ),
-          OnlineSheet(model: model),
-          WaitingSheet(
-            model: model,
-            drawerController: drawerController,
-            dropArrowController: dropArrowController,
-          ),
-          DeliveringSheet(
-            model: model,
-            drawerController: drawerController,
-            dropArrowController: dropArrowController,
-          ),
-          ReturningSheet(model: model),
-        ],
+      child: DeliveringSheet(
+        model: model,
+        drawerController: drawerController,
+        dropArrowController: dropArrowController,
       ),
+      // ListView(
+      //   padding: const EdgeInsets.all(12),
+      //   physics: const NeverScrollableScrollPhysics(),
+      //   children: [
+      //   child: Column(
+      // children: [
+      //   Container(),
+      //   IndexedStack(
+      //     index: 0,
+      //     // index: model.selectedUserSessionTypeIndex,
+      //     children: [
+      //       OfflineSheet(
+      //         model: model,
+      //         drawerController: drawerController,
+      //         dropArrowController: dropArrowController,
+      //       ),
+      //       OnlineSheet(model: model),
+      //       WaitingSheet(
+      //         model: model,
+      //         drawerController: drawerController,
+      //         dropArrowController: dropArrowController,
+      //       ),
+      //       DeliveringSheet(
+      //         model: model,
+      //         drawerController: drawerController,
+      //         dropArrowController: dropArrowController,
+      //       ),
+      //       ReturningSheet(model: model),
+      //     ],
+      //   ),
+      // ],
+      // ),
     );
   }
 }

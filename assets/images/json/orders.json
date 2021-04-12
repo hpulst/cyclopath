@@ -1,0 +1,46 @@
+[
+    {
+        "id": 1,
+        "customer": "Vitlay Ginzburg",
+        "street": "Mittelweg 177",
+        "postal": "20148 Hamburg",
+        "phone": "017694323423",
+        "selectedDeliveryTime": "1969-07-20 20:18:04Z",
+        "tip": 2.0,
+        "note": "2 Stock im Hintergebäude"
+    },
+    {
+        "id": 2,
+        "customer": "Klaus-Michael Kühne",
+        "street": "Fontenay 10",
+        "postal": "20354 Hamburg",
+        "company": "The Fontenay Hotel",
+        "phone": "017694323423",
+        "email": "mail@web.de",
+        "selectedDeliveryTime": "1969-07-20 20: 30: 04Z",
+        "tip": 20.0,
+        "note": "Bitte vor der Tür abstellen"
+    },
+    {
+        "id": 3,
+        "customer": "Nikola Bloch",
+        "street": "Alsterchaussee 24",
+        "postal": "20149 Hamburg",
+        "phone": "017694323423",
+        "email": "mail@web.de",
+        "selectedDeliveryTime": "1969-07-20 20:34:04Z",
+        "tip": 2.0,
+        "note": "2 Stock im Hintergebäude"
+    },
+    {
+        "id": 4,
+        "customer": "Paul Ehrlich",
+        "street": "Linnering 1",
+        "postal": "22299 Hamburg",
+        "phone": "017694323423",
+        "email": "mail@planetarium.de",
+        "selectedDeliveryTime": "1969-07-20 20:50:04Z",
+        "tip": 0.0,
+        "note": "2 Stock im Hintergebäude"
+    }
+]
