@@ -46,7 +46,7 @@ class ReturningSheet extends StatelessWidget {
               child: const Text(
                 // model!.selectedUserSessionType.title!,
                 'hi',
-                style: const TextStyle(fontSize: 25.0),
+                style: TextStyle(fontSize: 25.0),
                 textAlign: TextAlign.center,
               ),
             ),

@@ -11,7 +11,7 @@ class UserSession with ChangeNotifier {
         _selectedUserSessionType = sessionType;
         break;
       case UserSessionType.online:
-        print('$sessionType');
+        _selectedUserSessionType = sessionType;
         Future.delayed(
           const Duration(
             seconds: 3,

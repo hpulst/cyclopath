@@ -1,5 +1,6 @@
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class WaitingSheet extends StatelessWidget {
   const WaitingSheet({
@@ -64,20 +65,21 @@ class WaitingSheet extends StatelessWidget {
           child: Align(
             alignment: Alignment.bottomCenter,
             child: Column(
-              // mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
                   onPressed: () {
                     drawerController.reverse();
+                    context.read<UserSession>().selectedUserSessionType =
+                        UserSessionType.delivering;
                   },
-                  tooltip: 'Gehe offline',
+                  // tooltip: 'Los',
                   iconSize: 60,
                   icon: const Icon(
                     Icons.stop_circle,
                     color: Colors.red,
                   ),
                 ),
-                const Text('Gehe offline'),
+                const Text('Los!'),
               ],
             ),
           ),

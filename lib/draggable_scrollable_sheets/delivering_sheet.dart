@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:cyclopath/models/order.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class DeliveringSheet extends StatelessWidget {
   const DeliveringSheet({
@@ -7,15 +11,16 @@ class DeliveringSheet extends StatelessWidget {
     required this.model,
     required this.drawerController,
     required this.dropArrowController,
+    required this.bottomAppBarController,
   }) : super(key: key);
 
   final UserSession? model;
   final AnimationController drawerController;
   final AnimationController dropArrowController;
-
+  final AnimationController bottomAppBarController;
   @override
   Widget build(BuildContext context) {
-    // drawerController.forward();
+    drawerController.animateTo(0.4, curve: standardEasing);
 
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
@@ -62,12 +67,40 @@ class DeliveringSheet extends StatelessWidget {
   }
 }
 
-class OrderCard extends StatelessWidget {
-  // OrderCard({Key key, this.address, this.phone, this.})
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
+// class OrderTable extends StatelessWidget {
 
-class OrderQueue {}
+  
+//   @override
+//   Widget build(BuildContext context) {
+
+
+
+// FutureBuilder(
+//   future: loadOrders(),
+//   builder: (context, snapshot){
+
+//     if(snapshot.hasData){
+//       return ListView.builder(itemBuilder: (context, index){
+//         return ListTile(title: Text('${snapshot.data}'); 
+//       },),),),
+//     }
+
+
+
+//   }
+// }
+
+
+  // Widget build(BuildContext context) {
+  //   return FutureBuilder<List<WorkoutTable>>(
+  //       future: loadWorkouts(filename),
+  //       builder: (context, snapshot) {
+  //         if (snapshot.hasData) {
+  //           return SimpleObjectView(
+  //               simpleObjects: snapshot.data, filename: filename);
+  //         } else if (snapshot.hasError) {
+  //           return Text('${snapshot.error}');
+  //         }
+  //         return const CircularProgressIndicator();
+  //       });
+  // }

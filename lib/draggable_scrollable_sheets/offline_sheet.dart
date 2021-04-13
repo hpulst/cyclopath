@@ -38,21 +38,21 @@ class OfflineSheet extends StatelessWidget {
               height: 12,
             ),
             Row(
-              children: [
-                const SizedBox(
+              children: const [
+                SizedBox(
                   width: 15,
                 ),
-                const SizedBox(
+                SizedBox(
                   width: 1,
                 ),
                 Expanded(
                   child: Text(
-                    '${model.selectedUserSessionType.title}',
-                    style: const TextStyle(fontSize: 25.0),
+                    'Starte Schicht um:',
+                    style: TextStyle(fontSize: 25.0),
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(
+                SizedBox(
                   width: 45,
                 ),
               ],
@@ -111,15 +111,9 @@ class ShiftStarts extends StatelessWidget {
             onPressed: () {
               drawerController.reverse();
               dropArrowController.forward();
-              // Future.delayed(
-              //   const Duration(seconds: 1),
-              //   () {
-              print('Delay');
               context.read<UserSession>().selectedUserSessionType =
                   UserSessionType.online;
             },
-            // ),
-            // };
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.all(20),
               minimumSize: const Size(260, 0.0),
@@ -137,7 +131,6 @@ class ShiftStarts extends StatelessWidget {
                   ).format(context)),
           ),
         ),
-        // const SizedBox(height: 10),
       );
     }
 
