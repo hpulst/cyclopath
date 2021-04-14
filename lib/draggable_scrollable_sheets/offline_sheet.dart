@@ -4,12 +4,12 @@ import 'package:provider/provider.dart';
 
 class OfflineSheet extends StatelessWidget {
   const OfflineSheet({
-    required this.model,
+    this.model,
     required this.drawerController,
     required this.dropArrowController,
   });
 
-  final UserSession model;
+  final UserSession? model;
   final AnimationController drawerController;
   final AnimationController dropArrowController;
 

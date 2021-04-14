@@ -25,3 +25,13 @@ A Courrier app that includes functionality that allows the courier to receive or
 
 - [ ] View route preview on order
 - [ ] Push-notification sync
+
+**Possible Avenues for Bottomsheet Navigation:**
+
+- Navigator inside Bottomsheet
+  - Difficult within PopUp
+
+- IndexedStack
+  - loading all BottomSheets
+  - no need for Stacking
+  

@@ -1,9 +1,5 @@
-import 'dart:convert';
-
-import 'package:cyclopath/models/order.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class DeliveringSheet extends StatelessWidget {
   const DeliveringSheet({
@@ -14,7 +10,7 @@ class DeliveringSheet extends StatelessWidget {
     required this.bottomAppBarController,
   }) : super(key: key);
 
-  final UserSession? model;
+  final UserSession model;
   final AnimationController drawerController;
   final AnimationController dropArrowController;
   final AnimationController bottomAppBarController;

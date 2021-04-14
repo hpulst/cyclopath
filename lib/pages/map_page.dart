@@ -7,6 +7,7 @@ import 'package:cyclopath/draggable_scrollable_sheets/offline_sheet.dart';
 import 'package:cyclopath/draggable_scrollable_sheets/online_sheet.dart';
 import 'package:cyclopath/draggable_scrollable_sheets/returning_sheet.dart';
 import 'package:cyclopath/draggable_scrollable_sheets/waiting_sheet.dart';
+import 'package:cyclopath/models/user_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:cyclopath/models/destination.dart';
 import 'package:flutter/material.dart';
@@ -458,7 +459,7 @@ class _BottomDrawerDestinations extends StatelessWidget {
     required this.drawerController,
     required this.dropArrowController,
     required this.bottomAppBarController,
-    this.destinations,
+    required this.destinations,
   });
 
   final UserSession model;
@@ -469,38 +470,40 @@ class _BottomDrawerDestinations extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    StatelessWidget _showBottomSheet(
+        {required UserSession model,
+        required AnimationController drawerController,
+        required AnimationController dropArrowController,
+        required AnimationController bottomAppBarController}) {
+      switch (model.selectedUserSessionType) {
+        case UserSessionType.offline:
+          return OfflineSheet(
+            drawerController: drawerController,
+            dropArrowController: dropArrowController,
+          );
+        case UserSessionType.delivering:
+          return DeliveringSheet(
+            model: model,
+            drawerController: drawerController,
+            dropArrowController: dropArrowController,
+            bottomAppBarController: bottomAppBarController,
+          );
+        default:
+          return WaitingSheet(
+            model: model,
+            drawerController: drawerController,
+            dropArrowController: dropArrowController,
+          );
+      }
+    }
+
     return Center(
-      child: OfflineSheet(
-        model: model,
-        drawerController: drawerController,
-        dropArrowController: dropArrowController,
-      ),
-      // child: Positioned(
-      //   child: IndexedStack(
-      //     index: model.selectedUserSessionTypeIndex,
-      //     children: [
-      //       OfflineSheet(
-      //         model: model,
-      //         drawerController: drawerController,
-      //         dropArrowController: dropArrowController,
-      //       ),
-      //       OnlineSheet(model: model),
-      //       WaitingSheet(
-      //         model: model,
-      //         drawerController: drawerController,
-      //         dropArrowController: dropArrowController,
-      //       ),
-      //       DeliveringSheet(
-      //         model: model,
-      //         drawerController: drawerController,
-      //         dropArrowController: dropArrowController,
-      //         bottomAppBarController: bottomAppBarController,
-      //       ),
-      //       ReturningSheet(model: model),
-      //     ],
-      //   ),
-      // ),
-    );
+        child: _showBottomSheet(
+      model: model,
+      drawerController: drawerController,
+      dropArrowController: dropArrowController,
+      bottomAppBarController: bottomAppBarController,
+    ));
   }
 }
 
@@ -518,108 +521,11 @@ class _FadeThroughTransitionSwitcher extends StatelessWidget {
       transitionBuilder: (child, animation, secondaryAnimation) {
         return FadeThroughTransition(
           fillColor: fillColor,
-          child: child,
           animation: animation,
           secondaryAnimation: secondaryAnimation,
         );
       },
       child: child,
-    );
-  }
-}
-
-class OfflineSheet extends StatelessWidget {
-  const OfflineSheet({
-    required this.model,
-    required this.drawerController,
-    required this.dropArrowController,
-  });
-
-  final UserSession model;
-  final AnimationController drawerController;
-  final AnimationController dropArrowController;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(12),
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        Column(
-          children: [
-            const SizedBox(
-              height: 6.0,
-            ),
-            Container(
-              width: 30,
-              height: 5,
-              decoration: BoxDecoration(
-                color: Colors.grey[600],
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(12.0),
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                drawerController.reverse();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DeliveringSheet(
-                          model: model,
-                          drawerController: drawerController,
-                          dropArrowController: dropArrowController)),
-                );
-              },
-              child: const Text('First'),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class DeliveringSheet extends StatelessWidget {
-  const DeliveringSheet({
-    required this.model,
-    required this.drawerController,
-    required this.dropArrowController,
-  });
-
-  final UserSession model;
-  final AnimationController drawerController;
-  final AnimationController dropArrowController;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(12),
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        Column(
-          children: [
-            const SizedBox(
-              height: 6.0,
-            ),
-            Container(
-              width: 30,
-              height: 5,
-              decoration: BoxDecoration(
-                color: Colors.grey[600],
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(12.0),
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('Second'),
-            ),
-          ],
-        ),
-      ],
     );
   }
 }

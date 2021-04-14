@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 const users = {
-  'dribbble@gmail.com': '12345',
-  'hunter@gmail.com': 'hunter',
+  'email': '123',
+  'salat@gmail.com': 'salat',
 };
 
 class LoginPage extends StatefulWidget {
@@ -14,13 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  late bool _passwordVisible;
-
-  @override
-  void initState() {
-    _passwordVisible = false;
-    super.initState();
-  }
+  bool _passwordVisible = false;
 
   @override
   void dispose() {
@@ -105,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.pushNamed(context, '/map');
+                      Navigator.pushReplacementNamed(context, '/map');
                     },
                     child: const Text('Login'),
                   ),
