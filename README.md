@@ -5,14 +5,18 @@ A Courrier app that includes functionality that allows the courier to receive or
 **Must have features:**
 
 - [x] Sign in as a courier
+  - [ ] Sign out
 - [x] Select starting time using bottom sheet
   - [x] Tap to open
   - [x] Drag to open
   - [x] Open to specific height
   - [x] Tap to close
   - [x] Drag to close
-- [x] View status(online/offline)
+- [ ] View status(online/offline)
+  - [ ] View  
 - [ ] View list of new orders
+  - [ ] List orders
+  - [ ] Build ListTile
   - [ ] Live orders receiving function
 - [ ] View order details
   - [ ] View Information on food items ordered by customers
@@ -26,12 +30,9 @@ A Courrier app that includes functionality that allows the courier to receive or
 - [ ] View route preview on order
 - [ ] Push-notification sync
 
-**Possible Avenues for Bottomsheet Navigation:**
+**Current Feature Sprint:**
 
-- Navigator inside Bottomsheet
-  - Difficult within PopUp
-
-- IndexedStack
-  - loading all BottomSheets
-  - no need for Stacking
+- [ ] Show List of Orders in BottomSheet
+  - [ ] Listen to changes to read JSON
+  - [ ] Create ListTile  
   

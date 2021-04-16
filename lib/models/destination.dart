@@ -9,7 +9,7 @@ class Destination {
       this.widget});
 
   // Which drawer to display
-  final UserSessionType? type;
+  final UserSessionType type;
   final String? textLabel;
   final bool? showIcon;
   final Widget? widget;

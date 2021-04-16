@@ -1,3 +1,4 @@
+import 'package:cyclopath/models/order.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +17,7 @@ class DeliveringSheet extends StatelessWidget {
   final AnimationController bottomAppBarController;
   @override
   Widget build(BuildContext context) {
-    drawerController.animateTo(0.4, curve: standardEasing);
+    // drawerController.animateTo(0.4, curve: standardEasing);
 
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
@@ -47,7 +48,7 @@ class DeliveringSheet extends StatelessWidget {
             ),
             Expanded(
               child: Text(
-                model!.selectedUserSessionType.title!,
+                model.selectedUserSessionType.title!,
                 // 'Unterwegs',
                 style: const TextStyle(fontSize: 25.0),
                 textAlign: TextAlign.center,
@@ -58,34 +59,33 @@ class DeliveringSheet extends StatelessWidget {
             ),
           ],
         ),
+        OrderTable(),
       ],
     );
   }
 }
 
-// class OrderTable extends StatelessWidget {
-
-  
-//   @override
-//   Widget build(BuildContext context) {
-
-
-
-// FutureBuilder(
-//   future: loadOrders(),
-//   builder: (context, snapshot){
-
-//     if(snapshot.hasData){
-//       return ListView.builder(itemBuilder: (context, index){
-//         return ListTile(title: Text('${snapshot.data}'); 
-//       },),),),
-//     }
-
-
-
-//   }
-// }
-
+class OrderTable extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Order>>(
+      future: loadOrders(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return ListView.builder(
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text('${snapshot.data}'),
+              );
+            },
+          );
+        } else if (snapshot.hasError) {
+          return Text('${snapshot.error}');
+        }
+        return const CircularProgressIndicator();
+      },
+    );
+  }
 
   // Widget build(BuildContext context) {
   //   return FutureBuilder<List<WorkoutTable>>(
@@ -99,4 +99,4 @@ class DeliveringSheet extends StatelessWidget {
   //         }
   //         return const CircularProgressIndicator();
   //       });
-  // }
+}

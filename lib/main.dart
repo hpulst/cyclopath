@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         theme: AppTheme.light(),
         title: 'Cyclopath',
-        home: LoginPage(),
+        home: MapView(),
         debugShowCheckedModeBanner: false,
         routes: {
           '/login': (context) => LoginPage(),

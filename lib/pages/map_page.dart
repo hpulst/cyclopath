@@ -2,12 +2,9 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cyclopath/custom_widgets/bottom_drawer.dart';
-import 'package:cyclopath/draggable_scrollable_sheets/delivering_sheet.dart';
-import 'package:cyclopath/draggable_scrollable_sheets/offline_sheet.dart';
-import 'package:cyclopath/draggable_scrollable_sheets/online_sheet.dart';
-import 'package:cyclopath/draggable_scrollable_sheets/returning_sheet.dart';
-import 'package:cyclopath/draggable_scrollable_sheets/waiting_sheet.dart';
-import 'package:cyclopath/models/user_model.dart';
+import 'package:cyclopath/draggable/delivering_sheet.dart';
+import 'package:cyclopath/draggable/offline_sheet.dart';
+import 'package:cyclopath/draggable/waiting_sheet.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:cyclopath/models/destination.dart';
 import 'package:flutter/material.dart';
@@ -521,6 +518,7 @@ class _FadeThroughTransitionSwitcher extends StatelessWidget {
       transitionBuilder: (child, animation, secondaryAnimation) {
         return FadeThroughTransition(
           fillColor: fillColor,
+          child: child,
           animation: animation,
           secondaryAnimation: secondaryAnimation,
         );
