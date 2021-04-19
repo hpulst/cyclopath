@@ -56,33 +56,47 @@ class WaitingSheet extends StatelessWidget {
             ),
           ],
         ),
-
         const Divider(
           height: 20,
         ),
-        // Expanded(child: SizedBox()),
-        Expanded(
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: Column(
-              children: [
-                IconButton(
-                  onPressed: () {
-                    drawerController.reverse();
-                    context.read<UserSession>().selectedUserSessionType =
-                        UserSessionType.delivering;
-                  },
-                  // tooltip: 'Los',
-                  iconSize: 60,
-                  icon: const Icon(
-                    Icons.stop_circle,
-                    color: Colors.red,
-                  ),
+        Row(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Column(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        drawerController.reverse();
+                        Future.delayed(
+                          Duration(
+                            milliseconds:
+                                drawerController.value == 1 ? 300 : 120,
+                          ),
+                          () {
+                            // Wait until animations are complete to reload the state.
+                            // Delay scales with the timeDilation value of the gallery.
+                            context
+                                    .read<UserSession>()
+                                    .selectedUserSessionType =
+                                UserSessionType.delivering;
+                          },
+                        );
+                      },
+                      // tooltip: 'Los',
+                      iconSize: 60,
+                      icon: const Icon(
+                        Icons.stop_circle,
+                        color: Colors.red,
+                      ),
+                    ),
+                    const Text('Los!'),
+                  ],
                 ),
-                const Text('Los!'),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );

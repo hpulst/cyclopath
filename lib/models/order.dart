@@ -12,23 +12,28 @@ class Order {
     required this.street,
     required this.city,
     required this.postal,
-    required this.selectedDeliveryTime,
+    required this.phone,
+    this.selectedDeliveryTime,
     this.actualArrivalTime,
+    this.email,
     this.tip,
     this.note,
-    this.orderStatus = OrderStatus.riding,
-  });
+  }) : orderStatus = OrderStatus.riding;
+
   final int id;
   final String customer;
   final String street;
   final String city;
   final String postal;
-  final DateTime selectedDeliveryTime;
+  final String phone;
+  final DateTime? selectedDeliveryTime;
   final DateTime? actualArrivalTime;
+  final String? email;
   final double? tip;
   final String? note;
   final OrderStatus orderStatus;
 
+  // ignore: sort_constructors_first
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
 
   Map<String, dynamic> toJson() => _$OrderToJson(this);

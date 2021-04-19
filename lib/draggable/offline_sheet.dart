@@ -38,22 +38,14 @@ class OfflineSheet extends StatelessWidget {
               height: 12,
             ),
             Row(
-              children: const [
-                SizedBox(
-                  width: 15,
-                ),
-                SizedBox(
-                  width: 1,
-                ),
-                Expanded(
+              // ignore: prefer_const_literals_to_create_immutables
+              children: [
+                const Expanded(
                   child: Text(
                     'Starte Schicht um:',
                     style: TextStyle(fontSize: 25.0),
                     textAlign: TextAlign.center,
                   ),
-                ),
-                SizedBox(
-                  width: 45,
                 ),
               ],
             ),
@@ -111,8 +103,17 @@ class ShiftStarts extends StatelessWidget {
             onPressed: () {
               drawerController.reverse();
               dropArrowController.forward();
-              context.read<UserSession>().selectedUserSessionType =
-                  UserSessionType.online;
+              Future.delayed(
+                Duration(
+                  milliseconds: drawerController.value == 1 ? 300 : 120,
+                ),
+                () {
+                  // Wait until animations are complete to reload the state.
+                  // Delay scales with the timeDilation value of the gallery.
+                  context.read<UserSession>().selectedUserSessionType =
+                      UserSessionType.online;
+                },
+              );
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.all(20),

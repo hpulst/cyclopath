@@ -465,35 +465,35 @@ class _BottomDrawerDestinations extends StatelessWidget {
   final AnimationController bottomAppBarController;
   final List<Destination>? destinations;
 
+  StatelessWidget _showBottomSheet(
+      {required UserSession model,
+      required AnimationController drawerController,
+      required AnimationController dropArrowController,
+      required AnimationController bottomAppBarController}) {
+    switch (model.selectedUserSessionType) {
+      case UserSessionType.offline:
+        return OfflineSheet(
+          drawerController: drawerController,
+          dropArrowController: dropArrowController,
+        );
+      case UserSessionType.delivering:
+        return DeliveringSheet(
+          model: model,
+          drawerController: drawerController,
+          dropArrowController: dropArrowController,
+          // bottomAppBarController: bottomAppBarController,
+        );
+      default:
+        return WaitingSheet(
+          model: model,
+          drawerController: drawerController,
+          dropArrowController: dropArrowController,
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    StatelessWidget _showBottomSheet(
-        {required UserSession model,
-        required AnimationController drawerController,
-        required AnimationController dropArrowController,
-        required AnimationController bottomAppBarController}) {
-      switch (model.selectedUserSessionType) {
-        case UserSessionType.offline:
-          return OfflineSheet(
-            drawerController: drawerController,
-            dropArrowController: dropArrowController,
-          );
-        case UserSessionType.delivering:
-          return DeliveringSheet(
-            model: model,
-            drawerController: drawerController,
-            dropArrowController: dropArrowController,
-            bottomAppBarController: bottomAppBarController,
-          );
-        default:
-          return WaitingSheet(
-            model: model,
-            drawerController: drawerController,
-            dropArrowController: dropArrowController,
-          );
-      }
-    }
-
     return Center(
         child: _showBottomSheet(
       model: model,
@@ -518,9 +518,9 @@ class _FadeThroughTransitionSwitcher extends StatelessWidget {
       transitionBuilder: (child, animation, secondaryAnimation) {
         return FadeThroughTransition(
           fillColor: fillColor,
-          child: child,
           animation: animation,
           secondaryAnimation: secondaryAnimation,
+          child: child,
         );
       },
       child: child,

@@ -13,14 +13,16 @@ Order _$OrderFromJson(Map<String, dynamic> json) {
     street: json['street'] as String,
     city: json['city'] as String,
     postal: json['postal'] as String,
-    selectedDeliveryTime:
-        DateTime.parse(json['selectedDeliveryTime'] as String),
+    phone: json['phone'] as String,
+    selectedDeliveryTime: json['selectedDeliveryTime'] == null
+        ? null
+        : DateTime.parse(json['selectedDeliveryTime'] as String),
     actualArrivalTime: json['actualArrivalTime'] == null
         ? null
         : DateTime.parse(json['actualArrivalTime'] as String),
+    email: json['email'] as String?,
     tip: (json['tip'] as num?)?.toDouble(),
     note: json['note'] as String?,
-    orderStatus: _$enumDecode(_$OrderStatusEnumMap, json['orderStatus']),
   );
 }
 
@@ -30,44 +32,10 @@ Map<String, dynamic> _$OrderToJson(Order instance) => <String, dynamic>{
       'street': instance.street,
       'city': instance.city,
       'postal': instance.postal,
-      'selectedDeliveryTime': instance.selectedDeliveryTime.toIso8601String(),
+      'phone': instance.phone,
+      'selectedDeliveryTime': instance.selectedDeliveryTime?.toIso8601String(),
       'actualArrivalTime': instance.actualArrivalTime?.toIso8601String(),
+      'email': instance.email,
       'tip': instance.tip,
       'note': instance.note,
-      'orderStatus': _$OrderStatusEnumMap[instance.orderStatus],
     };
-
-K _$enumDecode<K, V>(
-  Map<K, V> enumValues,
-  Object? source, {
-  K? unknownValue,
-}) {
-  if (source == null) {
-    throw ArgumentError(
-      'A value must be provided. Supported values: '
-      '${enumValues.values.join(', ')}',
-    );
-  }
-
-  return enumValues.entries.singleWhere(
-    (e) => e.value == source,
-    orElse: () {
-      if (unknownValue == null) {
-        throw ArgumentError(
-          '`$source` is not one of the supported values: '
-          '${enumValues.values.join(', ')}',
-        );
-      }
-      return MapEntry(unknownValue, enumValues.values.first);
-    },
-  ).key;
-}
-
-const _$OrderStatusEnumMap = {
-  OrderStatus.placed: 'placed',
-  OrderStatus.ready: 'ready',
-  OrderStatus.picked: 'picked',
-  OrderStatus.riding: 'riding',
-  OrderStatus.arrived: 'arrived',
-  OrderStatus.delivered: 'delivered',
-};

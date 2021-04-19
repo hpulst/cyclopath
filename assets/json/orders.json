@@ -5,8 +5,7 @@
         "street": "Mittelweg 177",
         "city": "Hamburg",
         "postal": "20148",
-        "phone": "017694323423",
-        "selectedDeliveryTime": "2021-07-20 20:18:04Z",
+        "phone": "+49 17694323423",
         "tip": 2.0,
         "note": "2 Stock im Hintergebäude"
     },
@@ -17,9 +16,8 @@
         "city": "Hamburg",
         "postal": "20354",
         "company": "The Fontenay Hotel",
-        "phone": "017694323423",
+        "phone": "1769 43234 23",
         "email": "mail@web.de",
-        "selectedDeliveryTime": "2021-07-20 20: 30: 04Z",
         "tip": 20.0,
         "note": "Bitte vor der Tür abstellen"
     },
@@ -31,7 +29,6 @@
         "postal": "20149",
         "phone": "017694323423",
         "email": "mail@web.de",
-        "selectedDeliveryTime": "2021-07-20 20:34:04Z",
         "tip": 2.0,
         "note": "2 Stock im Hintergebäude"
     },
@@ -43,7 +40,6 @@
         "postal": "22299",
         "phone": "017694323423",
         "email": "mail@planetarium.de",
-        "selectedDeliveryTime": "2021-07-20 20:50:04Z",
         "tip": 0.0,
         "note": "2 Stock im Hintergebäude"
     }

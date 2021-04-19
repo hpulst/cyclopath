@@ -1,3 +1,4 @@
+import 'package:cyclopath/custom_widgets/order_card.dart';
 import 'package:cyclopath/models/order.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
@@ -8,13 +9,13 @@ class DeliveringSheet extends StatelessWidget {
     required this.model,
     required this.drawerController,
     required this.dropArrowController,
-    required this.bottomAppBarController,
+    this.bottomAppBarController,
   }) : super(key: key);
 
   final UserSession model;
   final AnimationController drawerController;
   final AnimationController dropArrowController;
-  final AnimationController bottomAppBarController;
+  final AnimationController? bottomAppBarController;
   @override
   Widget build(BuildContext context) {
     // drawerController.animateTo(0.4, curve: standardEasing);
@@ -63,40 +64,4 @@ class DeliveringSheet extends StatelessWidget {
       ],
     );
   }
-}
-
-class OrderTable extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Order>>(
-      future: loadOrders(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return ListView.builder(
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text('${snapshot.data}'),
-              );
-            },
-          );
-        } else if (snapshot.hasError) {
-          return Text('${snapshot.error}');
-        }
-        return const CircularProgressIndicator();
-      },
-    );
-  }
-
-  // Widget build(BuildContext context) {
-  //   return FutureBuilder<List<WorkoutTable>>(
-  //       future: loadWorkouts(filename),
-  //       builder: (context, snapshot) {
-  //         if (snapshot.hasData) {
-  //           return SimpleObjectView(
-  //               simpleObjects: snapshot.data, filename: filename);
-  //         } else if (snapshot.hasError) {
-  //           return Text('${snapshot.error}');
-  //         }
-  //         return const CircularProgressIndicator();
-  //       });
 }
