@@ -1,5 +1,4 @@
 import 'package:cyclopath/custom_widgets/order_card.dart';
-import 'package:cyclopath/models/order.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +17,7 @@ class DeliveringSheet extends StatelessWidget {
   final AnimationController? bottomAppBarController;
   @override
   Widget build(BuildContext context) {
-    // drawerController.animateTo(0.4, curve: standardEasing);
+    drawerController.animateTo(0.4, curve: standardEasing);
 
     return ListView(
       physics: const NeverScrollableScrollPhysics(),
@@ -41,24 +40,6 @@ class DeliveringSheet extends StatelessWidget {
         ),
         const SizedBox(
           height: 12,
-        ),
-        Row(
-          children: [
-            const SizedBox(
-              width: 45,
-            ),
-            Expanded(
-              child: Text(
-                model.selectedUserSessionType.title!,
-                // 'Unterwegs',
-                style: const TextStyle(fontSize: 25.0),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(
-              width: 45,
-            ),
-          ],
         ),
         OrderTable(),
       ],

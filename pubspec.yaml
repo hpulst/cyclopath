@@ -12,7 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   animations: ^2.0.0
-  cupertino_icons: null
+  cupertino_icons: ^1.0.2
   geolocator: null
   google_maps_flutter: null
   http: null

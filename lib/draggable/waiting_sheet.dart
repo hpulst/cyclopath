@@ -69,6 +69,7 @@ class WaitingSheet extends StatelessWidget {
                     IconButton(
                       onPressed: () {
                         drawerController.reverse();
+                        dropArrowController.forward();
                         Future.delayed(
                           Duration(
                             milliseconds:

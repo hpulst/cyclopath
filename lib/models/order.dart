@@ -19,7 +19,6 @@ class Order {
     this.tip,
     this.note,
   }) : orderStatus = OrderStatus.riding;
-
   final int id;
   final String customer;
   final String street;

@@ -6,12 +6,24 @@ class AppTheme {
       primaryColor: _primaryColor,
       accentColor: _accentColor,
       buttonColor: _primaryColor,
+      buttonTheme: const ButtonThemeData(buttonColor: _primaryColor),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           primary: _primaryColor,
           onPrimary: _accentColor,
-          textStyle: const TextStyle(
-            fontSize: 20,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(18),
+            ),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(18),
+            ),
           ),
         ),
       ),

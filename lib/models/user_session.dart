@@ -14,7 +14,7 @@ class UserSession with ChangeNotifier {
         _selectedUserSessionType = sessionType;
         Future.delayed(
           const Duration(
-            seconds: 3,
+            milliseconds: 500,
           ),
           () {
             _selectedUserSessionType = UserSessionType.waiting;
@@ -25,7 +25,7 @@ class UserSession with ChangeNotifier {
       case UserSessionType.waiting:
         Future.delayed(
           const Duration(
-            seconds: 2,
+            seconds: 3,
           ),
           () {
             _selectedUserSessionType = UserSessionType.delivering;
@@ -63,8 +63,8 @@ extension UserSessionTypeExtension on UserSessionType {
   static const titles = {
     UserSessionType.offline: 'Du bist offline',
     UserSessionType.online: 'Du bist online',
-    UserSessionType.waiting: 'Suche Fahrten',
-    UserSessionType.delivering: 'Unterwegs',
+    UserSessionType.waiting: 'Suche Fahrten...',
+    UserSessionType.delivering: 'In Zustellung',
     UserSessionType.returning: 'Rückfahrt',
   };
 

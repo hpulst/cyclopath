@@ -287,12 +287,13 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
               child: Container(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
-                color: Theme.of(context).bottomSheetTheme.modalBackgroundColor,
+                // color: Theme.of(context).bottomSheetTheme.modalBackgroundColor,
               ),
             ),
           ),
         ),
         PositionedTransition(
+          // elevation: 100.0,
           rect: drawerAnimation,
           child: Visibility(
             visible: _bottomDrawerVisible,
@@ -391,7 +392,6 @@ class _AnimatedBottomAppBar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsetsDirectional.only(top: 2),
         child: BottomAppBar(
-          // elevation: 10.0,
           child: Material(
             child: InkWell(
               borderRadius: const BorderRadius.all(Radius.circular(16)),
@@ -481,7 +481,6 @@ class _BottomDrawerDestinations extends StatelessWidget {
           model: model,
           drawerController: drawerController,
           dropArrowController: dropArrowController,
-          // bottomAppBarController: bottomAppBarController,
         );
       default:
         return WaitingSheet(

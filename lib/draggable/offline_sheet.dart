@@ -119,17 +119,20 @@ class ShiftStarts extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               minimumSize: const Size(260, 0.0),
             ),
-            child: Text(i < 2
-                ? i < 1
-                    ? '${TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(minutes: now.minute % 5))).format(context)} (vor ${now.minute % 5} Minuten)'
-                    : 'JETZT'
-                : TimeOfDay.fromDateTime(
-                    timely.add(
-                      Duration(
-                        minutes: 5 * (i - 1),
+            child: Text(
+              i < 2
+                  ? i < 1
+                      ? '${TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(minutes: now.minute % 5))).format(context)} (vor ${now.minute % 5} Minuten)'
+                      : 'JETZT'
+                  : TimeOfDay.fromDateTime(
+                      timely.add(
+                        Duration(
+                          minutes: 5 * (i - 1),
+                        ),
                       ),
-                    ),
-                  ).format(context)),
+                    ).format(context),
+              style: const TextStyle(fontSize: 20),
+            ),
           ),
         ),
       );

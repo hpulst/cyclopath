@@ -35,6 +35,7 @@ A Courrier app that includes functionality that allows the courier to receive or
 **Nice to have features:**
 
 - [ ] View route preview on order
+- [ ] See VerticalProgressIndicator when going online
 - [ ] Push-notification sync
 
 **Current Feature Sprint:**
