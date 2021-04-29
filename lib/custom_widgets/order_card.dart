@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:core';
 
 import 'package:cyclopath/models/order.dart';
@@ -60,19 +61,27 @@ class OrderCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 2),
-                child: _OrderDescription(
-                  street: order.street,
-                  name: order.customer,
-                  note: order.note,
-                  email: order.email,
-                  tip: order.tip,
-                  selectedDeliveryTime: order.selectedDeliveryTime,
-                  phone: order.phone,
-                ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 2),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _OrderDescription(
+                      street: order.street,
+                      name: order.customer,
+                      note: order.note,
+                      email: order.email,
+                      tip: order.tip,
+                      phone: order.phone,
+                    ),
+                  ),
+                  _OrderTimer(
+                    selectedDeliveryTime: order.selectedDeliveryTime,
+                  ),
+                ],
               ),
             ),
             _OrderButtons(),
@@ -109,20 +118,14 @@ class _OrderButtons extends StatelessWidget {
   }
 }
 
-extension Ex on double {
-  String toStringAsFixedNoZero(int n) =>
-      double.parse(this.toStringAsFixed(n)).toString();
-}
-
 class _OrderDescription extends StatelessWidget {
   const _OrderDescription({
     required this.street,
     required this.name,
+    required this.phone,
     this.note,
     this.email,
     this.tip,
-    this.selectedDeliveryTime,
-    required this.phone,
   });
 
   final String street;
@@ -130,7 +133,6 @@ class _OrderDescription extends StatelessWidget {
   final String? note;
   final String? email;
   final double? tip;
-  final DateTime? selectedDeliveryTime;
   final String phone;
 
   @override
@@ -156,7 +158,7 @@ class _OrderDescription extends StatelessWidget {
           ],
         ),
         const Padding(
-          padding: EdgeInsets.only(bottom: 15),
+          padding: EdgeInsets.only(bottom: 12),
         ),
         Visibility(
           visible: tip! > 0.0,
@@ -178,37 +180,117 @@ class _OrderDescription extends StatelessWidget {
           ),
         ),
         const Padding(
-          padding: EdgeInsets.only(bottom: 2),
+          padding: EdgeInsets.only(bottom: 4),
         ),
-        Visibility(
-          visible: note != '',
-          child: Row(
-            children: [
-              const Icon(
-                CupertinoIcons.hand_point_right_fill,
-                size: 20,
-              ),
-              const Padding(
-                padding: EdgeInsets.only(right: 2),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: Text(
-                    note!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      backgroundColor: Colors.amber,
-                    ),
+        _OrderNote(note: note),
+      ],
+    );
+  }
+}
+
+class _OrderNote extends StatelessWidget {
+  const _OrderNote({
+    Key? key,
+    required this.note,
+  }) : super(key: key);
+
+  final String? note;
+
+  @override
+  Widget build(BuildContext context) {
+    return Visibility(
+      visible: note != '',
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.amber.shade100,
+          border: Border.all(
+            width: 0.5,
+            color: Colors.amber,
+          ),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          // mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.warning_rounded,
+              size: 20,
+              color: Colors.amber.shade700,
+            ),
+            const Padding(
+              padding: EdgeInsets.only(right: 2),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Text(
+                  note!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
+      ),
+    );
+  }
+}
+
+class _OrderTimer extends StatefulWidget {
+  const _OrderTimer({required this.selectedDeliveryTime});
+  final DateTime selectedDeliveryTime;
+
+  @override
+  _OrderTimerState createState() => _OrderTimerState();
+}
+
+class _OrderTimerState extends State<_OrderTimer> {
+  final DateTime _dateTime = DateTime.now();
+  late Timer _timer;
+  late Duration _diff;
+
+  @override
+  void initState() {
+    super.initState();
+    startTimer(
+      widget.selectedDeliveryTime.difference(_dateTime),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
+  }
+
+  void startTimer(Duration duration) {
+    _diff = duration;
+
+    _timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (Timer timer) => setState(
+        () {
+          _diff = _diff - const Duration(seconds: 1);
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sDuration = '${_diff.inMinutes}:${_diff.inSeconds.remainder(60)}';
+    return Text(
+      _diff.isNegative ? 'in ' : 'vor ' + sDuration,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        color: _diff.isNegative
+            ? Colors.red.shade600
+            : Theme.of(context).primaryColor,
+      ),
     );
   }
 }

@@ -379,12 +379,12 @@ class _AnimatedBottomAppBar extends StatelessWidget {
       ),
     );
 
-    // if (selectedUserSessionType == UserSessionType.delivering) {
-    //   bottomAppBarController.reverse();
-    // } else {
-    //   bottomAppBarController.forward();
-    // }
-    // bottomAppBarController.forward();
+    if (selectedUserSessionType == UserSessionType.delivering) {
+      bottomAppBarController.reverse();
+    } else {
+      bottomAppBarController.forward();
+    }
+    bottomAppBarController.forward();
 
     return SizeTransition(
       sizeFactor: bottomAppBarCurve,

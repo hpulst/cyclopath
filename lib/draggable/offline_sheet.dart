@@ -119,20 +119,7 @@ class ShiftStarts extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               minimumSize: const Size(260, 0.0),
             ),
-            child: Text(
-              i < 2
-                  ? i < 1
-                      ? '${TimeOfDay.fromDateTime(DateTime.now().subtract(Duration(minutes: now.minute % 5))).format(context)} (vor ${now.minute % 5} Minuten)'
-                      : 'JETZT'
-                  : TimeOfDay.fromDateTime(
-                      timely.add(
-                        Duration(
-                          minutes: 5 * (i - 1),
-                        ),
-                      ),
-                    ).format(context),
-              style: const TextStyle(fontSize: 20),
-            ),
+            child: shiftTimer(i, context),
           ),
         ),
       );
@@ -142,4 +129,52 @@ class ShiftStarts extends StatelessWidget {
       children: timingButtons,
     );
   }
+
+  Text shiftTimer(int i, BuildContext context) {
+    return Text(
+      i < 2
+          ? i < 1
+              ? '${fiveBelow().format(context)} (vor ${now.minute % 5} Minuten)'
+              : 'JETZT'
+          : TimeOfDay.fromDateTime(
+              timely.add(
+                Duration(
+                  minutes: 5 * (i - 1),
+                ),
+              ),
+            ).format(context),
+      style: const TextStyle(fontSize: 20),
+    );
+  }
+
+  TimeOfDay fiveBelow() => TimeOfDay.fromDateTime(
+        DateTime.now().subtract(
+          Duration(minutes: now.minute % 5),
+        ),
+      );
 }
+
+  // var _dateTime = DateTime.now();
+  // late Timer _timer;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _updateTime();
+  // }
+
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  //   _timer.cancel();
+  // }
+  // void _updateTime() {
+  //   setState(() {
+  //     _dateTime = DateTime.now();
+  //     _timer = Timer(
+  //       const Duration(seconds: 1) -
+  //           Duration(milliseconds: _dateTime.millisecond),
+  //       _updateTime,
+  //     );
+  //   });
+  // }
