@@ -4,33 +4,34 @@ A Courrier app that includes functionality that allows the courier to receive or
 
 **Must have features:**
 
-- [x] Sign in as a courier
-  - [ ] Sign out
+- [ ] Sign in as a courier
+  - [x] Sign out
   - [ ] Implement SharedPreferences
+  - [ ] black design
 
-- [x] Select starting time using bottom sheet
-  - [x] Tap to open
+- [ ] Select starting time using bottom sheet
+  - [ ] Tap to open
   - [x] Drag to open
   - [x] Open to specific height
-  - [x] Tap to close
+  - [ ] Tap to close
   - [x] Drag to close
-  - [ ] Implement open draggable while closing bottomappbar
 
 - [ ] View status(call Store/online/offline/riding stats/logout)
   - [ ] Top left appbar Icon
 
 - [ ] View list of new orders
-  - [ ] List orders
-  - [ ] Build ListTile
+  - [x] List orders
+  - [x] Build ListTile
   - [ ] Live orders receiving function
 
 - [ ] View order details
-  - [ ] View Information on food items ordered by customers
   - [ ] View delivery location
   - [ ] View direction on map
   - [ ] Start turn-by-turn navigation
   
-- [ ] View order history
+- [ ] View order queue with tap on list button
+
+- [ ] Implements the order repository using SharedPreferences as a data source.
 
 **Nice to have features:**
 
@@ -40,7 +41,7 @@ A Courrier app that includes functionality that allows the courier to receive or
 
 **Current Feature Sprint:**
 
-- [ ] Show List of Orders in BottomSheet
-  - [ ] Listen to changes to read JSON
-  - [ ] Create ListTile  
+- [ ] Write fetch method for JSON with StreamBuilder
+  - [ ] Notify UserSession to switch to delivery
+  - [ ] show first order
   

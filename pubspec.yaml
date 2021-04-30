@@ -11,8 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  animations: ^2.0.0
-  cupertino_icons: ^1.0.2
+  animations: null
+  cupertino_icons: null
   geolocator: null
   google_maps_flutter: null
   http: null
@@ -20,7 +20,9 @@ dependencies:
   pedantic: null
   provider: ^5.0.0
   shared_preferences: null
-  uuid: ^3.0.2
+  sliding_up_panel: ^2.0.0+1
+  uuid: ^3.0.4
+  vibration: ^1.7.4-nullsafety.0
 
 dev_dependencies:
   flutter_test:
