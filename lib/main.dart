@@ -1,3 +1,4 @@
+import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:cyclopath/pages/login_page.dart';
 import 'package:cyclopath/theme.dart';
@@ -17,7 +18,10 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) => UserSession(),
-        )
+        ),
+        ChangeNotifierProvider(
+          create: (_) => OrderListModel()..loadOrders(),
+        ),
       ],
       child: MaterialApp(
         theme: AppTheme.light(),

@@ -6,8 +6,6 @@ A Courrier app that includes functionality that allows the courier to receive or
 
 - [ ] Sign in as a courier
   - [x] Sign out
-  - [ ] Implement SharedPreferences
-  - [ ] black design
 
 - [ ] Select starting time using bottom sheet
   - [ ] Tap to open
@@ -19,29 +17,31 @@ A Courrier app that includes functionality that allows the courier to receive or
 - [ ] View status(call Store/online/offline/riding stats/logout)
   - [ ] Top left appbar Icon
 
-- [ ] View list of new orders
+- [x] View list of new orders
   - [x] List orders
   - [x] Build ListTile
-  - [ ] Live orders receiving function
 
 - [ ] View order details
-  - [ ] View delivery location
-  - [ ] View direction on map
-  - [ ] Start turn-by-turn navigation
+  - [x] View delivery location
+  - [ ] View direction on map using flutter_polyline_points
+  - [ ] Button to start turn-by-turn navigation
   
 - [ ] View order queue with tap on list button
-
-- [ ] Implements the order repository using SharedPreferences as a data source.
 
 **Nice to have features:**
 
 - [ ] View route preview on order
 - [ ] See VerticalProgressIndicator when going online
 - [ ] Push-notification sync
+- [ ] Implement SharedPreferences to store login info
+- [ ] Switch to black design
+- [ ] Live orders receiving function
+- [ ] Implements the order repository using Firebase as a data source
+- [ ] Implement offline capability using package 'retry'
 
 **Current Feature Sprint:**
 
-- [ ] Write fetch method for JSON with StreamBuilder
-  - [ ] Notify UserSession to switch to delivery
-  - [ ] show first order
+- [x] Write fetch method for JSON with StreamBuilder
+- [ ] Notify UserSession to switch to delivery
+- [ ] Show first order
   

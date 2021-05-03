@@ -8,7 +8,7 @@ part of 'order.dart';
 
 Order _$OrderFromJson(Map<String, dynamic> json) {
   return Order(
-    id: json['id'] as int,
+    id: json['id'] as String,
     customer: json['customer'] as String,
     street: json['street'] as String,
     city: json['city'] as String,

@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'order.g.dart';
@@ -18,12 +16,12 @@ class Order {
     this.email,
     this.tip,
     this.note,
-  })  : orderStatus = OrderStatus.riding,
+  })  : complete = false,
         selectedDeliveryTime = DateTime.now().add(
-          Duration(minutes: 12 + 2 * id),
+          const Duration(minutes: 5 + 2 * 3),
         );
 
-  final int id;
+  final String id;
   final String customer;
   final String street;
   final String city;
@@ -33,7 +31,7 @@ class Order {
   final String? email;
   final double? tip;
   final String? note;
-  final OrderStatus orderStatus;
+  final bool complete;
 
   // ignore: sort_constructors_first
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
@@ -51,5 +49,3 @@ Future<String> _loadAssets() {
   const filePath = 'assets/json/orders.json';
   return rootBundle.loadString(filePath);
 }
-
-enum OrderStatus { placed, ready, picked, riding, arrived, delivered }

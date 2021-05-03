@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vibration/vibration.dart';
 
 class UserSession with ChangeNotifier {
   UserSessionType _selectedUserSessionType = UserSessionType.offline;
@@ -23,18 +24,19 @@ class UserSession with ChangeNotifier {
         );
         break;
       case UserSessionType.waiting:
-        Future.delayed(
-          const Duration(
-            seconds: 3,
-          ),
-          () {
-            _selectedUserSessionType = UserSessionType.delivering;
-            notifyListeners();
-          },
-        );
+        //   Future.delayed(
+        //     const Duration(
+        //       seconds: 3,
+        //     ),
+        //     () {
+        _selectedUserSessionType = UserSessionType.waiting;
+        notifyListeners();
+        //     },
+        //   );
         break;
       case UserSessionType.delivering:
         _selectedUserSessionType = sessionType;
+        Vibration.vibrate();
         break;
       case UserSessionType.returning:
         _selectedUserSessionType = sessionType;
@@ -45,11 +47,6 @@ class UserSession with ChangeNotifier {
 
   int get selectedUserSessionTypeIndex => _selectedUserSessionType.index;
 }
-
-// enum UserSessionDrag {
-//   WaitingSheet(),
-//   OfflineSheet(),
-// }
 
 enum UserSessionType {
   offline,
