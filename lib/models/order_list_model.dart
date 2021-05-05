@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'order.dart';
 
 class OrderListModel extends ChangeNotifier {
@@ -12,11 +13,12 @@ class OrderListModel extends ChangeNotifier {
   final List<Order> _orderQueue;
 
   OrderRepository repository = OrderRepository();
-  String _selectedOrder = '';
+  final String _selectedOrder = '';
   bool _isLoading = false;
 
   List<Order> get orderQueue => _orderQueue;
   String get selectedOrder => _selectedOrder;
+
   bool get isLoading => _isLoading;
 
   Future loadOrders() {
@@ -42,10 +44,8 @@ class OrderListModel extends ChangeNotifier {
   }
 
   void updateOrder(Order order) {
-    assert(order != null);
-    assert(order.id != null);
-    var oldOrder = _orderQueue.firstWhere((it) => it.id == order.id);
-    var replaceIndex = _orderQueue.indexOf(oldOrder);
+    final oldOrder = _orderQueue.firstWhere((it) => it.id == order.id);
+    final replaceIndex = _orderQueue.indexOf(oldOrder);
     _orderQueue.replaceRange(replaceIndex, replaceIndex + 1, [order]);
     notifyListeners();
     _uploadItems();
@@ -59,7 +59,7 @@ class OrderListModel extends ChangeNotifier {
     return _orderQueue.firstWhere((it) => it.id == id);
   }
 
-  Order get firstActiveOrder =>
+  Order get currentOrder =>
       orderQueue.firstWhere((Order order) => !order.complete);
 
   int get numCompleted =>

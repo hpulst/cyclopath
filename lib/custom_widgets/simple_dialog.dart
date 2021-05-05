@@ -10,14 +10,32 @@ class SimpleDialogWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      title: const Text('Salat satt'),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+      ),
       children: [
+        const SizedBox(
+          height: 20,
+        ),
         SimpleDialogItem(
           icon: Icons.phone,
           text: 'Store anrufen',
           onPressed: () {
             Navigator.pop(context);
           },
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        SimpleDialogItem(
+          icon: Icons.pedal_bike_rounded,
+          text: 'Statistik',
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        const SizedBox(
+          height: 20,
         ),
         SimpleDialogItem(
           icon: CupertinoIcons.hand_raised_fill,
@@ -26,8 +44,10 @@ class SimpleDialogWidget extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
+        const SizedBox(
+          height: 0,
+        ),
         const Divider(),
-        const Spacer(),
         SimpleDialogItem(
           icon: Icons.logout_rounded,
           color: Colors.grey,
@@ -66,7 +86,7 @@ class SimpleDialogItem extends StatelessWidget {
           Icon(icon, size: 36.0, color: color),
           Padding(
             padding: const EdgeInsetsDirectional.only(start: 16.0),
-            child: Text(text),
+            child: Text(text, style: Theme.of(context).textTheme.headline5),
           ),
         ],
       ),

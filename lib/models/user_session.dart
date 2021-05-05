@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vibration/vibration.dart';
 
 class UserSession with ChangeNotifier {
   UserSessionType _selectedUserSessionType = UserSessionType.offline;
@@ -12,31 +11,32 @@ class UserSession with ChangeNotifier {
         _selectedUserSessionType = sessionType;
         break;
       case UserSessionType.online:
-        _selectedUserSessionType = sessionType;
-        Future.delayed(
-          const Duration(
-            milliseconds: 500,
-          ),
-          () {
-            _selectedUserSessionType = UserSessionType.waiting;
-            notifyListeners();
-          },
-        );
-        break;
-      case UserSessionType.waiting:
-        //   Future.delayed(
-        //     const Duration(
-        //       seconds: 3,
-        //     ),
-        //     () {
+        // _selectedUserSessionType = sessionType;
+        // Future.delayed(
+        //   const Duration(
+        //     milliseconds: 1000,
+        //   ),
+        //   () {
         _selectedUserSessionType = UserSessionType.waiting;
         notifyListeners();
-        //     },
-        //   );
+        // },
+        // );
+        break;
+      case UserSessionType.waiting:
+        _selectedUserSessionType = sessionType;
+        // Future.delayed(
+        //   const Duration(
+        //     seconds: 3,
+        //   ),
+        //   () {
+        //     _selectedUserSessionType = UserSessionType.waiting;
+
+        //     notifyListeners();
+        //   },
+        // );
         break;
       case UserSessionType.delivering:
         _selectedUserSessionType = sessionType;
-        Vibration.vibrate();
         break;
       case UserSessionType.returning:
         _selectedUserSessionType = sessionType;

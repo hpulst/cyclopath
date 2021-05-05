@@ -1,77 +1,84 @@
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-class OfflineSheet extends StatelessWidget {
+class OfflineSheet extends StatefulWidget {
   const OfflineSheet({
     this.model,
-    required this.drawerController,
-    required this.dropArrowController,
+    required this.panelController,
   });
 
+  final PanelController panelController;
   final UserSession? model;
-  final AnimationController drawerController;
-  final AnimationController dropArrowController;
+
+  @override
+  _OfflineSheetState createState() => _OfflineSheetState();
+}
+
+class _OfflineSheetState extends State<OfflineSheet> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.panelController.isAttached) {
+      widget.panelController.animatePanelToSnapPoint(curve: Curves.easeIn);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(12),
+      // padding: const EdgeInsets.all(12),
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        Column(
+        const SizedBox(
+          height: 12.0,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(
-              height: 6.0,
-            ),
             Container(
               width: 30,
               height: 5,
               decoration: BoxDecoration(
-                color: Colors.grey[600],
+                color: Colors.grey[300],
                 borderRadius: const BorderRadius.all(
                   Radius.circular(12.0),
                 ),
               ),
             ),
-            const SizedBox(
-              height: 12,
-            ),
-            Row(
-              // ignore: prefer_const_literals_to_create_immutables
-              children: [
-                const Expanded(
-                  child: Text(
-                    'Starte Schicht um:',
-                    style: TextStyle(fontSize: 25.0),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
-            ),
-            const Divider(
-              height: 20,
-            ),
-            ShiftStarts(
-              drawerController: drawerController,
-              dropArrowController: dropArrowController,
-            ),
-            Container(
-              height: 200,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Visibility(
-                    visible: false,
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      child: const Text('Go online'),
-                    ),
-                  ),
-                ],
-              ),
+          ],
+        ),
+        const SizedBox(
+          height: 22,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text(
+              'Starte Schicht um:',
+              style: TextStyle(fontSize: 26.0),
             ),
           ],
+        ),
+        const SizedBox(height: 22.0),
+        ShiftStarts(
+          panelController: widget.panelController,
+        ),
+        Container(
+          height: 200,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Visibility(
+                visible: false,
+                child: ElevatedButton(
+                  onPressed: () {},
+                  child: const Text('Go online'),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -80,12 +87,10 @@ class OfflineSheet extends StatelessWidget {
 
 class ShiftStarts extends StatelessWidget {
   ShiftStarts({
-    required this.drawerController,
-    required this.dropArrowController,
-  });
-
-  final AnimationController drawerController;
-  final AnimationController dropArrowController;
+    Key? key,
+    required this.panelController,
+  }) : super(key: key);
+  final PanelController panelController;
 
   final TimeOfDay now = TimeOfDay.now();
   final DateTime timely =
@@ -95,17 +100,18 @@ class ShiftStarts extends StatelessWidget {
   Widget build(BuildContext context) {
     final timingButtons = <Widget>[];
 
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < 7; i++) {
       timingButtons.add(
         Padding(
           padding: const EdgeInsets.all(5.0),
           child: ElevatedButton(
             onPressed: () {
-              drawerController.reverse();
-              dropArrowController.forward();
+              panelController.close();
               Future.delayed(
-                Duration(
-                  milliseconds: drawerController.value == 1 ? 300 : 120,
+                const Duration(
+                  // milliseconds: panelController.value == 1 ? 300 : 120,
+
+                  milliseconds: 120,
                 ),
                 () {
                   // Wait until animations are complete to reload the state.

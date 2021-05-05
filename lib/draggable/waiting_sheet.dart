@@ -1,64 +1,83 @@
+import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:vibration/vibration.dart';
 
-class WaitingSheet extends StatelessWidget {
+class WaitingSheet extends StatefulWidget {
   const WaitingSheet({
     Key? key,
     this.model,
-    required this.drawerController,
-    required this.dropArrowController,
+    required this.panelController,
   }) : super(key: key);
 
   final UserSession? model;
-  final AnimationController drawerController;
-  final AnimationController dropArrowController;
+  final PanelController panelController;
+
+  @override
+  _WaitingSheetState createState() => _WaitingSheetState();
+}
+
+class _WaitingSheetState extends State<WaitingSheet> {
+  var isLoading = true;
+
+  Future<void> fetchOrderLoadingStatus() {
+    return Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        isLoading = context.read<OrderListModel>().isLoading;
+
+        setState(() {
+          if (!isLoading) {
+            context.read<UserSession>().selectedUserSessionType =
+                UserSessionType.delivering;
+            Vibration.vibrate();
+          }
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    fetchOrderLoadingStatus();
+
     return ListView(
-      padding: const EdgeInsets.all(12),
       physics: const NeverScrollableScrollPhysics(),
       children: [
         const SizedBox(
-          height: 6.0,
-        ),
-        Center(
-          child: Container(
-            width: 30,
-            height: 5,
-            decoration: BoxDecoration(
-              color: Colors.grey[600],
-              borderRadius: const BorderRadius.all(
-                Radius.circular(12.0),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 12,
+          height: 12.0,
         ),
         Row(
-          children: const [
-            SizedBox(
-              width: 45,
-            ),
-            // model.selectedUserSessionType.title,
-            Expanded(
-              child: Text(
-                'Statisik',
-                style: TextStyle(fontSize: 25.0),
-                textAlign: TextAlign.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 30,
+              height: 5,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(12.0),
+                ),
               ),
-            ),
-            SizedBox(
-              width: 45,
             ),
           ],
         ),
-        const Divider(
-          height: 20,
+        const SizedBox(
+          height: 22,
         ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text(
+              'Suche Fahrten...',
+              style: TextStyle(fontSize: 26.0),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        const SizedBox(height: 22.0),
+        const Divider(),
         Row(
           children: [
             Expanded(
@@ -68,12 +87,10 @@ class WaitingSheet extends StatelessWidget {
                   children: [
                     IconButton(
                       onPressed: () {
-                        drawerController.reverse();
-                        dropArrowController.forward();
+                        widget.panelController.close();
                         Future.delayed(
-                          Duration(
-                            milliseconds:
-                                drawerController.value == 1 ? 300 : 120,
+                          const Duration(
+                            milliseconds: 120,
                           ),
                           () {
                             // Wait until animations are complete to reload the state.

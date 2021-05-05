@@ -7,13 +7,6 @@ A Courrier app that includes functionality that allows the courier to receive or
 - [ ] Sign in as a courier
   - [x] Sign out
 
-- [ ] Select starting time using bottom sheet
-  - [ ] Tap to open
-  - [x] Drag to open
-  - [x] Open to specific height
-  - [ ] Tap to close
-  - [x] Drag to close
-
 - [ ] View status(call Store/online/offline/riding stats/logout)
   - [ ] Top left appbar Icon
 
@@ -28,20 +21,30 @@ A Courrier app that includes functionality that allows the courier to receive or
   
 - [ ] View order queue with tap on list button
 
+- [x] Select starting time using bottom sheet
+  - [x] Tap to open
+  - [x] Drag to open
+  - [x] Open to specific height
+  - [x] Tap to close
+  - [x] Drag to close
+
 **Nice to have features:**
 
 - [ ] View route preview on order
 - [ ] See VerticalProgressIndicator when going online
 - [ ] Push-notification sync
-- [ ] Implement SharedPreferences to store login info
+- [ ] SharedPreferences to store login info
 - [ ] Switch to black design
-- [ ] Live orders receiving function
-- [ ] Implements the order repository using Firebase as a data source
-- [ ] Implement offline capability using package 'retry'
+- [ ] Get realtime updates with Cloud Firestore
+- [ ] Order repository using Firebase as a data source
+- [ ] Offline capability using package 'retry'
+- [ ] time.periodic remote config
 
 **Current Feature Sprint:**
 
-- [x] Write fetch method for JSON with StreamBuilder
-- [ ] Notify UserSession to switch to delivery
 - [ ] Show first order
   
+**Name all possible solutions:**  
+
+- just use card
+- implement 

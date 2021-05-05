@@ -13,7 +13,7 @@ class AppTheme {
           onPrimary: _accentColor,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(
-              Radius.circular(18),
+              Radius.circular(15),
             ),
           ),
         ),
@@ -29,6 +29,7 @@ class AppTheme {
       ),
       iconTheme: const IconThemeData(
         color: _primaryColor,
+        // size: 30,
       ),
       bottomSheetTheme: BottomSheetThemeData(
         modalBackgroundColor: Colors.black.withOpacity(0.7),

@@ -2,45 +2,43 @@ import 'dart:async';
 import 'dart:core';
 
 import 'package:cyclopath/models/order.dart';
+import 'package:cyclopath/models/order_list_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
 
-class OrderTable extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Order>>(
-      future: loadOrders(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return OrderList(
-            orderList: snapshot.data,
-          );
-        } else if (snapshot.hasError) {
-          return Text('${snapshot.error}');
-        }
-        return const CircularProgressIndicator();
-      },
-    );
-  }
-}
-
-class OrderList extends StatelessWidget {
-  const OrderList({
+class OrderListPage extends StatelessWidget {
+  const OrderListPage({
     Key? key,
-    this.orderList,
   }) : super(key: key);
 
-  final List<Order>? orderList;
-
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: orderList!.length,
-      itemBuilder: (context, index) {
-        return OrderCard(order: orderList![index]);
+    final orderList = context.select(
+      (OrderListModel model) {
+        return model.orderQueue;
       },
+    );
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'STADTSALAT',
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        backwardsCompatibility: false,
+      ),
+      body: orderList.isNotEmpty
+          ? ListView.builder(
+              shrinkWrap: true,
+              itemCount: orderList.length,
+              itemBuilder: (context, index) {
+                return OrderCard(order: orderList[index]);
+              },
+            )
+          : const CircularProgressIndicator(),
     );
   }
 }
@@ -52,40 +50,38 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 180,
-      child: Card(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 10, 10, 2),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: _OrderDescription(
-                      street: order.street,
-                      name: order.customer,
-                      note: order.note,
-                      email: order.email,
-                      tip: order.tip,
-                      phone: order.phone,
-                    ),
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      elevation: 10,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 2),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _OrderDescription(
+                    street: order.street,
+                    name: order.customer,
+                    note: order.note,
+                    email: order.email,
+                    tip: order.tip,
+                    phone: order.phone,
                   ),
-                  _OrderTimer(
-                    selectedDeliveryTime: order.selectedDeliveryTime,
-                  ),
-                ],
-              ),
+                ),
+                _OrderTimer(
+                  selectedDeliveryTime: order.selectedDeliveryTime,
+                ),
+              ],
             ),
-            _OrderButtons(),
-          ],
-        ),
+          ),
+          _OrderButtons(),
+        ],
       ),
     );
   }
@@ -119,13 +115,14 @@ class _OrderButtons extends StatelessWidget {
 
 class _OrderDescription extends StatelessWidget {
   const _OrderDescription({
+    Key? key,
     required this.street,
     required this.name,
     required this.phone,
     this.note,
     this.email,
     this.tip,
-  });
+  }) : super(key: key);
 
   final String street;
   final String name;
@@ -224,7 +221,7 @@ class _OrderNote extends StatelessWidget {
                 padding: const EdgeInsets.all(2.0),
                 child: Text(
                   note!,
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
@@ -281,7 +278,8 @@ class _OrderTimerState extends State<_OrderTimer> {
 
   @override
   Widget build(BuildContext context) {
-    final sDuration = '${_diff.inMinutes}:${_diff.inSeconds.remainder(60)}';
+    final sDuration =
+        '${_diff.inMinutes.abs()}:${_diff.inSeconds.remainder(60).abs()}';
     return Text(
       _diff.isNegative ? 'in ' : 'vor ' + sDuration,
       style: TextStyle(

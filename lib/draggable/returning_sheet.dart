@@ -20,7 +20,7 @@ class ReturningSheet extends StatelessWidget {
           width: 30,
           height: 5,
           decoration: BoxDecoration(
-            color: Colors.grey[600],
+            color: Colors.grey[300],
             borderRadius: const BorderRadius.all(
               Radius.circular(12.0),
             ),
