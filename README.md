@@ -10,16 +10,14 @@ A Courrier app that includes functionality that allows the courier to receive or
 - [ ] View status(call Store/online/offline/riding stats/logout)
   - [ ] Top left appbar Icon
 
-- [x] View list of new orders
-  - [x] List orders
-  - [x] Build ListTile
-
 - [ ] View order details
   - [x] View delivery location
   - [ ] View direction on map using flutter_polyline_points
   - [ ] Button to start turn-by-turn navigation
   
-- [ ] View order queue with tap on list button
+- [x] View list of orders
+  - [x] Build ListTile
+  - [x] View order queue with tap on list button
 
 - [x] Select starting time using bottom sheet
   - [x] Tap to open
@@ -39,12 +37,10 @@ A Courrier app that includes functionality that allows the courier to receive or
 - [ ] Order repository using Firebase as a data source
 - [ ] Offline capability using package 'retry'
 - [ ] time.periodic remote config
+- [ ] Delivery sound
 
 **Current Feature Sprint:**
 
 - [ ] Show first order
   
 **Name all possible solutions:**  
-
-- just use card
-- implement 

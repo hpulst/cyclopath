@@ -20,6 +20,7 @@ dependencies:
   pedantic: null
   provider: ^5.0.0
   shared_preferences: null
+  slide_to_act: ^2.0.1
   sliding_up_panel: ^2.0.0+1
   uuid: ^3.0.4
   vibration: ^1.7.4-nullsafety.0

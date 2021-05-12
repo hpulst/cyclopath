@@ -5,7 +5,7 @@ import 'package:cyclopath/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'pages/map_page.dart';
+import 'custom_widgets/adaptive_navi.dart';
 
 void main() {
   runApp(MyApp());
@@ -26,11 +26,11 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         theme: AppTheme.light(),
         title: 'Cyclopath',
-        home: MapView(),
+        home: AdaptiveNav(),
         debugShowCheckedModeBanner: false,
         routes: {
           '/login': (context) => LoginPage(),
-          '/map': (context) => MapView()
+          '/map': (context) => AdaptiveNav()
         },
       ),
     );
