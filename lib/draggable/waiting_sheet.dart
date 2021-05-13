@@ -20,20 +20,20 @@ class WaitingSheet extends StatefulWidget {
 }
 
 class _WaitingSheetState extends State<WaitingSheet> {
-  var isLoading = true;
+  var hasActiveOrders = false;
 
   Future<void> fetchOrderLoadingStatus() {
     return Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        isLoading = context.read<OrderListModel>().isLoading;
+        hasActiveOrders = context.read<OrderListModel>().hasActiveOrders;
 
-        setState(() {
-          if (!isLoading) {
+        if (hasActiveOrders) {
+          setState(() {
             context.read<UserSession>().selectedUserSessionType =
                 UserSessionType.delivering;
             Vibration.vibrate();
-          }
-        });
+          });
+        }
       }
     });
   }
@@ -41,31 +41,10 @@ class _WaitingSheetState extends State<WaitingSheet> {
   @override
   Widget build(BuildContext context) {
     fetchOrderLoadingStatus();
-
     return ListView(
+      shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        const SizedBox(
-          height: 12.0,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 30,
-              height: 5,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(12.0),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 22,
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [

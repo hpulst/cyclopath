@@ -11,24 +11,9 @@ class ReturningSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return ListView(
+      shrinkWrap: true,
       children: [
-        const SizedBox(
-          height: 6.0,
-        ),
-        Container(
-          width: 30,
-          height: 5,
-          decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: const BorderRadius.all(
-              Radius.circular(12.0),
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 12,
-        ),
         Row(
           children: [
             const SizedBox(

@@ -20,38 +20,24 @@ class _OfflineSheetState extends State<OfflineSheet> {
   @override
   void initState() {
     super.initState();
-    if (widget.panelController.isAttached) {
-      widget.panelController.animatePanelToSnapPoint(curve: Curves.easeIn);
-    }
+    WidgetsBinding.instance!.addPostFrameCallback(
+      (_) async {
+        if (widget.panelController.isAttached) {
+          await widget.panelController.animatePanelToSnapPoint(
+              duration: const Duration(microseconds: 500),
+              curve: Curves.decelerate);
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       // padding: const EdgeInsets.all(12),
+      shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        const SizedBox(
-          height: 12.0,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 30,
-              height: 5,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(12.0),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 22,
-        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
@@ -98,45 +84,51 @@ class ShiftStarts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timingButtons = <Widget>[];
+    final List timingButtons = <Widget>[];
 
     for (var i = 0; i < 7; i++) {
       timingButtons.add(
         Padding(
           padding: const EdgeInsets.all(5.0),
-          child: ElevatedButton(
-            onPressed: () {
-              panelController.close();
-              Future.delayed(
-                const Duration(
-                  // milliseconds: panelController.value == 1 ? 300 : 120,
+          child: Align(
+            alignment: Alignment.center,
+            child: ElevatedButton(
+              onPressed: () {
+                panelController.close();
+                Future.delayed(
+                  const Duration(
+                    // milliseconds: panelController.value == 1 ? 300 : 120,
 
-                  milliseconds: 120,
-                ),
-                () {
-                  // Wait until animations are complete to reload the state.
-                  // Delay scales with the timeDilation value of the gallery.
-                  context.read<UserSession>().selectedUserSessionType =
-                      UserSessionType.online;
-                },
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.all(20),
-              minimumSize: const Size(260, 0.0),
+                    milliseconds: 120,
+                  ),
+                  () {
+                    // Wait until animations are complete to reload the state.
+                    // Delay scales with the timeDilation value of the gallery.
+                    context.read<UserSession>().selectedUserSessionType =
+                        UserSessionType.online;
+                  },
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.all(20),
+                minimumSize: const Size(260, 0.0),
+                // side: const BorderSide(width: .5),
+              ),
+              child: shiftTimer(i, context),
             ),
-            child: shiftTimer(i, context),
           ),
         ),
       );
     }
 
-    return Column(
-      children: timingButtons,
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: timingButtons.length,
+      itemBuilder: (context, index) => timingButtons[index],
     );
   }
 
-  Text shiftTimer(int i, BuildContext context) {
+  Widget shiftTimer(int i, BuildContext context) {
     return Text(
       i < 2
           ? i < 1
@@ -149,7 +141,7 @@ class ShiftStarts extends StatelessWidget {
                 ),
               ),
             ).format(context),
-      style: const TextStyle(fontSize: 20),
+      style: const TextStyle(fontSize: 18),
     );
   }
 

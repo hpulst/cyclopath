@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class UserSession with ChangeNotifier {
   UserSessionType _selectedUserSessionType = UserSessionType.offline;
-
   UserSessionType get selectedUserSessionType => _selectedUserSessionType;
 
   set selectedUserSessionType(UserSessionType sessionType) {
@@ -11,29 +10,11 @@ class UserSession with ChangeNotifier {
         _selectedUserSessionType = sessionType;
         break;
       case UserSessionType.online:
-        // _selectedUserSessionType = sessionType;
-        // Future.delayed(
-        //   const Duration(
-        //     milliseconds: 1000,
-        //   ),
-        //   () {
         _selectedUserSessionType = UserSessionType.waiting;
         notifyListeners();
-        // },
-        // );
         break;
       case UserSessionType.waiting:
         _selectedUserSessionType = sessionType;
-        // Future.delayed(
-        //   const Duration(
-        //     seconds: 3,
-        //   ),
-        //   () {
-        //     _selectedUserSessionType = UserSessionType.waiting;
-
-        //     notifyListeners();
-        //   },
-        // );
         break;
       case UserSessionType.delivering:
         _selectedUserSessionType = sessionType;

@@ -19,7 +19,7 @@ dependencies:
   json_serializable: null
   pedantic: null
   provider: ^5.0.0
-  shared_preferences: null
+  shared_preferences: ^2.0.5
   slide_to_act: ^2.0.1
   sliding_up_panel: ^2.0.0+1
   uuid: ^3.0.4

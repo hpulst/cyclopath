@@ -45,9 +45,11 @@ class SimpleDialogWidget extends StatelessWidget {
           },
         ),
         const SizedBox(
-          height: 0,
+          height: 50,
         ),
-        const Divider(),
+        const Divider(
+          color: Colors.grey,
+        ),
         SimpleDialogItem(
           icon: Icons.logout_rounded,
           color: Colors.grey,
