@@ -6,7 +6,6 @@ import 'order.dart';
 
 class OrderListModel extends ChangeNotifier {
   OrderListModel({
-    // required this.repository,
     List<Order>? orderQueue,
   }) : _orderQueue = orderQueue ?? [];
 
@@ -24,7 +23,6 @@ class OrderListModel extends ChangeNotifier {
   Future loadOrders() {
     _isLoading = true;
     notifyListeners();
-
     return repository.loadOrders().then((loadedOrders) {
       orderQueue.addAll(loadedOrders);
       // .map(Order.fromEntiry)

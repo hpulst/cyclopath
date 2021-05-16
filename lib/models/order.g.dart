@@ -14,9 +14,9 @@ Order _$OrderFromJson(Map<String, dynamic> json) {
     city: json['city'] as String,
     postal: json['postal'] as String,
     phone: json['phone'] as String,
-    email: json['email'] as String?,
-    tip: (json['tip'] as num?)?.toDouble(),
-    note: json['note'] as String?,
+    email: json['email'] as String,
+    tip: (json['tip'] as num).toDouble(),
+    note: json['note'] as String,
   );
 }
 

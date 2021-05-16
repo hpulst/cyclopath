@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
 part 'order.g.dart';
 
@@ -13,9 +10,9 @@ class Order {
     required this.city,
     required this.postal,
     required this.phone,
-    this.email,
-    this.tip,
-    this.note,
+    this.email = '',
+    this.tip = 0,
+    required this.note,
   })  : complete = false,
         selectedDeliveryTime = DateTime.now().add(
           const Duration(minutes: 5 + 2 * 3),
@@ -27,11 +24,11 @@ class Order {
   final String city;
   final String postal;
   final String phone;
-  final DateTime selectedDeliveryTime;
-  final String? email;
-  final double? tip;
-  final String? note;
+  final String email;
+  final double tip;
+  final String note;
   final bool complete;
+  final DateTime selectedDeliveryTime;
 
   // ignore: sort_constructors_first
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
@@ -39,13 +36,13 @@ class Order {
   Map<String, dynamic> toJson() => _$OrderToJson(this);
 }
 
-Future<List<Order>> loadOrders() async {
-  final jsonOrders = await _loadAssets();
-  final List<dynamic> parsedJson = jsonDecode(jsonOrders);
-  return parsedJson.map((e) => Order.fromJson(e)).toList();
-}
+// Future<List<Order>> loadOrders() async {
+//   final jsonOrders = await _loadAssets();
+//   final List<dynamic> parsedJson = jsonDecode(jsonOrders);
+//   return parsedJson.map((e) => Order.fromJson(e)).toList();
+// }
 
-Future<String> _loadAssets() {
-  const filePath = 'assets/json/orders.json';
-  return rootBundle.loadString(filePath);
-}
+// Future<String> _loadAssets() {
+//   const filePath = 'assets/json/orders.json';
+//   return rootBundle.loadString(filePath);
+// }

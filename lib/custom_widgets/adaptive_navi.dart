@@ -76,7 +76,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       textLabel: UserSessionType.delivering.title,
       showIcon: false,
       panelHeightOpen: .70,
-      panelHeightClosed: 150,
+      panelHeightClosed: 170,
       panelSnapping: false,
       locationButton: true,
       navigationButton: true,

@@ -22,20 +22,26 @@ class WaitingSheet extends StatefulWidget {
 class _WaitingSheetState extends State<WaitingSheet> {
   var hasActiveOrders = false;
 
-  Future<void> fetchOrderLoadingStatus() {
-    return Future.delayed(const Duration(seconds: 3), () {
+  Future<void> fetchOrderLoadingStatus() async {
+    // hasActiveOrders = context.read<OrderListModel>().hasActiveOrders;
+    return await Future.delayed(const Duration(seconds: 1), () {
       if (mounted) {
-        hasActiveOrders = context.read<OrderListModel>().hasActiveOrders;
-
-        if (hasActiveOrders) {
-          setState(() {
-            context.read<UserSession>().selectedUserSessionType =
-                UserSessionType.delivering;
-            Vibration.vibrate();
-          });
-        }
+        // print(hasActiveOrders);
+        // if (hasActiveOrders) {
+        // setState(() {
+        context.read<UserSession>().selectedUserSessionType =
+            UserSessionType.delivering;
+        Vibration.vibrate();
+        // });
       }
+
+      // }
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
