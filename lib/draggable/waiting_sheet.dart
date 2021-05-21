@@ -23,20 +23,24 @@ class _WaitingSheetState extends State<WaitingSheet> {
   var hasActiveOrders = false;
 
   Future<void> fetchOrderLoadingStatus() async {
-    // hasActiveOrders = context.read<OrderListModel>().hasActiveOrders;
-    return await Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        // print(hasActiveOrders);
-        // if (hasActiveOrders) {
-        // setState(() {
-        context.read<UserSession>().selectedUserSessionType =
-            UserSessionType.delivering;
-        Vibration.vibrate();
-        // });
-      }
+    hasActiveOrders = context.read<OrderListModel>().hasActiveOrders;
+    try {
+      await Future.delayed(const Duration(seconds: 1), () {
+        if (mounted) {
+          // print(hasActiveOrders);
+          // if (hasActiveOrders) {
+          // setState(() {
+          context.read<UserSession>().selectedUserSessionType =
+              UserSessionType.delivering;
+          Vibration.vibrate();
+          // });
+        }
 
-      // }
-    });
+        // }
+      });
+    } catch (err) {
+      debugPrint('Caught error: $err');
+    }
   }
 
   @override
@@ -51,6 +55,7 @@ class _WaitingSheetState extends State<WaitingSheet> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
+        const SizedBox(height: 22.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [

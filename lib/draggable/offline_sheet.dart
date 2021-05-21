@@ -38,6 +38,7 @@ class _OfflineSheetState extends State<OfflineSheet> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
+        const SizedBox(height: 22.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [

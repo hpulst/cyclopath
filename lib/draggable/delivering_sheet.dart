@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:cyclopath/models/order.dart';
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/pages/orderlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
 class DeliveringSheet extends StatelessWidget {
   const DeliveringSheet({
@@ -33,34 +33,32 @@ class DeliveringSheet extends StatelessWidget {
                   street: orderList.currentOrder.street,
                   customer: orderList.currentOrder.customer,
                   note: orderList.currentOrder.note,
+                  selectedDeliveryTime:
+                      orderList.currentOrder.selectedDeliveryTime,
+                  id: orderList.currentOrder.id,
                   panelController: panelController),
-              Visibility(
-                visible: orderList.currentOrder.note.isNotEmpty,
-                child: _OrderNote(
-                  note: orderList.currentOrder.note,
-                  panelController: panelController,
+              const SizedBox(height: 10),
+              if (orderList.currentOrder.note.isNotEmpty)
+                OrderListTile(
+                  listTileText: orderList.currentOrder.note,
+                  listTileColor: Colors.red.shade100,
+                  icon: Icons.warning_rounded,
+                  iconColor: Colors.red,
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              _OrderTip(tip: orderList.currentOrder.tip),
-              const SizedBox(
-                height: 20,
-              ),
-              _OrderListTile(
+              if (orderList.currentOrder.tip > 0.0)
+                OrderListTile(
+                  listTileText:
+                      '${orderList.currentOrder.tip.toStringAsFixed(orderList.currentOrder.tip.truncateToDouble() == orderList.currentOrder.tip ? 0 : 2)}€ Trinkgeld',
+                  icon: Icons.favorite,
+                ),
+              if (orderList.currentOrder.email.isNotEmpty)
+                OrderListTile(
                   listTileText: orderList.currentOrder.email,
                   icon: Icons.mail_outline_rounded,
-                  visible: orderList.currentOrder.email.isNotEmpty),
-              const SizedBox(
-                height: 20,
-              ),
-              _OrderListTile(
+                ),
+              OrderListTile(
                 listTileText: orderList.currentOrder.id,
                 icon: Icons.airplane_ticket_rounded,
-              ),
-              const SizedBox(
-                height: 20,
               ),
               _OrderPhone(phone: orderList.currentOrder.phone),
             ],
@@ -77,12 +75,16 @@ class OrderPreviewCard extends StatefulWidget {
     required this.street,
     required this.customer,
     required this.note,
+    required this.selectedDeliveryTime,
+    required this.id,
     required this.panelController,
   }) : super(key: key);
 
   final String street;
   final String customer;
   final String note;
+  final DateTime selectedDeliveryTime;
+  final String id;
   final PanelController panelController;
 
   @override
@@ -93,7 +95,6 @@ class _OrderPreviewCardState extends State<OrderPreviewCard> {
   @override
   Widget build(BuildContext context) {
     final isPanelClosed = widget.panelController.isPanelClosed;
-    // final note = widget.note;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,37 +119,35 @@ class _OrderPreviewCardState extends State<OrderPreviewCard> {
               maxLines: 2,
             ),
             const Text(' • '),
-            // _OrderTimer(
-            //   selectedDeliveryTime: widget.order.selectedDeliveryTime,
-            // ),
+            _OrderTimer(
+              selectedDeliveryTime: widget.selectedDeliveryTime,
+            ),
           ],
         ),
-        // if (isPanelClosed)
-
         Visibility(
           visible: isPanelClosed,
-          // visible: widget.note.isEmpty,
           replacement: const SizedBox(
             height: 18,
           ),
-          child: ListTile(
-            dense: true,
-            contentPadding: EdgeInsets.zero,
-            horizontalTitleGap: -10,
-            leading: const Icon(
-              Icons.warning_rounded,
-              color: Colors.red,
-            ),
-            title: Text(
-              widget.note,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+          child: SizedBox(
+            height: 40,
+            child: ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              horizontalTitleGap: -10,
+              leading: const Icon(
+                Icons.warning_rounded,
+                color: Colors.red,
+              ),
+              title: Text(
+                widget.note,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ),
-        // else
-        //   const SizedBox(height: 18),
-        const _OrderDeliveredButtons(),
+        _OrderCompleteSlide(id: widget.id),
       ],
     );
   }
@@ -183,59 +182,38 @@ class _OrderListButton extends StatelessWidget {
   }
 }
 
-class _OrderListTile extends StatelessWidget {
-  const _OrderListTile({
+class OrderListTile extends StatelessWidget {
+  const OrderListTile({
     Key? key,
     required this.listTileText,
     required this.icon,
     this.visible = true,
+    this.listTileColor,
+    this.iconColor = Colors.black,
   }) : super(key: key);
 
   final String listTileText;
-  final IconData? icon;
+  final Color? listTileColor;
+  final IconData icon;
   final bool visible;
+  final Color iconColor;
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: visible,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
       child: Card(
+        color: listTileColor,
+        elevation: 2,
         child: ListTile(
-          leading: const Icon(
+          minLeadingWidth: 20,
+          leading: Icon(
             icon,
-            color: Colors.black,
+            color: iconColor,
           ),
           title: Text(
             listTileText,
-            maxLines: 1,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _OrderTip extends StatelessWidget {
-  const _OrderTip({
-    Key? key,
-    required this.tip,
-  }) : super(key: key);
-
-  final double tip;
-
-  @override
-  Widget build(BuildContext context) {
-    return Visibility(
-      visible: tip > 0.0,
-      child: Card(
-        child: ListTile(
-          leading: const Icon(
-            Icons.favorite,
-            color: Colors.black,
-          ),
-          title: Text(
-            '${tip.toStringAsFixed(tip.truncateToDouble() == tip ? 0 : 2)}€ Trinkgeld',
-            maxLines: 1,
+            maxLines: 10,
           ),
         ),
       ),
@@ -253,47 +231,23 @@ class _OrderPhone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: IconButton(
-        leading: const Icon(
-          Icons.phone,
-          color: Colors.black,
-          size: 22,
-        ),
-        title: Text(phone),
-      ),
-    );
-  }
-}
-
-class _OrderNote extends StatelessWidget {
-  const _OrderNote({
-    Key? key,
-    required this.note,
-    required this.panelController,
-    this.isExpanded,
-  }) : super(key: key);
-
-  final String note;
-  final PanelController panelController;
-  final bool? isExpanded;
-
-  @override
-  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 10.0),
-      child: Visibility(
-        visible: note.isNotEmpty,
-        child: Card(
-          child: ListTile(
-            leading: const Icon(
-              Icons.warning_rounded,
-              size: 25,
-              color: Colors.red,
-            ),
-            title: Text(
-              note,
-              maxLines: 10,
+      padding: const EdgeInsets.all(8.0),
+      child: Material(
+        color: Colors.white,
+        child: Ink(
+          decoration: const ShapeDecoration(
+            color: Colors.black,
+            shape: CircleBorder(),
+          ),
+          child: IconButton(
+            padding: const EdgeInsets.all(15),
+            onPressed: () => url_launcher.launch('tel://$phone'),
+            enableFeedback: true,
+            tooltip: phone,
+            icon: const Icon(
+              Icons.phone,
+              color: Colors.white,
             ),
           ),
         ),
@@ -363,11 +317,12 @@ class _OrderTimerState extends State<_OrderTimer> {
   }
 }
 
-class _OrderDeliveredButtons extends StatelessWidget {
-  const _OrderDeliveredButtons({Key? key}) : super(key: key);
-
-  //  _fabHeight = pos * (_panelHeightOpen - _panelHeightClosed) +
-  //               _initFabHeight;
+class _OrderCompleteSlide extends StatelessWidget {
+  const _OrderCompleteSlide({
+    Key? key,
+    required this.id,
+  }) : super(key: key);
+  final String id;
 
   @override
   Widget build(BuildContext context) {
@@ -384,7 +339,13 @@ class _OrderDeliveredButtons extends StatelessWidget {
             onSubmit: () {
               Future.delayed(
                 const Duration(seconds: 1),
-                () => context.read<OrderListModel>().hasCompleted,
+                () {
+                  final model = context.read<OrderListModel>();
+
+                  final order =
+                      model.orderById(id).copyWith(newcomplete: false);
+                  model.updateOrder(order);
+                },
               );
             },
             innerColor: Colors.white,

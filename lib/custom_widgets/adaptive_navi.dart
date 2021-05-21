@@ -76,7 +76,9 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       textLabel: UserSessionType.delivering.title,
       showIcon: false,
       panelHeightOpen: .70,
+      // panelHeightClosed: _panelHeightClosed,
       panelHeightClosed: 170,
+      // panelSnapping: true,
       panelSnapping: false,
       locationButton: true,
       navigationButton: true,
@@ -159,7 +161,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   // }
 
   Widget _bodyStack(context) {
-    _panelHeightOpen = MediaQuery.of(context).size.height * .70;
+    _panelHeightOpen = MediaQuery.of(context).size.height * 1;
     Destination destination;
 
     return Stack(
@@ -196,11 +198,10 @@ class _AdaptiveNavState extends State<AdaptiveNav>
         }),
         Consumer<UserSession>(builder: (context, session, _) {
           return Visibility(
-            visible: false,
-            // visible: _navigationDestinations
-            //     .firstWhere((destination) =>
-            //         destination.type == session.selectedUserSessionType)
-            //     .locationButton,
+            visible: _navigationDestinations
+                .firstWhere((destination) =>
+                    destination.type == session.selectedUserSessionType)
+                .locationButton,
             child: Positioned(
               right: 17.0,
               bottom: _fabHeight,
@@ -244,7 +245,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
                 context: context, builder: (_) => const SimpleDialogWidget());
           },
           child: const Icon(
-            Icons.menu_rounded,
+            Icons.more_vert_rounded,
           ),
         ),
       ),
@@ -254,7 +255,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
 }
 
 class _BottomDrawerDestinations extends StatelessWidget {
-  _BottomDrawerDestinations({
+  const _BottomDrawerDestinations({
     required this.panelController,
     required this.fabHeight,
     required this.scrollController,
@@ -262,7 +263,7 @@ class _BottomDrawerDestinations extends StatelessWidget {
 
   final PanelController panelController;
   final double fabHeight;
-  var scrollController;
+  final ScrollController scrollController;
 
   Widget _showBottomSheet({
     required PanelController panelController,
@@ -293,6 +294,7 @@ class _BottomDrawerDestinations extends StatelessWidget {
       context: context,
       removeTop: true,
       child: ListView(
+        // physics: const NeverScrollableScrollPhysics(),
         controller: scrollController,
         children: <Widget>[
           const SizedBox(
@@ -305,9 +307,11 @@ class _BottomDrawerDestinations extends StatelessWidget {
                 width: 30,
                 height: 5,
                 decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius:
-                        const BorderRadius.all(Radius.circular(12.0))),
+                  color: Colors.grey[300],
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(12.0),
+                  ),
+                ),
               ),
             ],
           ),

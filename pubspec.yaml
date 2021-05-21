@@ -22,6 +22,7 @@ dependencies:
   shared_preferences: ^2.0.5
   slide_to_act: ^2.0.1
   sliding_up_panel: ^2.0.0+1
+  url_launcher: ^6.0.3
   uuid: ^3.0.4
   vibration: ^1.7.4-nullsafety.0
 
