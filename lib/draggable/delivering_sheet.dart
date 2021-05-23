@@ -38,29 +38,29 @@ class DeliveringSheet extends StatelessWidget {
                   id: orderList.currentOrder.id,
                   panelController: panelController),
               const SizedBox(height: 10),
-              if (orderList.currentOrder.note.isNotEmpty)
-                OrderListTile(
-                  listTileText: orderList.currentOrder.note,
-                  listTileColor: Colors.red.shade100,
-                  icon: Icons.warning_rounded,
-                  iconColor: Colors.red,
-                ),
-              if (orderList.currentOrder.tip > 0.0)
-                OrderListTile(
-                  listTileText:
-                      '${orderList.currentOrder.tip.toStringAsFixed(orderList.currentOrder.tip.truncateToDouble() == orderList.currentOrder.tip ? 0 : 2)}€ Trinkgeld',
-                  icon: Icons.favorite,
-                ),
-              if (orderList.currentOrder.email.isNotEmpty)
-                OrderListTile(
-                  listTileText: orderList.currentOrder.email,
-                  icon: Icons.mail_outline_rounded,
-                ),
-              OrderListTile(
-                listTileText: orderList.currentOrder.id,
-                icon: Icons.airplane_ticket_rounded,
-              ),
-              _OrderPhone(phone: orderList.currentOrder.phone),
+              // if (orderList.currentOrder.note.isNotEmpty)
+              //   OrderListTile(
+              //     listTileText: orderList.currentOrder.note,
+              //     listTileColor: Colors.red.shade100,
+              //     icon: Icons.warning_rounded,
+              //     iconColor: Colors.red,
+              //   ),
+              // if (orderList.currentOrder.tip > 0.0)
+              //   OrderListTile(
+              //     listTileText:
+              //         '${orderList.currentOrder.tip.toStringAsFixed(orderList.currentOrder.tip.truncateToDouble() == orderList.currentOrder.tip ? 0 : 2)}€ Trinkgeld',
+              //     icon: Icons.favorite,
+              //   ),
+              // if (orderList.currentOrder.email.isNotEmpty)
+              //   OrderListTile(
+              //     listTileText: orderList.currentOrder.email,
+              //     icon: Icons.mail_outline_rounded,
+              //   ),
+              // OrderListTile(
+              //   listTileText: orderList.currentOrder.id,
+              //   icon: Icons.airplane_ticket_rounded,
+              // ),
+              // _OrderPhone(phone: orderList.currentOrder.phone),
             ],
           ),
         );
@@ -342,9 +342,9 @@ class _OrderCompleteSlide extends StatelessWidget {
                 () {
                   final model = context.read<OrderListModel>();
 
-                  final order =
-                      model.orderById(id).copyWith(newcomplete: false);
-                  model.updateOrder(order);
+                  // final order =
+                  //     model.orderById(id).copyWith(newcomplete: false);
+                  // model.updateOrder(order);
                 },
               );
             },

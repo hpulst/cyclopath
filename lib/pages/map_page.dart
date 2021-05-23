@@ -42,7 +42,7 @@ class _MapViewState extends State<MapView> with TickerProviderStateMixin {
     setState(() {
       controller.animateCamera(CameraUpdate.newCameraPosition(_current));
     });
-    await _onMapCreated(controller);
+    // await _onMapCreated(controller);
   }
 
   Future<void> _onMapCreated(GoogleMapController controller) async {

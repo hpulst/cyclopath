@@ -6,7 +6,7 @@ part 'order.g.dart';
 @JsonSerializable()
 class Order {
   Order({
-    required this.orderNum,
+    required this.ordernumber,
     required this.customer,
     required this.street,
     required this.city,
@@ -25,7 +25,7 @@ class Order {
             );
 
   final String id;
-  final String orderNum;
+  final String ordernumber;
   final String customer;
   final String street;
   final String city;
@@ -34,6 +34,7 @@ class Order {
   final String email;
   final String note;
   final double tip;
+  @JsonKey(defaultValue: false)
   final bool complete;
   final DateTime selectedDeliveryTime;
 
@@ -57,7 +58,7 @@ class Order {
     DateTime? newselectedDeliveryTime,
   }) {
     return Order(
-        orderNum: neworderNum ?? orderNum,
+        ordernumber: neworderNum ?? ordernumber,
         customer: newcustomer ?? customer,
         street: newstreet ?? street,
         city: newcity ?? city,

@@ -27,25 +27,19 @@ class _WaitingSheetState extends State<WaitingSheet> {
     try {
       await Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
-          // print(hasActiveOrders);
-          // if (hasActiveOrders) {
-          // setState(() {
-          context.read<UserSession>().selectedUserSessionType =
-              UserSessionType.delivering;
-          Vibration.vibrate();
-          // });
+          print(hasActiveOrders);
+          if (hasActiveOrders) {
+            // setState(() {
+            context.read<UserSession>().selectedUserSessionType =
+                UserSessionType.delivering;
+            Vibration.vibrate();
+            // });
+          }
         }
-
-        // }
       });
     } catch (err) {
       debugPrint('Caught error: $err');
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
   }
 
   @override

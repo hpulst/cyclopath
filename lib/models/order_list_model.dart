@@ -1,17 +1,18 @@
-import 'dart:convert';
+import 'package:cyclopath/utils/json_parsing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'order.dart';
 
 class OrderListModel extends ChangeNotifier {
   OrderListModel({
+    required this.repository,
     List<Order>? orderQueue,
   }) : _orderQueue = orderQueue ?? [];
 
   final List<Order> _orderQueue;
+  final OrderRepository repository;
 
-  OrderRepository repository = OrderRepository();
+  // OrderRepository repository = OrderRepository();
   final String _selectedOrder = '';
   bool _isLoading = false;
 
@@ -23,10 +24,13 @@ class OrderListModel extends ChangeNotifier {
   Future loadOrders() {
     _isLoading = true;
     notifyListeners();
+    print('isLoading: $_isLoading');
     return repository.loadOrders().then((loadedOrders) {
-      orderQueue.addAll(loadedOrders);
+      _orderQueue.addAll(loadedOrders);
+      print('orderQueue[0].complete ${_orderQueue[0].complete}');
       // .map(Order.fromEntiry)
       _isLoading = false;
+      print('isLoading: $_isLoading');
       notifyListeners();
     }).catchError((dynamic error) {
       _isLoading = false;
@@ -69,17 +73,4 @@ class OrderListModel extends ChangeNotifier {
       orderQueue.where((Order order) => !order.complete).toList().length;
 
   bool get hasActiveOrders => numActive > 0;
-}
-
-class OrderRepository {
-  Future<List<Order>> loadOrders() async {
-    final jsonOrders = await _loadAssets();
-    final List<dynamic> parsedJson = jsonDecode(jsonOrders);
-    return parsedJson.map((e) => Order.fromJson(e)).toList();
-  }
-
-  Future<String> _loadAssets() {
-    const filePath = 'assets/json/orders.json';
-    return rootBundle.loadString(filePath);
-  }
 }
