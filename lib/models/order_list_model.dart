@@ -24,13 +24,9 @@ class OrderListModel extends ChangeNotifier {
   Future loadOrders() {
     _isLoading = true;
     notifyListeners();
-    print('isLoading: $_isLoading');
     return repository.loadOrders().then((loadedOrders) {
       _orderQueue.addAll(loadedOrders);
-      print('orderQueue[0].complete ${_orderQueue[0].complete}');
-      // .map(Order.fromEntiry)
       _isLoading = false;
-      print('isLoading: $_isLoading');
       notifyListeners();
     }).catchError((dynamic error) {
       _isLoading = false;

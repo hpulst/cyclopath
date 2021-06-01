@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:json_annotation/json_annotation.dart';
 
@@ -78,17 +79,37 @@ class Locations {
   final List<Region>? regions;
 }
 
-Future<Locations> getGoogleOffices() async {
-  const googleLocationsURL = 'https://about.google/static/data/locations.json';
+// Future<Locations> getOffices() async {
+//   const googleLocationsURL = 'https://about.google/static/data/locations.json';
 
-  // Retrieve the locations of Google offices
-  final response = await http.get(Uri.parse(googleLocationsURL));
-  if (response.statusCode == 200) {
-    return Locations.fromJson(json.decode(response.body));
-  } else {
-    throw HttpException(
-        'Unexpected status code ${response.statusCode}:'
-        ' ${response.reasonPhrase}',
-        uri: Uri.parse(googleLocationsURL));
-  }
+//   // Retrieve the locations of Google offices
+//   try {
+//     // final response = await http.get(Uri.parse(googleLocationsURL));
+
+//     var a = Locations.fromJson(json.decode());
+
+//     if (response.statusCode == 200) {
+//       print('response.decode${json.decode(response.body)}');
+
+//       return Locations.fromJson(json.decode(response.body));
+//     } else {
+//       throw HttpException(
+//           'Unexpected status code ${response.statusCode}:'
+//           ' ${response.reasonPhrase}',
+//           uri: Uri.parse(googleLocationsURL));
+//     }
+//   } catch (err, stacktrace) {
+//     print(err);
+//     return Locations();
+//   }
+// }
+
+Future<Locations> getOffices() async {
+  final jsonLocations = await _loadAssets();
+
+  return Locations.fromJson(json.decode(jsonLocations));
+}
+
+Future<String> _loadAssets() {
+  return rootBundle.loadString('assets/json/offices.json');
 }

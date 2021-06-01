@@ -20,31 +20,20 @@ class WaitingSheet extends StatefulWidget {
 }
 
 class _WaitingSheetState extends State<WaitingSheet> {
-  var hasActiveOrders = false;
+  var hasActiveOrders = true;
 
-  Future<void> fetchOrderLoadingStatus() async {
-    hasActiveOrders = context.read<OrderListModel>().hasActiveOrders;
-    try {
-      await Future.delayed(const Duration(seconds: 1), () {
-        if (mounted) {
-          print(hasActiveOrders);
-          if (hasActiveOrders) {
-            // setState(() {
-            context.read<UserSession>().selectedUserSessionType =
-                UserSessionType.delivering;
-            Vibration.vibrate();
-            // });
-          }
-        }
-      });
-    } catch (err) {
-      debugPrint('Caught error: $err');
-    }
-  }
+  Future<void> fetchOrderLoadingStatus() async {}
 
   @override
   Widget build(BuildContext context) {
-    fetchOrderLoadingStatus();
+    final hasActiveOrders = context.watch<OrderListModel>().hasActiveOrders;
+    if (hasActiveOrders) {
+      Future.delayed(const Duration(seconds: 3), () {
+        context.read<UserSession>().selectedUserSessionType =
+            UserSessionType.delivering;
+        Vibration.vibrate();
+      });
+    }
     return ListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),

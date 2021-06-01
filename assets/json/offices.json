@@ -1,0 +1,34 @@
+{
+    "offices": [
+        {
+            "address": "Große Theaterstraße 31",
+            "id": "hamburg",
+            "image": "https://lh3.googleusercontent.com/66R0svr2--6zNOnrqf6JbeZ-bF39bRfHpExjcTlE_AIlPEPk8jO1LjF39FUbDnJB1gh_FiRFX6aCRg4ACjYRbDqb5lf9PdV6qY4S",
+            "lat": 53.557009,
+            "lng": 9.989243,
+            "name": "STADTSALAT Hamburg",
+            "phone": "+49 4032807730",
+            "region": "europe"
+        },
+        {
+            "address": "Friedrichstraße 113",
+            "id": "berlin",
+            "image": "https://lh3.googleusercontent.com/XcPyEMiSlLdZJq7nh3orGy3UqjtUHdhxXiwn52ZY47wfEChfZNDO78zDy9H0tBeegogZBZpIE0Q9mdVBGN4aQ0M5vfgz8ZWMEe43Mg",
+            "lat": 52.525924811410924,
+            "lng": 13.387924756126816,
+            "name": "STADTSALAT Berlin",
+            "phone": "+49 4032807730",
+            "region": "europe"
+        },
+        {
+            "address": "Bockenheimer Landstraße 59",
+            "id": "frankfurt",
+            "image": "https://lh3.googleusercontent.com/XcPyEMiSlLdZJq7nh3orGy3UqjtUHdhxXiwn52ZY47wfEChfZNDO78zDy9H0tBeegogZBZpIE0Q9mdVBGN4aQ0M5vfgz8ZWMEe43Mg",
+            "lat": 50.11782493017233,
+            "lng": 8.663179954212715,
+            "name": "STADTSALAT Frankfurt",
+            "phone": "+49 4032807730",
+            "region": "europe"
+        }
+    ]
+}

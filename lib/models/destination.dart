@@ -12,6 +12,7 @@ class Destination {
     this.showIcon,
     this.widget,
     this.panelHeightOpen,
+    this.initFabHeight,
   });
 
   // Which drawer to display
@@ -24,4 +25,5 @@ class Destination {
   final bool panelSnapping;
   final double panelHeightClosed;
   final double? panelHeightOpen;
+  final double? initFabHeight;
 }

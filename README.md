@@ -43,4 +43,8 @@ A Courrier app that includes functionality that allows the courier to receive or
 
 - [ ] Show first order
   
-**Name all possible solutions:**  
+**Name all possible solutions:**
+  
+- [ ] top-level function
+- [ ] class with function
+- [ ] callback

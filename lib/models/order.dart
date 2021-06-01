@@ -11,6 +11,8 @@ class Order {
     required this.street,
     required this.city,
     required this.postal,
+    required this.lat,
+    required this.lng,
     required this.phone,
     this.email = '',
     this.note = '',
@@ -29,6 +31,8 @@ class Order {
   final String customer;
   final String street;
   final String city;
+  final double lat;
+  final double lng;
   final String postal;
   final String phone;
   final String email;
@@ -50,6 +54,8 @@ class Order {
     String? newstreet,
     String? newcity,
     String? newpostal,
+    double? newlat,
+    double? newlng,
     String? newphone,
     String? newemail,
     double? newtip,
@@ -63,6 +69,8 @@ class Order {
         street: newstreet ?? street,
         city: newcity ?? city,
         postal: newpostal ?? postal,
+        lat: newlat ?? lat,
+        lng: newlng ?? lng,
         phone: newphone ?? phone,
         id: newid ?? id,
         email: newemail ?? email,

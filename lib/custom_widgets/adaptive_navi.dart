@@ -1,17 +1,28 @@
+import 'dart:async';
+
 import 'package:cyclopath/custom_widgets/simple_dialog.dart';
 import 'package:cyclopath/draggable/delivering_sheet.dart';
 import 'package:cyclopath/draggable/offline_sheet.dart';
 import 'package:cyclopath/draggable/waiting_sheet.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:cyclopath/models/destination.dart';
-import 'package:cyclopath/pages/map_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:cyclopath/models/locations.dart' as locations;
 
+final Map<String?, Marker> _markers = {};
+final Completer<GoogleMapController> _controller = Completer();
 GoogleMapController? mapController;
+late Position _currentPosition;
+
+const _initialLocation = CameraPosition(
+  target: LatLng(51.1657, 10.45),
+  zoom: 12,
+);
 
 class AdaptiveNav extends StatefulWidget {
   @override
@@ -21,26 +32,17 @@ class AdaptiveNav extends StatefulWidget {
 class _AdaptiveNavState extends State<AdaptiveNav>
     with TickerProviderStateMixin {
   static const double _panelHeightClosed = 95.0;
+  static const double _initFabHeight = _panelHeightClosed + 105;
+  // static const double _initFabHeight = 220.0;
+  late BitmapDescriptor customIcon;
 
   final _bottomDrawerKey = GlobalKey(debugLabel: 'Bottom Drawer');
-  final double _initFabHeight = 120.0;
   final double _snapPoint = .45;
 
   double _panelHeightOpen = 0;
-  VoidCallback? onSelected;
   double _fabHeight = 0;
   late AnimationController _dropArrowController;
   late PanelController _panelController;
-
-  // @override
-  // void didUpdateWidget(covariant AdaptiveNav oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-  //   // if(oldWidget.isDeliveryMode != widget.isDeliveryMode){
-  //   //   setState(() {
-
-  //   //   });
-  //   // }
-  // }
 
   final _navigationDestinations = <Destination>[
     Destination(
@@ -80,6 +82,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       panelHeightClosed: 170,
       // panelSnapping: true,
       panelSnapping: false,
+      initFabHeight: _initFabHeight + 50,
       locationButton: true,
       navigationButton: true,
     ),
@@ -97,68 +100,70 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   @override
   void initState() {
     super.initState();
-    // _getCurrentLocation();
+    _setCustomMarker();
+    _getCurrentLocation();
     _panelController = PanelController();
-    // WidgetsBinding.instance!.addPostFrameCallback((_) async {
-    //   if (_panelController.isAttached) {
-    //     await _panelController.animatePanelToSnapPoint(curve: Curves.easeIn);
-    //   }
-    // },
-    // );
   }
 
-  // Future<void> _getCurrentLocation() async {
-  //   final controller = await _controller.future;
-  //   _currentPosition = await Geolocator.getCurrentPosition(
-  //       desiredAccuracy: LocationAccuracy.high);
-  //   final _current = CameraPosition(
-  //       target: LatLng(_currentPosition.latitude, _currentPosition.longitude),
-  //       zoom: 15);
-  //   setState(() {
-  //     controller.animateCamera(CameraUpdate.newCameraPosition(_current));
-  //   });
-  //   await _onMapCreated(controller);
-  // }
+  Future<void> _getCurrentLocation() async {
+    final controller = await _controller.future;
+    _currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    final _current = CameraPosition(
+        target: LatLng(_currentPosition.latitude, _currentPosition.longitude),
+        zoom: 15);
+    setState(() {
+      controller.animateCamera(CameraUpdate.newCameraPosition(_current));
+    });
+    await _onMapCreated(controller);
+  }
 
-  // Future<void> _onMapCreated(GoogleMapController controller) async {
-  //   final googleOffices = await locations.getGoogleOffices();
+  void _setCustomMarker() async {
+    customIcon = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(devicePixelRatio: 1.5),
+        'assets/images/green_salad_windows.png');
+  }
 
-  //   setState(
-  //     () {
-  //       _markers.clear();
-  //       for (final office in googleOffices.offices!) {
-  //         final marker = Marker(
-  //           markerId: MarkerId(office.name!),
-  //           position: LatLng(office.lat!, office.lng!),
-  //           infoWindow: InfoWindow(
-  //             title: office.name,
-  //             snippet: office.address,
-  //           ),
-  //         );
-  //         _markers[office.name] = marker;
-  //       }
-  //     },
-  //   );
-  // }
+  Future<void> _onMapCreated(GoogleMapController controller) async {
+    final offices = await locations.getOffices();
 
-  // Widget _buildMap() {
-  //   return GoogleMap(
-  //     initialCameraPosition: _initialLocation,
-  //     // mapToolbarEnabled: true,
-  //     myLocationEnabled: true,
-  //     myLocationButtonEnabled: false,
-  //     zoomGesturesEnabled: true,
-  //     zoomControlsEnabled: false,
-  //     markers: _markers.values.toSet(),
-  //     onMapCreated: (GoogleMapController controller) {
-  //       if (!_controller.isCompleted) {
-  //         _controller.complete(controller);
-  //       } else {
-  //         _controller.isCompleted;
-  //       }
-  //     },
-  //   );
-  // }
+    setState(
+      () {
+        _markers.clear();
+        for (final office in offices.offices!) {
+          final marker = Marker(
+            markerId: MarkerId(office.name!),
+            position: LatLng(office.lat!, office.lng!),
+            icon: customIcon,
+            infoWindow: InfoWindow(
+              title: office.name,
+              snippet: office.address,
+            ),
+          );
+          _markers[office.name] = marker;
+        }
+      },
+    );
+  }
+
+  Widget _buildMap() {
+    return GoogleMap(
+      initialCameraPosition: _initialLocation,
+      // mapToolbarEnabled: true,
+      myLocationEnabled: true,
+      myLocationButtonEnabled: false,
+      zoomGesturesEnabled: true,
+      zoomControlsEnabled: false,
+      markers: _markers.values.toSet(),
+      onMapCreated: (GoogleMapController controller) {
+        if (!_controller.isCompleted) {
+          _controller.complete(controller);
+        } else {
+          _controller.isCompleted;
+        }
+      },
+    );
+  }
 
   Widget _bodyStack(context) {
     _panelHeightOpen = MediaQuery.of(context).size.height * 1;
@@ -182,7 +187,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
             backdropEnabled: true,
             backdropOpacity: 0,
             backdropTapClosesPanel: true,
-            body: MapView(),
+            body: _buildMap(),
             panelBuilder: (_scrollController) => _BottomDrawerDestinations(
                 panelController: _panelController,
                 fabHeight: _fabHeight,
@@ -207,8 +212,9 @@ class _AdaptiveNavState extends State<AdaptiveNav>
               bottom: _fabHeight,
               child: FloatingActionButton(
                 heroTag: 'btn1',
-                onPressed: () {},
-                // onPressed: _getCurrentLocation,
+                onPressed: () {
+                  _getCurrentLocation();
+                },
                 backgroundColor: Colors.white,
                 child: Icon(
                   Icons.gps_fixed,

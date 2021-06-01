@@ -8,8 +8,37 @@ import 'package:slide_to_act/slide_to_act.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
-class DeliveringSheet extends StatelessWidget {
+class DeliveringSheet extends StatefulWidget {
   const DeliveringSheet({
+    Key? key,
+    required this.panelController,
+  }) : super(key: key);
+
+  final PanelController panelController;
+
+  @override
+  _DeliveringSheetState createState() => _DeliveringSheetState();
+}
+
+class _DeliveringSheetState extends State<DeliveringSheet> {
+  // @override
+  // void initState() {
+  //   WidgetsBinding.instance?.addPostFrameCallback((_) async {
+  //     await widget.panelController.animatePanelToSnapPoint(
+  //         duration: const Duration(microseconds: 500),
+  //         curve: Curves.decelerate);
+  //   });
+  //   super.initState();
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return OrderCard(panelController: widget.panelController);
+  }
+}
+
+class OrderCard extends StatelessWidget {
+  const OrderCard({
     Key? key,
     required this.panelController,
   }) : super(key: key);
@@ -38,29 +67,33 @@ class DeliveringSheet extends StatelessWidget {
                   id: orderList.currentOrder.id,
                   panelController: panelController),
               const SizedBox(height: 10),
-              // if (orderList.currentOrder.note.isNotEmpty)
-              //   OrderListTile(
-              //     listTileText: orderList.currentOrder.note,
-              //     listTileColor: Colors.red.shade100,
-              //     icon: Icons.warning_rounded,
-              //     iconColor: Colors.red,
-              //   ),
-              // if (orderList.currentOrder.tip > 0.0)
-              //   OrderListTile(
-              //     listTileText:
-              //         '${orderList.currentOrder.tip.toStringAsFixed(orderList.currentOrder.tip.truncateToDouble() == orderList.currentOrder.tip ? 0 : 2)}€ Trinkgeld',
-              //     icon: Icons.favorite,
-              //   ),
-              // if (orderList.currentOrder.email.isNotEmpty)
-              //   OrderListTile(
-              //     listTileText: orderList.currentOrder.email,
-              //     icon: Icons.mail_outline_rounded,
-              //   ),
-              // OrderListTile(
-              //   listTileText: orderList.currentOrder.id,
-              //   icon: Icons.airplane_ticket_rounded,
-              // ),
-              // _OrderPhone(phone: orderList.currentOrder.phone),
+              if (orderList.currentOrder.note.isNotEmpty)
+                OrderListTile(
+                  listTileText: orderList.currentOrder.note,
+                  listTileColor: Colors.red.shade100,
+                  icon: Icons.warning_rounded,
+                  iconColor: Colors.red,
+                ),
+              if (orderList.currentOrder.tip > 0.0)
+                OrderListTile(
+                  listTileText:
+                      '${orderList.currentOrder.tip.toStringAsFixed(orderList.currentOrder.tip.truncateToDouble() == orderList.currentOrder.tip ? 0 : 2)}€ Trinkgeld',
+                  icon: Icons.favorite,
+                ),
+              if (orderList.currentOrder.email.isNotEmpty)
+                OrderListTile(
+                  listTileText: orderList.currentOrder.email,
+                  icon: Icons.mail_outline_rounded,
+                ),
+              OrderListTile(
+                listTileText: orderList.currentOrder.ordernumber,
+                icon: Icons.airplane_ticket_rounded,
+              ),
+              OrderListTile(
+                listTileText: orderList.currentOrder.complete.toString(),
+                icon: Icons.airplane_ticket_rounded,
+              ),
+              _OrderPhone(phone: orderList.currentOrder.phone),
             ],
           ),
         );
@@ -69,7 +102,7 @@ class DeliveringSheet extends StatelessWidget {
   }
 }
 
-class OrderPreviewCard extends StatefulWidget {
+class OrderPreviewCard extends StatelessWidget {
   const OrderPreviewCard({
     Key? key,
     required this.street,
@@ -88,13 +121,8 @@ class OrderPreviewCard extends StatefulWidget {
   final PanelController panelController;
 
   @override
-  _OrderPreviewCardState createState() => _OrderPreviewCardState();
-}
-
-class _OrderPreviewCardState extends State<OrderPreviewCard> {
-  @override
   Widget build(BuildContext context) {
-    final isPanelClosed = widget.panelController.isPanelClosed;
+    final isPanelClosed = panelController.isPanelClosed;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,8 +132,8 @@ class _OrderPreviewCardState extends State<OrderPreviewCard> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              widget.street,
-              maxLines: 2,
+              street,
+              maxLines: 3,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 25),
             ),
@@ -115,17 +143,17 @@ class _OrderPreviewCardState extends State<OrderPreviewCard> {
         Row(
           children: [
             Text(
-              widget.customer,
+              customer,
               maxLines: 2,
             ),
             const Text(' • '),
             _OrderTimer(
-              selectedDeliveryTime: widget.selectedDeliveryTime,
+              selectedDeliveryTime: selectedDeliveryTime,
             ),
           ],
         ),
         Visibility(
-          visible: isPanelClosed,
+          visible: isPanelClosed && note.isNotEmpty,
           replacement: const SizedBox(
             height: 18,
           ),
@@ -140,14 +168,14 @@ class _OrderPreviewCardState extends State<OrderPreviewCard> {
                 color: Colors.red,
               ),
               title: Text(
-                widget.note,
+                note,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
         ),
-        _OrderCompleteSlide(id: widget.id),
+        _OrderCompleteSlide(id: id),
       ],
     );
   }
@@ -322,36 +350,33 @@ class _OrderCompleteSlide extends StatelessWidget {
     Key? key,
     required this.id,
   }) : super(key: key);
+
   final String id;
 
   @override
   Widget build(BuildContext context) {
+    final _listKey = ValueKey(id);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: Builder(
-        builder: (context) {
-          final _key = GlobalKey<SlideActionState>();
-
-          return SlideAction(
-            height: 50,
-            sliderButtonIconPadding: 10,
-            text: 'Zugestellt',
-            onSubmit: () {
-              Future.delayed(
-                const Duration(seconds: 1),
-                () {
-                  final model = context.read<OrderListModel>();
-
-                  // final order =
-                  //     model.orderById(id).copyWith(newcomplete: false);
-                  // model.updateOrder(order);
-                },
-              );
+      child: SlideAction(
+        key: _listKey,
+        onSubmit: () {
+          Future.delayed(
+            const Duration(seconds: 1),
+            () {
+              // sliderKey.currentState?.reset();
+              final model = context.read<OrderListModel>();
+              final order = model.orderById(id).copyWith(newcomplete: true);
+              model.updateOrder(order);
             },
-            innerColor: Colors.white,
-            outerColor: Colors.black,
           );
         },
+        height: 50,
+        sliderButtonIconPadding: 10,
+        text: 'Zugestellt',
+        innerColor: Colors.white,
+        outerColor: Colors.black,
       ),
     );
   }

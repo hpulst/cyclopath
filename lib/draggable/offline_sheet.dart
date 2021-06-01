@@ -20,7 +20,7 @@ class _OfflineSheetState extends State<OfflineSheet> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback(
+    WidgetsBinding.instance?.addPostFrameCallback(
       (_) async {
         if (widget.panelController.isAttached) {
           await widget.panelController.animatePanelToSnapPoint(

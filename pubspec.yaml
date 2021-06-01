@@ -37,4 +37,6 @@ flutter:
   assets:
     - assets/images/
     - assets/images/logo_black.png
+    - assets/images/custom_marker.png
+    - assets/images/green_salad_windows.png
     - assets/json/
