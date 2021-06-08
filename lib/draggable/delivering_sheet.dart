@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/pages/orderlist_page.dart';
@@ -12,24 +13,27 @@ class DeliveringSheet extends StatefulWidget {
   const DeliveringSheet({
     Key? key,
     required this.panelController,
+    required this.getCurrentLocation,
   }) : super(key: key);
 
   final PanelController panelController;
+  final VoidCallback getCurrentLocation;
 
   @override
   _DeliveringSheetState createState() => _DeliveringSheetState();
 }
 
 class _DeliveringSheetState extends State<DeliveringSheet> {
-  // @override
-  // void initState() {
-  //   WidgetsBinding.instance?.addPostFrameCallback((_) async {
-  //     await widget.panelController.animatePanelToSnapPoint(
-  //         duration: const Duration(microseconds: 500),
-  //         curve: Curves.decelerate);
-  //   });
-  //   super.initState();
-  // }
+  @override
+  void initState() {
+    //   WidgetsBinding.instance?.addPostFrameCallback((_) async {
+    //     await widget.panelController.animatePanelToSnapPoint(
+    //         duration: const Duration(microseconds: 500),
+    //         curve: Curves.decelerate);
+    // });
+    super.initState();
+    widget.getCurrentLocation();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,8 +137,8 @@ class OrderPreviewCard extends StatelessWidget {
           children: [
             Text(
               street,
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
+              // maxLines: 3,
+              // overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 25),
             ),
             const _OrderListButton(),
@@ -368,6 +372,7 @@ class _OrderCompleteSlide extends StatelessWidget {
               // sliderKey.currentState?.reset();
               final model = context.read<OrderListModel>();
               final order = model.orderById(id).copyWith(newcomplete: true);
+              model.createMarkers();
               model.updateOrder(order);
             },
           );

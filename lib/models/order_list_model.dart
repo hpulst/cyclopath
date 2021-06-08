@@ -1,5 +1,6 @@
 import 'package:cyclopath/utils/json_parsing.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'order.dart';
 
@@ -11,21 +12,25 @@ class OrderListModel extends ChangeNotifier {
 
   final List<Order> _orderQueue;
   final OrderRepository repository;
+  final Set<Marker> _markers = {};
 
   // OrderRepository repository = OrderRepository();
   final String _selectedOrder = '';
   bool _isLoading = false;
 
+  Set<Marker> get markers => _markers;
   List<Order> get orderQueue => _orderQueue;
   String get selectedOrder => _selectedOrder;
 
   bool get isLoading => _isLoading;
 
   Future loadOrders() {
+    print('loadOrders: isLoading $_isLoading');
     _isLoading = true;
     notifyListeners();
     return repository.loadOrders().then((loadedOrders) {
       _orderQueue.addAll(loadedOrders);
+      createMarkers();
       _isLoading = false;
       notifyListeners();
     }).catchError((dynamic error) {
@@ -53,6 +58,28 @@ class OrderListModel extends ChangeNotifier {
     // repository.saveOrders(_orderQueue.map((it) => it.toEntity()).toList());
   }
 
+  void createMarkers() {
+    _markers.addAll(
+      _orderQueue.where((order) => !order.complete).map(
+        (order) {
+          return Marker(
+            markerId: MarkerId(order.id),
+            position: LatLng(order.lat, order.lng),
+            infoWindow: InfoWindow(
+              title: '${_orderQueue.indexOf(order) + 1}. ${order.customer}',
+              snippet: order.street,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void removeMarkers(MarkerId markerId) {
+    markers.clear();
+    notifyListeners();
+  }
+
   Order orderById(String id) {
     return _orderQueue.firstWhere((it) => it.id == id);
   }
@@ -65,8 +92,8 @@ class OrderListModel extends ChangeNotifier {
 
   bool get hasCompleted => numCompleted > 0;
 
-  int get numActive =>
+  int get numUncompleted =>
       orderQueue.where((Order order) => !order.complete).toList().length;
 
-  bool get hasActiveOrders => numActive > 0;
+  bool get hasActiveOrders => numUncompleted > 0;
 }

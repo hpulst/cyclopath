@@ -4,6 +4,7 @@ import 'package:cyclopath/custom_widgets/simple_dialog.dart';
 import 'package:cyclopath/draggable/delivering_sheet.dart';
 import 'package:cyclopath/draggable/offline_sheet.dart';
 import 'package:cyclopath/draggable/waiting_sheet.dart';
+import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:cyclopath/models/destination.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,8 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cyclopath/models/locations.dart' as locations;
 
-final Map<String?, Marker> _markers = {};
+// final Map<String?, Marker> _markers = {};
+Set<Marker> _markers = {};
 final Completer<GoogleMapController> _controller = Completer();
 GoogleMapController? mapController;
 late Position _currentPosition;
@@ -105,7 +107,30 @@ class _AdaptiveNavState extends State<AdaptiveNav>
     _panelController = PanelController();
   }
 
+  Future<void> _setCustomMarker() async {
+    final offices = await locations.getOffices();
+    customIcon = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(size: Size(20, 20)),
+        'assets/images/green_salad_windows.png');
+
+    _markers.clear();
+    for (final office in offices.offices!) {
+      final marker = Marker(
+        markerId: MarkerId(office.name!),
+        position: LatLng(office.lat!, office.lng!),
+        // icon: customIcon,
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        infoWindow: InfoWindow(
+          title: office.name,
+          snippet: office.address,
+        ),
+      );
+      _markers.add(marker);
+    }
+  }
+
   Future<void> _getCurrentLocation() async {
+    print(StackTrace.current);
     final controller = await _controller.future;
     _currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
@@ -115,33 +140,13 @@ class _AdaptiveNavState extends State<AdaptiveNav>
     setState(() {
       controller.animateCamera(CameraUpdate.newCameraPosition(_current));
     });
-    await _onMapCreated(controller);
+    await _onMapCreated();
   }
 
-  void _setCustomMarker() async {
-    customIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(devicePixelRatio: 1.5),
-        'assets/images/green_salad_windows.png');
-  }
-
-  Future<void> _onMapCreated(GoogleMapController controller) async {
-    final offices = await locations.getOffices();
-
+  Future<void> _onMapCreated() async {
     setState(
       () {
-        _markers.clear();
-        for (final office in offices.offices!) {
-          final marker = Marker(
-            markerId: MarkerId(office.name!),
-            position: LatLng(office.lat!, office.lng!),
-            icon: customIcon,
-            infoWindow: InfoWindow(
-              title: office.name,
-              snippet: office.address,
-            ),
-          );
-          _markers[office.name] = marker;
-        }
+        _markers.addAll(context.read<OrderListModel>().markers);
       },
     );
   }
@@ -154,7 +159,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       myLocationButtonEnabled: false,
       zoomGesturesEnabled: true,
       zoomControlsEnabled: false,
-      markers: _markers.values.toSet(),
+      markers: _markers,
       onMapCreated: (GoogleMapController controller) {
         if (!_controller.isCompleted) {
           _controller.complete(controller);
@@ -191,7 +196,8 @@ class _AdaptiveNavState extends State<AdaptiveNav>
             panelBuilder: (_scrollController) => _BottomDrawerDestinations(
                 panelController: _panelController,
                 fabHeight: _fabHeight,
-                scrollController: _scrollController),
+                scrollController: _scrollController,
+                getCurrentLocation: _getCurrentLocation),
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(18.0),
                 topRight: Radius.circular(18.0)),
@@ -265,15 +271,18 @@ class _BottomDrawerDestinations extends StatelessWidget {
     required this.panelController,
     required this.fabHeight,
     required this.scrollController,
+    required this.getCurrentLocation(),
   });
 
   final PanelController panelController;
   final double fabHeight;
   final ScrollController scrollController;
+  final VoidCallback getCurrentLocation;
 
   Widget _showBottomSheet({
     required PanelController panelController,
     required UserSessionType selectedUserSessionType,
+    required VoidCallback getCurrentLocation,
   }) {
     switch (selectedUserSessionType) {
       case UserSessionType.offline:
@@ -283,7 +292,9 @@ class _BottomDrawerDestinations extends StatelessWidget {
       case UserSessionType.delivering:
         return DeliveringSheet(
           panelController: panelController,
+          getCurrentLocation: getCurrentLocation,
         );
+
       default:
         return WaitingSheet(
           panelController: panelController,
@@ -321,11 +332,8 @@ class _BottomDrawerDestinations extends StatelessWidget {
               ),
             ],
           ),
-          // const SizedBox(
-          //   height: 8.0,
-          // ),
-          //GestureDetector seems to only work with ListView
 
+          //GestureDetector seems to only work with ListView
           GestureDetector(
             onTap: () => panelController.panelPosition >= 0.1
                 ? panelController.close()
@@ -333,6 +341,7 @@ class _BottomDrawerDestinations extends StatelessWidget {
             child: _showBottomSheet(
               selectedUserSessionType: selectedUserSessionType,
               panelController: panelController,
+              getCurrentLocation: getCurrentLocation,
             ),
           ),
         ],

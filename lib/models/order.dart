@@ -20,6 +20,7 @@ class Order {
     this.complete = false,
     String? id,
     DateTime? selectedDeliveryTime,
+    this.queueNumber,
   })  : id = id ?? const Uuid().v4(),
         selectedDeliveryTime = selectedDeliveryTime ??
             DateTime.now().add(
@@ -38,9 +39,10 @@ class Order {
   final String email;
   final String note;
   final double tip;
-  @JsonKey(defaultValue: false)
+  // @JsonKey(defaultValue: false)
   final bool complete;
   final DateTime selectedDeliveryTime;
+  final double? queueNumber;
 
   // ignore: sort_constructors_first
   factory Order.fromJson(Map<String, dynamic> json) => _$OrderFromJson(json);
@@ -62,20 +64,23 @@ class Order {
     String? newnote,
     bool? newcomplete,
     DateTime? newselectedDeliveryTime,
+    double? newqueueNumber,
   }) {
     return Order(
-        ordernumber: neworderNum ?? ordernumber,
-        customer: newcustomer ?? customer,
-        street: newstreet ?? street,
-        city: newcity ?? city,
-        postal: newpostal ?? postal,
-        lat: newlat ?? lat,
-        lng: newlng ?? lng,
-        phone: newphone ?? phone,
-        id: newid ?? id,
-        email: newemail ?? email,
-        tip: newtip ?? tip,
-        note: newnote ?? note,
-        complete: newcomplete ?? complete);
+      ordernumber: neworderNum ?? ordernumber,
+      customer: newcustomer ?? customer,
+      street: newstreet ?? street,
+      city: newcity ?? city,
+      postal: newpostal ?? postal,
+      lat: newlat ?? lat,
+      lng: newlng ?? lng,
+      phone: newphone ?? phone,
+      id: newid ?? id,
+      email: newemail ?? email,
+      tip: newtip ?? tip,
+      note: newnote ?? note,
+      complete: newcomplete ?? complete,
+      queueNumber: newqueueNumber ?? queueNumber,
+    );
   }
 }

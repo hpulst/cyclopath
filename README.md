@@ -41,10 +41,10 @@ A Courrier app that includes functionality that allows the courier to receive or
 
 **Current Feature Sprint:**
 
-- [ ] Show first order
+- [ ] Routing
   
 **Name all possible solutions:**
   
-- [ ] top-level function
-- [ ] class with function
-- [ ] callback
+- [ ] have function calling ones
+- [ ] child widget calls 
+- [ ] 

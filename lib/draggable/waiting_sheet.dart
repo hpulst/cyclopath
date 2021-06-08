@@ -20,20 +20,27 @@ class WaitingSheet extends StatefulWidget {
 }
 
 class _WaitingSheetState extends State<WaitingSheet> {
-  var hasActiveOrders = true;
-
-  Future<void> fetchOrderLoadingStatus() async {}
+  void setSession(BuildContext context) {
+    Future.delayed(
+      const Duration(
+        milliseconds: 1,
+      ),
+      () {
+        context.read<UserSession>().selectedUserSessionType =
+            UserSessionType.delivering;
+      },
+    );
+    Vibration.vibrate();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final hasActiveOrders = context.watch<OrderListModel>().hasActiveOrders;
+    final hasActiveOrders =
+        context.select((OrderListModel model) => model.hasActiveOrders);
     if (hasActiveOrders) {
-      Future.delayed(const Duration(seconds: 3), () {
-        context.read<UserSession>().selectedUserSessionType =
-            UserSessionType.delivering;
-        Vibration.vibrate();
-      });
+      setSession(context);
     }
+
     return ListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),

@@ -11,13 +11,14 @@ class UserSession with ChangeNotifier {
         break;
       case UserSessionType.online:
         _selectedUserSessionType = UserSessionType.waiting;
-        notifyListeners();
         break;
       case UserSessionType.waiting:
         _selectedUserSessionType = sessionType;
         break;
       case UserSessionType.delivering:
-        _selectedUserSessionType = sessionType;
+        Future.delayed(const Duration(seconds: 2), () {
+          _selectedUserSessionType = sessionType;
+        });
         break;
       case UserSessionType.returning:
         _selectedUserSessionType = sessionType;
