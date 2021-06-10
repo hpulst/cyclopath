@@ -75,8 +75,13 @@ class OrderListModel extends ChangeNotifier {
     );
   }
 
-  void removeMarkers(MarkerId markerId) {
-    markers.clear();
+  void removeMarker(String id) {
+    _markers.removeWhere((element) => element.markerId == MarkerId(id));
+    notifyListeners();
+  }
+
+  void removeCompletedMarkers(MarkerId markerId) {
+    _markers.clear();
     notifyListeners();
   }
 

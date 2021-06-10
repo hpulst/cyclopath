@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/pages/orderlist_page.dart';
@@ -37,7 +36,10 @@ class _DeliveringSheetState extends State<DeliveringSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return OrderCard(panelController: widget.panelController);
+    return OrderCard(
+      panelController: widget.panelController,
+      getCurrentLocation: widget.getCurrentLocation,
+    );
   }
 }
 
@@ -45,9 +47,11 @@ class OrderCard extends StatelessWidget {
   const OrderCard({
     Key? key,
     required this.panelController,
+    required this.getCurrentLocation,
   }) : super(key: key);
 
   final PanelController panelController;
+  final VoidCallback getCurrentLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -63,13 +67,15 @@ class OrderCard extends StatelessWidget {
           child: Column(
             children: [
               OrderPreviewCard(
-                  street: orderList.currentOrder.street,
-                  customer: orderList.currentOrder.customer,
-                  note: orderList.currentOrder.note,
-                  selectedDeliveryTime:
-                      orderList.currentOrder.selectedDeliveryTime,
-                  id: orderList.currentOrder.id,
-                  panelController: panelController),
+                street: orderList.currentOrder.street,
+                customer: orderList.currentOrder.customer,
+                note: orderList.currentOrder.note,
+                selectedDeliveryTime:
+                    orderList.currentOrder.selectedDeliveryTime,
+                id: orderList.currentOrder.id,
+                panelController: panelController,
+                getCurrentLocation: getCurrentLocation,
+              ),
               const SizedBox(height: 10),
               if (orderList.currentOrder.note.isNotEmpty)
                 OrderListTile(
@@ -115,6 +121,7 @@ class OrderPreviewCard extends StatelessWidget {
     required this.selectedDeliveryTime,
     required this.id,
     required this.panelController,
+    required this.getCurrentLocation,
   }) : super(key: key);
 
   final String street;
@@ -123,6 +130,7 @@ class OrderPreviewCard extends StatelessWidget {
   final DateTime selectedDeliveryTime;
   final String id;
   final PanelController panelController;
+  final VoidCallback getCurrentLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -179,7 +187,10 @@ class OrderPreviewCard extends StatelessWidget {
             ),
           ),
         ),
-        _OrderCompleteSlide(id: id),
+        _OrderCompleteSlide(
+          id: id,
+          getCurrentLocation: getCurrentLocation,
+        ),
       ],
     );
   }
@@ -353,9 +364,11 @@ class _OrderCompleteSlide extends StatelessWidget {
   const _OrderCompleteSlide({
     Key? key,
     required this.id,
+    required this.getCurrentLocation,
   }) : super(key: key);
 
   final String id;
+  final VoidCallback getCurrentLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -372,8 +385,11 @@ class _OrderCompleteSlide extends StatelessWidget {
               // sliderKey.currentState?.reset();
               final model = context.read<OrderListModel>();
               final order = model.orderById(id).copyWith(newcomplete: true);
-              model.createMarkers();
               model.updateOrder(order);
+
+              // model.createMarkers();
+              model.removeMarker(order.id);
+              getCurrentLocation();
             },
           );
         },

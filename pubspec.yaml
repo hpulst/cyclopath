@@ -13,6 +13,8 @@ dependencies:
     sdk: flutter
   animations: null
   cupertino_icons: null
+  dio: ^4.0.0
+  flutter_polyline_points: ^1.0.0
   geolocator: null
   google_maps_flutter: null
   http: null

@@ -4,22 +4,27 @@ import 'package:cyclopath/custom_widgets/simple_dialog.dart';
 import 'package:cyclopath/draggable/delivering_sheet.dart';
 import 'package:cyclopath/draggable/offline_sheet.dart';
 import 'package:cyclopath/draggable/waiting_sheet.dart';
+import 'package:cyclopath/models/directions_model.dart';
+import 'package:cyclopath/models/directions_repository.dart';
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
-import 'package:cyclopath/models/destination.dart';
+import 'package:cyclopath/models/destination_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cyclopath/models/locations.dart' as locations;
+import 'package:cyclopath/.config.dart';
 
 // final Map<String?, Marker> _markers = {};
 Set<Marker> _markers = {};
 final Completer<GoogleMapController> _controller = Completer();
 GoogleMapController? mapController;
 late Position _currentPosition;
+// Directions? _directions;
 
 const _initialLocation = CameraPosition(
   target: LatLng(51.1657, 10.45),
@@ -45,6 +50,9 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   double _fabHeight = 0;
   late AnimationController _dropArrowController;
   late PanelController _panelController;
+  late PolylinePoints polylinePoints;
+  Map<PolylineId, Polyline> polylines = {};
+  List<LatLng> polylineCoordinates = [];
 
   final _navigationDestinations = <Destination>[
     Destination(
@@ -130,31 +138,92 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   }
 
   Future<void> _getCurrentLocation() async {
-    print(StackTrace.current);
+    // print(StackTrace.current);
     final controller = await _controller.future;
     _currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     final _current = CameraPosition(
         target: LatLng(_currentPosition.latitude, _currentPosition.longitude),
-        zoom: 15);
+        zoom: 14);
     setState(() {
       controller.animateCamera(CameraUpdate.newCameraPosition(_current));
     });
-    await _onMapCreated();
+    if (context.read<UserSession>().selectedUserSessionType ==
+        UserSessionType.delivering) {
+      await _onMapCreated();
+    }
   }
 
   Future<void> _onMapCreated() async {
+    final model = context.read<OrderListModel>();
+
+    // final directions = await DirectionsRepository().getDirections(
+    //     origin: LatLng(_currentPosition.latitude, _currentPosition.longitude),
+    //     destination: LatLng(model.currentOrder.lat, model.currentOrder.lng));
+
+    await _createPolylines(
+        _currentPosition.latitude,
+        _currentPosition.longitude,
+        model.currentOrder.lat,
+        model.currentOrder.lng);
+
     setState(
       () {
-        _markers.addAll(context.read<OrderListModel>().markers);
+        if (_markers.isNotEmpty) {
+          _markers.clear();
+        }
+        // _placeDistance = null;
+        _markers.addAll(model.markers);
+        polylines.addAll(polylines);
+        // print(polylines.values);
+        // if (directions != null) {
+        //   _directions = directions;
+        // }
       },
     );
+  }
+
+  Future<void> _createPolylines(
+    double startLatitude,
+    double startLongitude,
+    double destinationLatitude,
+    double destinationLongitude,
+  ) async {
+    polylinePoints = PolylinePoints();
+    if (polylines.isNotEmpty) {
+      polylines.clear();
+    }
+    final result = await polylinePoints.getRouteBetweenCoordinates(
+      googleAPIKey, // Google Maps API Key
+      PointLatLng(startLatitude, startLongitude),
+      PointLatLng(destinationLatitude, destinationLongitude),
+      travelMode: TravelMode.bicycling,
+    );
+
+    if (result.points.isNotEmpty) {
+      if (polylineCoordinates.isNotEmpty) {
+        polylineCoordinates.clear();
+      }
+      for (final point in result.points) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      }
+    }
+
+    const id = PolylineId('poly');
+    final polyline = Polyline(
+      polylineId: id,
+      color: Colors.black,
+      points: polylineCoordinates,
+      width: 6,
+    );
+    polylines[id] = polyline;
   }
 
   Widget _buildMap() {
     return GoogleMap(
       initialCameraPosition: _initialLocation,
-      // mapToolbarEnabled: true,
+      // mapToolbarEna
+      //bled: true,
       myLocationEnabled: true,
       myLocationButtonEnabled: false,
       zoomGesturesEnabled: true,
@@ -167,6 +236,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
           _controller.isCompleted;
         }
       },
+      polylines: Set<Polyline>.of(polylines.values),
     );
   }
 
