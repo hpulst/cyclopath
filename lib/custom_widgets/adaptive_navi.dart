@@ -193,28 +193,36 @@ class _AdaptiveNavState extends State<AdaptiveNav>
     if (polylines.isNotEmpty) {
       polylines.clear();
     }
-    final result = await polylinePoints.getRouteBetweenCoordinates(
-      googleAPIKey, // Google Maps API Key
-      PointLatLng(startLatitude, startLongitude),
-      PointLatLng(destinationLatitude, destinationLongitude),
-      travelMode: TravelMode.bicycling,
-    );
+    // final result = await polylinePoints.getRouteBetweenCoordinates(
+    //   googleAPIKey, // Google Maps API Key
+    //   PointLatLng(startLatitude, startLongitude),
+    //   PointLatLng(destinationLatitude, destinationLongitude),
+    //   travelMode: TravelMode.bicycling,
+    // );
 
-    if (result.points.isNotEmpty) {
-      if (polylineCoordinates.isNotEmpty) {
-        polylineCoordinates.clear();
-      }
-      for (final point in result.points) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-      }
-    }
+    // ignore: omit_local_variable_types
+    final Directions directions = await DirectionsRepository().getDirections(
+        origin: LatLng(startLatitude, startLongitude),
+        destination: LatLng(destinationLatitude, destinationLongitude));
+
+    // if (result.points.isNotEmpty) {
+    //   if (polylineCoordinates.isNotEmpty) {
+    //     polylineCoordinates.clear();
+    //   }
+
+    //   for (final point in directions.polylinePoints) {
+    //     polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+    //   }
+    // }
 
     const id = PolylineId('poly');
     final polyline = Polyline(
       polylineId: id,
       color: Colors.black,
-      points: polylineCoordinates,
       width: 6,
+      points: directions.polylinePoints
+          .map((e) => LatLng(e.latitude, e.longitude))
+          .toList(),
     );
     polylines[id] = polyline;
   }

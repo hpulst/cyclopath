@@ -1,46 +1,65 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'dart:convert';
+
+import 'package:cyclopath/models/directions_model.dart';
+import 'package:dio/dio.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:cyclopath/.config.dart';
+import 'package:http/http.dart' as http;
+
+// class DirectionsRepository {
+//   final _baseUrl = 'maps.googleapis.com/';
+//   final _basePath = 'maps/api/directions/json?';
+
+//   Future<Directions> getDirections({
+//     required LatLng origin,
+//     required LatLng destination,
+//   }) async {
+//     final queryParameters = {
+//       'origin': '${origin.latitude},${origin.longitude}',
+//       'destination': '${destination.latitude},${destination.longitude}',
+//       'key': googleAPIKey,
+//     };
+
+//     final uri = Uri.http(
+//         'maps.googleapis.com', '/maps/api/directions/json?', queryParameters);
+
+//     final response = await http.get(uri);
+
+//     // Check if response is successful
+//     if (response.statusCode == 200) {
+//       return Directions.fromMap(jsonDecode(response.body));
+//     } else {
+//       throw Exception('Failed to load directions');
+//     }
+//   }
+// }
 
 class DirectionsRepository {
-  late PolylinePoints polylinePoints;
-  Map<PolylineId, Polyline> polylines = {};
-  List<LatLng> polylineCoordinates = [];
+  static const String _baseUrl =
+      'https://maps.googleapis.com/maps/api/directions/json?';
 
-  Future<void> _createPolylines(
-    double startLatitude,
-    double startLongitude,
-    double destinationLatitude,
-    double destinationLongitude,
-  ) async {
-    polylinePoints = PolylinePoints();
-    if (polylines.isNotEmpty) {
-      polylines.clear();
-    }
-    final result = await polylinePoints.getRouteBetweenCoordinates(
-      googleAPIKey, // Google Maps API Key
-      PointLatLng(startLatitude, startLongitude),
-      PointLatLng(destinationLatitude, destinationLongitude),
-      travelMode: TravelMode.bicycling,
+  final Dio _dio;
+
+  DirectionsRepository({Dio? dio}) : _dio = dio ?? Dio();
+
+  Future<Directions> getDirections({
+    required LatLng origin,
+    required LatLng destination,
+  }) async {
+    final response = await _dio.get(
+      _baseUrl,
+      queryParameters: {
+        'origin': '${origin.latitude},${origin.longitude}',
+        'destination': '${destination.latitude},${destination.longitude}',
+        'key': googleAPIKey,
+      },
     );
 
-    if (result.points.isNotEmpty) {
-      if (polylineCoordinates.isNotEmpty) {
-        polylineCoordinates.clear();
-      }
-      for (final point in result.points) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-      }
+    // Check if response is successful
+    if (response.statusCode == 200) {
+      print(response.statusMessage);
+      return Directions.fromMap(response.data);
     }
-
-    const id = PolylineId('poly');
-    final polyline = Polyline(
-      polylineId: id,
-      color: Colors.black,
-      points: polylineCoordinates,
-      width: 5,
-    );
-    polylines[id] = polyline;
+    throw Exception('Failed to load directions');
   }
 }

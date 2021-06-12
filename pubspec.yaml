@@ -17,7 +17,7 @@ dependencies:
   flutter_polyline_points: ^1.0.0
   geolocator: null
   google_maps_flutter: null
-  http: null
+  http: ^0.13.3
   json_serializable: null
   pedantic: null
   provider: ^5.0.0
