@@ -41,10 +41,8 @@ A Courrier app that includes functionality that allows the courier to receive or
 
 **Current Feature Sprint:**
 
-- [ ] Routing
+- [ ] Show destination marker
   
 **Name all possible solutions:**
   
-- [ ] have function calling ones
-- [ ] child widget calls 
-- [ ] 
+- when creating markers, see if directions

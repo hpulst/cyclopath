@@ -143,11 +143,13 @@ class OrderPreviewCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              street,
-              // maxLines: 3,
-              // overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontSize: 25),
+            Expanded(
+              child: Text(
+                street,
+                // maxLines: 3,
+                // overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 25),
+              ),
             ),
             const _OrderListButton(),
           ],
@@ -379,6 +381,7 @@ class _OrderCompleteSlide extends StatelessWidget {
       child: SlideAction(
         key: _listKey,
         onSubmit: () {
+          print('::::::OrderCompleteSlide::::');
           Future.delayed(
             const Duration(seconds: 1),
             () {

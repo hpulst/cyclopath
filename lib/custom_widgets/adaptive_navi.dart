@@ -17,7 +17,6 @@ import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cyclopath/models/locations.dart' as locations;
-import 'package:cyclopath/.config.dart';
 
 // final Map<String?, Marker> _markers = {};
 Set<Marker> _markers = {};
@@ -48,11 +47,11 @@ class _AdaptiveNavState extends State<AdaptiveNav>
 
   double _panelHeightOpen = 0;
   double _fabHeight = 0;
-  late AnimationController _dropArrowController;
+  // late AnimationController _dropArrowController;
+  // List<LatLng> polylineCoordinates = [];
   late PanelController _panelController;
-  late PolylinePoints polylinePoints;
-  Map<PolylineId, Polyline> polylines = {};
-  List<LatLng> polylineCoordinates = [];
+  // late PolylinePoints polylinePoints;
+  Map<PolylineId, Polyline> _polylines = {};
 
   final _navigationDestinations = <Destination>[
     Destination(
@@ -118,7 +117,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   Future<void> _setCustomMarker() async {
     final offices = await locations.getOffices();
     customIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(20, 20)),
+        const ImageConfiguration(size: Size(10, 10)),
         'assets/images/green_salad_windows.png');
 
     _markers.clear();
@@ -126,8 +125,8 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       final marker = Marker(
         markerId: MarkerId(office.name!),
         position: LatLng(office.lat!, office.lng!),
-        // icon: customIcon,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        icon: customIcon,
+        // icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
         infoWindow: InfoWindow(
           title: office.name,
           snippet: office.address,
@@ -138,7 +137,6 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   }
 
   Future<void> _getCurrentLocation() async {
-    // print(StackTrace.current);
     final controller = await _controller.future;
     _currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
@@ -172,13 +170,8 @@ class _AdaptiveNavState extends State<AdaptiveNav>
         if (_markers.isNotEmpty) {
           _markers.clear();
         }
-        // _placeDistance = null;
         _markers.addAll(model.markers);
-        polylines.addAll(polylines);
-        // print(polylines.values);
-        // if (directions != null) {
-        //   _directions = directions;
-        // }
+        // _polylines.addAll(_polylines);
       },
     );
   }
@@ -189,9 +182,9 @@ class _AdaptiveNavState extends State<AdaptiveNav>
     double destinationLatitude,
     double destinationLongitude,
   ) async {
-    polylinePoints = PolylinePoints();
-    if (polylines.isNotEmpty) {
-      polylines.clear();
+    // polylinePoints = PolylinePoints();
+    if (_polylines.isNotEmpty) {
+      _polylines.clear();
     }
     // final result = await polylinePoints.getRouteBetweenCoordinates(
     //   googleAPIKey, // Google Maps API Key
@@ -224,7 +217,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
           .map((e) => LatLng(e.latitude, e.longitude))
           .toList(),
     );
-    polylines[id] = polyline;
+    _polylines[id] = polyline;
   }
 
   Widget _buildMap() {
@@ -244,7 +237,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
           _controller.isCompleted;
         }
       },
-      polylines: Set<Polyline>.of(polylines.values),
+      polylines: Set<Polyline>.of(_polylines.values),
     );
   }
 

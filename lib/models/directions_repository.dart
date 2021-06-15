@@ -21,7 +21,7 @@ import 'package:http/http.dart' as http;
 //     };
 
 //     final uri = Uri.http(
-//         'maps.googleapis.com', '/maps/api/directions/json?', queryParameters);
+//         'www.maps.googleapis.com', '/maps/api/directions/json?', queryParameters);
 
 //     final response = await http.get(uri);
 
@@ -35,12 +35,11 @@ import 'package:http/http.dart' as http;
 // }
 
 class DirectionsRepository {
+  // DirectionsRepository({Dio? dio}) : _dio = dio ?? Dio();
   static const String _baseUrl =
       'https://maps.googleapis.com/maps/api/directions/json?';
 
-  final Dio _dio;
-
-  DirectionsRepository({Dio? dio}) : _dio = dio ?? Dio();
+  final _dio = Dio();
 
   Future<Directions> getDirections({
     required LatLng origin,
