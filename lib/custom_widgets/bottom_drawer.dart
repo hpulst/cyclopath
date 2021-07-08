@@ -1,34 +1,91 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cyclopath/draggable/delivering_sheet.dart';
+import 'package:cyclopath/draggable/offline_sheet.dart';
+import 'package:cyclopath/draggable/waiting_sheet.dart';
+import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-class BottomDrawer extends StatelessWidget {
-  const BottomDrawer({
-    Key? key,
-    this.onVerticalDragUpdate,
-    this.onVerticalDragEnd,
-    this.leading,
-  }) : super(key: key);
+class BottomDrawerDestinations extends StatelessWidget {
+  const BottomDrawerDestinations({
+    required this.panelController,
+    required this.fabHeight,
+    required this.scrollController,
+    required this.getCurrentLocation(),
+  });
 
-  final GestureDragUpdateCallback? onVerticalDragUpdate;
-  final GestureDragEndCallback? onVerticalDragEnd;
-  final Widget? leading;
+  final PanelController panelController;
+  final double fabHeight;
+  final ScrollController scrollController;
+  final VoidCallback getCurrentLocation;
+
+  Widget _showBottomSheet({
+    required PanelController panelController,
+    required UserSessionType selectedUserSessionType,
+    required VoidCallback getCurrentLocation,
+  }) {
+    switch (selectedUserSessionType) {
+      case UserSessionType.offline:
+        return OfflineSheet(
+          panelController: panelController,
+        );
+      case UserSessionType.delivering:
+        return DeliveringSheet(
+          panelController: panelController,
+          getCurrentLocation: getCurrentLocation,
+        );
+
+      default:
+        return WaitingSheet(
+          panelController: panelController,
+        );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onVerticalDragUpdate: onVerticalDragUpdate,
-      onVerticalDragEnd: onVerticalDragEnd,
-      child: Material(
-        elevation: 35.0,
-        // color: Theme.of(context).bottomSheetTheme.backgroundColor,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(12),
-          topRight: Radius.circular(12),
-        ),
-        child: leading,
+    final selectedUserSessionType = context
+        .select((UserSession session) => session.selectedUserSessionType);
+
+    return MediaQuery.removePadding(
+      context: context,
+      removeTop: true,
+      child: ListView(
+        // physics: const NeverScrollableScrollPhysics(),
+        controller: scrollController,
+        children: <Widget>[
+          const SizedBox(
+            height: 6.0,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                width: 30,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(12.0),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          //GestureDetector seems to only work with ListView
+          GestureDetector(
+            onTap: () => panelController.panelPosition >= 0.1
+                ? panelController.close()
+                : panelController.open(),
+            child: _showBottomSheet(
+              selectedUserSessionType: selectedUserSessionType,
+              panelController: panelController,
+              getCurrentLocation: getCurrentLocation,
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
-// Text('Suche Fahrten');

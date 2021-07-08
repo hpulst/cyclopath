@@ -16,7 +16,6 @@ class Directions {
 
   factory Directions.fromMap(Map<String, dynamic> map) {
     // Check if route is not available
-    print('directions');
     if ((map['routes'] as List).isEmpty) {
       print('map[routes] is empty');
     }

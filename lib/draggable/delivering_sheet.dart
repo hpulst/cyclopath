@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cyclopath/models/order_list_model.dart';
+import 'package:cyclopath/models/user_session.dart';
 import 'package:cyclopath/pages/orderlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -57,10 +58,13 @@ class OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<OrderListModel>(
       builder: (context, orderList, _) {
+        print('orderList.hasActiveOrders : ${orderList.hasActiveOrders}');
         if (!orderList.hasActiveOrders) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          context.read<UserSession>().selectedUserSessionType =
+              UserSessionType.returning;
+          // return const Center(
+          //   child: CircularProgressIndicator(),
+          // );
         }
         return Padding(
           padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
@@ -97,10 +101,6 @@ class OrderCard extends StatelessWidget {
                 ),
               OrderListTile(
                 listTileText: orderList.currentOrder.ordernumber,
-                icon: Icons.airplane_ticket_rounded,
-              ),
-              OrderListTile(
-                listTileText: orderList.currentOrder.complete.toString(),
                 icon: Icons.airplane_ticket_rounded,
               ),
               _OrderPhone(phone: orderList.currentOrder.phone),
@@ -169,7 +169,7 @@ class OrderPreviewCard extends StatelessWidget {
         Visibility(
           visible: isPanelClosed && note.isNotEmpty,
           replacement: const SizedBox(
-            height: 18,
+            height: 40,
           ),
           child: SizedBox(
             height: 40,
@@ -192,6 +192,7 @@ class OrderPreviewCard extends StatelessWidget {
         _OrderCompleteSlide(
           id: id,
           getCurrentLocation: getCurrentLocation,
+          panelController: panelController,
         ),
       ],
     );
@@ -278,24 +279,32 @@ class _OrderPhone extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Material(
-        color: Colors.white,
-        child: Ink(
-          decoration: const ShapeDecoration(
-            color: Colors.black,
-            shape: CircleBorder(),
-          ),
-          child: IconButton(
-            padding: const EdgeInsets.all(15),
-            onPressed: () => url_launcher.launch('tel://$phone'),
-            enableFeedback: true,
-            tooltip: phone,
-            icon: const Icon(
-              Icons.phone,
-              color: Colors.white,
+      child: Column(
+        children: [
+          Material(
+            color: Colors.white,
+            child: Ink(
+              decoration: const ShapeDecoration(
+                color: Colors.black,
+                shape: CircleBorder(),
+              ),
+              child: IconButton(
+                padding: const EdgeInsets.all(15),
+                onPressed: () => url_launcher.launch('tel://$phone'),
+                enableFeedback: true,
+                tooltip: phone,
+                icon: const Icon(
+                  Icons.phone,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
-        ),
+          const SizedBox(
+            height: 2,
+          ),
+          const Text('Anrufen'),
+        ],
       ),
     );
   }
@@ -358,7 +367,6 @@ class _OrderTimerState extends State<_OrderTimer> {
             : Theme.of(context).primaryColor,
       ),
     );
-    ;
   }
 }
 
@@ -367,10 +375,12 @@ class _OrderCompleteSlide extends StatelessWidget {
     Key? key,
     required this.id,
     required this.getCurrentLocation,
+    required this.panelController,
   }) : super(key: key);
 
   final String id;
   final VoidCallback getCurrentLocation;
+  final PanelController panelController;
 
   @override
   Widget build(BuildContext context) {
@@ -378,29 +388,33 @@ class _OrderCompleteSlide extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: SlideAction(
-        key: _listKey,
-        onSubmit: () {
-          print('::::::OrderCompleteSlide::::');
-          Future.delayed(
-            const Duration(seconds: 1),
-            () {
-              // sliderKey.currentState?.reset();
-              final model = context.read<OrderListModel>();
-              final order = model.orderById(id).copyWith(newcomplete: true);
-              model.updateOrder(order);
-
-              // model.createMarkers();
-              model.removeMarker(order.id);
-              getCurrentLocation();
-            },
-          );
+      child: GestureDetector(
+        onTapDown: (TapDownDetails details) {
+          panelController.close();
         },
-        height: 50,
-        sliderButtonIconPadding: 10,
-        text: 'Zugestellt',
-        innerColor: Colors.white,
-        outerColor: Colors.black,
+        child: SlideAction(
+          key: _listKey,
+          onSubmit: () {
+            Future.delayed(
+              const Duration(seconds: 1),
+              () {
+                final model = context.read<OrderListModel>();
+                final order = model.orderById(id).copyWith(newcomplete: true);
+                model.updateOrder(order);
+                print('has active orders?');
+                print(model.hasActiveOrders);
+                // model.createMarkers();
+                model.removeMarker(order.id);
+                getCurrentLocation();
+              },
+            );
+          },
+          height: 52,
+          sliderButtonIconPadding: 10,
+          text: 'Zugestellt',
+          innerColor: Colors.white,
+          outerColor: Colors.black,
+        ),
       ),
     );
   }

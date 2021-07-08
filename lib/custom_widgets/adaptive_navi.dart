@@ -1,32 +1,32 @@
 import 'dart:async';
 
 import 'package:cyclopath/custom_widgets/simple_dialog.dart';
-import 'package:cyclopath/draggable/delivering_sheet.dart';
-import 'package:cyclopath/draggable/offline_sheet.dart';
-import 'package:cyclopath/draggable/waiting_sheet.dart';
+import 'package:cyclopath/models/destination_model.dart';
 import 'package:cyclopath/models/directions_model.dart';
 import 'package:cyclopath/models/directions_repository.dart';
+import 'package:cyclopath/models/locations.dart' as locations;
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
-import 'package:cyclopath/models/destination_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:cyclopath/models/locations.dart' as locations;
 
-// final Map<String?, Marker> _markers = {};
+import 'bottom_drawer.dart';
+
 Set<Marker> _markers = {};
-final Completer<GoogleMapController> _controller = Completer();
-GoogleMapController? mapController;
-late Position _currentPosition;
-// Directions? _directions;
 
+final Completer<GoogleMapController> _controller = Completer();
+
+late Position _currentPosition;
+late Directions directions;
+// late GoogleMapController mapController;
+
+const _initialTarget = LatLng(51.1657, 10.45);
 const _initialLocation = CameraPosition(
-  target: LatLng(51.1657, 10.45),
+  target: _initialTarget,
   zoom: 12,
 );
 
@@ -48,10 +48,17 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   double _panelHeightOpen = 0;
   double _fabHeight = 0;
   // late AnimationController _dropArrowController;
-  // List<LatLng> polylineCoordinates = [];
   late PanelController _panelController;
-  // late PolylinePoints polylinePoints;
-  Map<PolylineId, Polyline> _polylines = {};
+
+  // late Directions directions = Directions(
+  //     bounds: LatLngBounds(
+  //       southwest: _initialTarget,
+  //       northeast: _initialTarget,
+  //     ),
+  //     polylinePoints: [],
+  //     totalDistance: '0.0',
+  //     totalDuration: '0');
+  final Map<PolylineId, Polyline> _polylines = {};
 
   final _navigationDestinations = <Destination>[
     Destination(
@@ -91,7 +98,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       panelHeightClosed: 170,
       // panelSnapping: true,
       panelSnapping: false,
-      initFabHeight: _initFabHeight + 50,
+      initFabHeight: _initFabHeight + 160,
       locationButton: true,
       navigationButton: true,
     ),
@@ -109,12 +116,12 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   @override
   void initState() {
     super.initState();
-    _setCustomMarker();
-    _getCurrentLocation();
+    _onMapCreated();
+    _setCameraToCurrentLocation();
     _panelController = PanelController();
   }
 
-  Future<void> _setCustomMarker() async {
+  Future<void> _onMapCreated() async {
     final offices = await locations.getOffices();
     customIcon = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(size: Size(10, 10)),
@@ -136,28 +143,44 @@ class _AdaptiveNavState extends State<AdaptiveNav>
     }
   }
 
-  Future<void> _getCurrentLocation() async {
-    final controller = await _controller.future;
+  Future<void> _getCurrentPosition() async {
     _currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
+  }
+
+  Future<void> _setCameraToCurrentLocation() async {
+    print(StackTrace.current);
+
+    final mapController = await _controller.future;
+    await _getCurrentPosition();
     final _current = CameraPosition(
         target: LatLng(_currentPosition.latitude, _currentPosition.longitude),
         zoom: 14);
     setState(() {
-      controller.animateCamera(CameraUpdate.newCameraPosition(_current));
+      mapController.animateCamera(CameraUpdate.newCameraPosition(_current));
     });
     if (context.read<UserSession>().selectedUserSessionType ==
         UserSessionType.delivering) {
-      await _onMapCreated();
+      await _addOrderMarkers();
     }
   }
 
-  Future<void> _onMapCreated() async {
+  Future<void> _addOrderMarkers() async {
     final model = context.read<OrderListModel>();
+    final mapController = await _controller.future;
 
-    // final directions = await DirectionsRepository().getDirections(
-    //     origin: LatLng(_currentPosition.latitude, _currentPosition.longitude),
-    //     destination: LatLng(model.currentOrder.lat, model.currentOrder.lng));
+    if (_markers.isNotEmpty) {
+      _markers.clear();
+    }
+    _markers.addAll(model.markers);
+
+    await _getCurrentPosition();
+
+    // print(model.currentOrder.street);
+
+    directions = await DirectionsRepository().getDirections(
+        origin: LatLng(_currentPosition.latitude, _currentPosition.longitude),
+        destination: LatLng(model.currentOrder.lat, model.currentOrder.lng));
 
     await _createPolylines(
         _currentPosition.latitude,
@@ -167,14 +190,22 @@ class _AdaptiveNavState extends State<AdaptiveNav>
 
     setState(
       () {
-        if (_markers.isNotEmpty) {
-          _markers.clear();
-        }
-        _markers.addAll(model.markers);
-        // _polylines.addAll(_polylines);
+        print('${_polylines.isNotEmpty} bounds ${directions.bounds}');
+        mapController.animateCamera(
+          _polylines.isNotEmpty
+              ? CameraUpdate.newLatLngBounds(directions.bounds, 100.0)
+              : CameraUpdate.newCameraPosition(
+                  CameraPosition(
+                      target: LatLng(_currentPosition.latitude,
+                          _currentPosition.longitude),
+                      zoom: 14),
+                ),
+        );
       },
     );
   }
+
+  Future<void> getDirections(OrderListModel model) async {}
 
   Future<void> _createPolylines(
     double startLatitude,
@@ -182,31 +213,9 @@ class _AdaptiveNavState extends State<AdaptiveNav>
     double destinationLatitude,
     double destinationLongitude,
   ) async {
-    // polylinePoints = PolylinePoints();
     if (_polylines.isNotEmpty) {
       _polylines.clear();
     }
-    // final result = await polylinePoints.getRouteBetweenCoordinates(
-    //   googleAPIKey, // Google Maps API Key
-    //   PointLatLng(startLatitude, startLongitude),
-    //   PointLatLng(destinationLatitude, destinationLongitude),
-    //   travelMode: TravelMode.bicycling,
-    // );
-
-    // ignore: omit_local_variable_types
-    final Directions directions = await DirectionsRepository().getDirections(
-        origin: LatLng(startLatitude, startLongitude),
-        destination: LatLng(destinationLatitude, destinationLongitude));
-
-    // if (result.points.isNotEmpty) {
-    //   if (polylineCoordinates.isNotEmpty) {
-    //     polylineCoordinates.clear();
-    //   }
-
-    //   for (final point in directions.polylinePoints) {
-    //     polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-    //   }
-    // }
 
     const id = PolylineId('poly');
     final polyline = Polyline(
@@ -218,6 +227,8 @@ class _AdaptiveNavState extends State<AdaptiveNav>
           .toList(),
     );
     _polylines[id] = polyline;
+
+    // _changeInfo(_markers);
   }
 
   Widget _buildMap() {
@@ -264,11 +275,11 @@ class _AdaptiveNavState extends State<AdaptiveNav>
             backdropOpacity: 0,
             backdropTapClosesPanel: true,
             body: _buildMap(),
-            panelBuilder: (_scrollController) => _BottomDrawerDestinations(
+            panelBuilder: (_scrollController) => BottomDrawerDestinations(
                 panelController: _panelController,
                 fabHeight: _fabHeight,
                 scrollController: _scrollController,
-                getCurrentLocation: _getCurrentLocation),
+                getCurrentLocation: _setCameraToCurrentLocation),
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(18.0),
                 topRight: Radius.circular(18.0)),
@@ -290,7 +301,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
               child: FloatingActionButton(
                 heroTag: 'btn1',
                 onPressed: () {
-                  _getCurrentLocation();
+                  _setCameraToCurrentLocation();
                 },
                 backgroundColor: Colors.white,
                 child: Icon(
@@ -333,90 +344,6 @@ class _AdaptiveNavState extends State<AdaptiveNav>
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
-    );
-  }
-}
-
-class _BottomDrawerDestinations extends StatelessWidget {
-  const _BottomDrawerDestinations({
-    required this.panelController,
-    required this.fabHeight,
-    required this.scrollController,
-    required this.getCurrentLocation(),
-  });
-
-  final PanelController panelController;
-  final double fabHeight;
-  final ScrollController scrollController;
-  final VoidCallback getCurrentLocation;
-
-  Widget _showBottomSheet({
-    required PanelController panelController,
-    required UserSessionType selectedUserSessionType,
-    required VoidCallback getCurrentLocation,
-  }) {
-    switch (selectedUserSessionType) {
-      case UserSessionType.offline:
-        return OfflineSheet(
-          panelController: panelController,
-        );
-      case UserSessionType.delivering:
-        return DeliveringSheet(
-          panelController: panelController,
-          getCurrentLocation: getCurrentLocation,
-        );
-
-      default:
-        return WaitingSheet(
-          panelController: panelController,
-        );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final selectedUserSessionType = context
-        .select((UserSession session) => session.selectedUserSessionType);
-
-    return MediaQuery.removePadding(
-      context: context,
-      removeTop: true,
-      child: ListView(
-        // physics: const NeverScrollableScrollPhysics(),
-        controller: scrollController,
-        children: <Widget>[
-          const SizedBox(
-            height: 6.0,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                width: 30,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(12.0),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          //GestureDetector seems to only work with ListView
-          GestureDetector(
-            onTap: () => panelController.panelPosition >= 0.1
-                ? panelController.close()
-                : panelController.open(),
-            child: _showBottomSheet(
-              selectedUserSessionType: selectedUserSessionType,
-              panelController: panelController,
-              getCurrentLocation: getCurrentLocation,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

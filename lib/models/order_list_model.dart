@@ -25,7 +25,6 @@ class OrderListModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future loadOrders() {
-    print('loadOrders: isLoading $_isLoading');
     _isLoading = true;
     notifyListeners();
     return repository.loadOrders().then((loadedOrders) {
@@ -45,6 +44,8 @@ class OrderListModel extends ChangeNotifier {
     notifyListeners();
     _uploadItems();
   }
+
+// showMarkerInfoWindow
 
   void updateOrder(Order order) {
     final oldOrder = _orderQueue.firstWhere((it) => it.id == order.id);

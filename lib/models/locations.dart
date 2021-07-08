@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:json_annotation/json_annotation.dart';
 
 part 'locations.g.dart';
@@ -89,8 +87,6 @@ class Locations {
 //     var a = Locations.fromJson(json.decode());
 
 //     if (response.statusCode == 200) {
-//       print('response.decode${json.decode(response.body)}');
-
 //       return Locations.fromJson(json.decode(response.body));
 //     } else {
 //       throw HttpException(

@@ -27,8 +27,8 @@ class ReturningSheet extends StatelessWidget {
             const SizedBox(
               width: 1,
             ),
-            Expanded(
-              child: const Text(
+            const Expanded(
+              child: Text(
                 // model!.selectedUserSessionType.title!,
                 'hi',
                 style: TextStyle(fontSize: 25.0),

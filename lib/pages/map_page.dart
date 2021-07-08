@@ -35,7 +35,6 @@
 //   }
 
 //   Future<void> getCurrentLocation() async {
-//     print('getCurrentLocation');
 //     final controller = await _controller.future;
 //     _currentPosition = await Geolocator.getCurrentPosition(
 //         desiredAccuracy: LocationAccuracy.high);
