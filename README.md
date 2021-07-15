@@ -44,11 +44,10 @@ A Courrier app that includes functionality that allows the courier to receive or
 - [ ] Destination window of marker with distance & duration
 - [ ] Polish returning screen
 - [ ] Insert sound feature
-- [ ]
 
-**End of Day (EOD) 18.06:**
+**End of Day (EOD):**
   
-**End of Week (EOW) 24:**
+**End of Week (EOW):**
 
 - [ ] Show navigation Button
 - [ ] Publish App in App Stores
