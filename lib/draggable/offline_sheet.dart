@@ -93,30 +93,55 @@ class ShiftStarts extends StatelessWidget {
           padding: const EdgeInsets.all(5.0),
           child: Align(
             alignment: Alignment.center,
-            child: ElevatedButton(
-              onPressed: () {
-                panelController.close();
-                Future.delayed(
-                  const Duration(
-                    // milliseconds: panelController.value == 1 ? 300 : 120,
+            child: i == 1
+                ? ElevatedButton(
+                    onPressed: () {
+                      panelController.close();
+                      Future.delayed(
+                        const Duration(
+                          // milliseconds: panelController.value == 1 ? 300 : 120,
 
-                    milliseconds: 120,
+                          milliseconds: 120,
+                        ),
+                        () {
+                          // Wait until animations are complete to reload the state.
+                          // Delay scales with the timeDilation value of the gallery.
+                          context.read<UserSession>().selectedUserSessionType =
+                              UserSessionType.online;
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(20),
+                      minimumSize: const Size(260, 0.0),
+                      // side: const BorderSide(width: .5),
+                    ),
+                    child: shiftTimer(i, context),
+                  )
+                : OutlinedButton(
+                    onPressed: () {
+                      panelController.close();
+                      Future.delayed(
+                        const Duration(
+                          // milliseconds: panelController.value == 1 ? 300 : 120,
+
+                          milliseconds: 120,
+                        ),
+                        () {
+                          // Wait until animations are complete to reload the state.
+                          // Delay scales with the timeDilation value of the gallery.
+                          context.read<UserSession>().selectedUserSessionType =
+                              UserSessionType.online;
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(20),
+                      minimumSize: const Size(260, 0.0),
+                      // side: const BorderSide(width: .5),
+                    ),
+                    child: shiftTimer(i, context),
                   ),
-                  () {
-                    // Wait until animations are complete to reload the state.
-                    // Delay scales with the timeDilation value of the gallery.
-                    context.read<UserSession>().selectedUserSessionType =
-                        UserSessionType.online;
-                  },
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(20),
-                minimumSize: const Size(260, 0.0),
-                // side: const BorderSide(width: .5),
-              ),
-              child: shiftTimer(i, context),
-            ),
           ),
         ),
       );
@@ -152,28 +177,3 @@ class ShiftStarts extends StatelessWidget {
         ),
       );
 }
-
-  // var _dateTime = DateTime.now();
-  // late Timer _timer;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _updateTime();
-  // }
-
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  //   _timer.cancel();
-  // }
-  // void _updateTime() {
-  //   setState(() {
-  //     _dateTime = DateTime.now();
-  //     _timer = Timer(
-  //       const Duration(seconds: 1) -
-  //           Duration(milliseconds: _dateTime.millisecond),
-  //       _updateTime,
-  //     );
-  //   });
-  // }

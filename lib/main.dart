@@ -1,3 +1,4 @@
+import 'package:cyclopath/models/map_model.dart';
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:cyclopath/pages/login_page.dart';
@@ -28,9 +29,11 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) =>
-              OrderListModel(repository: OrderRepository())..loadOrders(),
-        ),
+            create: (_) => OrderListModel(repository: OrderRepository())
+              ..createOfficeMarkers()
+              ..getCurrentPosition()
+            // ..loadOrders(),
+            ),
         ChangeNotifierProvider(
           create: (_) => UserSession(),
         ),

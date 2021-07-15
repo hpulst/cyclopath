@@ -1,5 +1,6 @@
 import 'package:cyclopath/draggable/delivering_sheet.dart';
 import 'package:cyclopath/draggable/offline_sheet.dart';
+import 'package:cyclopath/draggable/returning_sheet.dart';
 import 'package:cyclopath/draggable/waiting_sheet.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
@@ -12,12 +13,14 @@ class BottomDrawerDestinations extends StatelessWidget {
     required this.fabHeight,
     required this.scrollController,
     required this.getCurrentLocation(),
+    required this.setRoute(),
   });
 
   final PanelController panelController;
   final double fabHeight;
   final ScrollController scrollController;
   final VoidCallback getCurrentLocation;
+  final VoidCallback setRoute;
 
   Widget _showBottomSheet({
     required PanelController panelController,
@@ -32,7 +35,12 @@ class BottomDrawerDestinations extends StatelessWidget {
       case UserSessionType.delivering:
         return DeliveringSheet(
           panelController: panelController,
-          getCurrentLocation: getCurrentLocation,
+          setRoute: setRoute,
+        );
+      case UserSessionType.returning:
+        return ReturningSheet(
+          panelController: panelController,
+          setRoute: setRoute,
         );
 
       default:
@@ -47,6 +55,7 @@ class BottomDrawerDestinations extends StatelessWidget {
     final selectedUserSessionType = context
         .select((UserSession session) => session.selectedUserSessionType);
 
+    print('Who are you? $selectedUserSessionType');
     return MediaQuery.removePadding(
       context: context,
       removeTop: true,

@@ -1,3 +1,4 @@
+import 'package:cyclopath/models/order.dart';
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,12 @@ class WaitingSheet extends StatefulWidget {
 }
 
 class _WaitingSheetState extends State<WaitingSheet> {
+  @override
+  void initState() {
+    context.read<OrderListModel>().loadOrders();
+    super.initState();
+  }
+
   void setSession(BuildContext context) {
     Future.delayed(
       const Duration(
@@ -37,6 +44,7 @@ class _WaitingSheetState extends State<WaitingSheet> {
   Widget build(BuildContext context) {
     final hasActiveOrders =
         context.select((OrderListModel model) => model.hasActiveOrders);
+
     if (hasActiveOrders) {
       setSession(context);
     }

@@ -5,6 +5,7 @@ import 'package:cyclopath/models/destination_model.dart';
 import 'package:cyclopath/models/directions_model.dart';
 import 'package:cyclopath/models/directions_repository.dart';
 import 'package:cyclopath/models/locations.dart' as locations;
+import 'package:cyclopath/models/map_model.dart';
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
@@ -16,17 +17,13 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import 'bottom_drawer.dart';
 
-Set<Marker> _markers = {};
+// static const double _initFabHeight = 220.0;
+const double storeLatitudeHamburg = 53.55744486901641;
+const double storeLongitudeHamburg = 9.989580614218664;
 
-final Completer<GoogleMapController> _controller = Completer();
-
-late Position _currentPosition;
-late Directions directions;
-// late GoogleMapController mapController;
-
-const _initialTarget = LatLng(51.1657, 10.45);
+const initialTarget = LatLng(storeLatitudeHamburg, storeLongitudeHamburg);
 const _initialLocation = CameraPosition(
-  target: _initialTarget,
+  target: initialTarget,
   zoom: 12,
 );
 
@@ -37,28 +34,22 @@ class AdaptiveNav extends StatefulWidget {
 
 class _AdaptiveNavState extends State<AdaptiveNav>
     with TickerProviderStateMixin {
-  static const double _panelHeightClosed = 95.0;
   static const double _initFabHeight = _panelHeightClosed + 105;
-  // static const double _initFabHeight = 220.0;
-  late BitmapDescriptor customIcon;
+  static const double _panelHeightClosed = 95.0;
 
+  late BitmapDescriptor customIcon;
+  late PanelController _panelController;
+  late Position _currentPosition;
+  late Directions directions;
+
+  final Completer<GoogleMapController> _controller = Completer();
   final _bottomDrawerKey = GlobalKey(debugLabel: 'Bottom Drawer');
   final double _snapPoint = .45;
 
   double _panelHeightOpen = 0;
   double _fabHeight = 0;
-  // late AnimationController _dropArrowController;
-  late PanelController _panelController;
 
-  // late Directions directions = Directions(
-  //     bounds: LatLngBounds(
-  //       southwest: _initialTarget,
-  //       northeast: _initialTarget,
-  //     ),
-  //     polylinePoints: [],
-  //     totalDistance: '0.0',
-  //     totalDuration: '0');
-  final Map<PolylineId, Polyline> _polylines = {};
+  // final Map<PolylineId, Polyline> _polylines = {};
 
   final _navigationDestinations = <Destination>[
     Destination(
@@ -95,7 +86,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       showIcon: false,
       panelHeightOpen: .70,
       // panelHeightClosed: _panelHeightClosed,
-      panelHeightClosed: 170,
+      panelHeightClosed: 190,
       // panelSnapping: true,
       panelSnapping: false,
       initFabHeight: _initFabHeight + 160,
@@ -106,8 +97,10 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       type: UserSessionType.returning,
       textLabel: UserSessionType.returning.title,
       showIcon: false,
-      panelHeightClosed: _panelHeightClosed,
+      // panelHeightOpen: .70,
+      panelHeightClosed: 140,
       panelSnapping: false,
+      // initFabHeight: _initFabHeight + 160,
       locationButton: true,
       navigationButton: true,
     ),
@@ -116,88 +109,47 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   @override
   void initState() {
     super.initState();
-    _onMapCreated();
     _setCameraToCurrentLocation();
     _panelController = PanelController();
   }
 
-  Future<void> _onMapCreated() async {
-    final offices = await locations.getOffices();
-    customIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(10, 10)),
-        'assets/images/green_salad_windows.png');
-
-    _markers.clear();
-    for (final office in offices.offices!) {
-      final marker = Marker(
-        markerId: MarkerId(office.name!),
-        position: LatLng(office.lat!, office.lng!),
-        icon: customIcon,
-        // icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-        infoWindow: InfoWindow(
-          title: office.name,
-          snippet: office.address,
-        ),
-      );
-      _markers.add(marker);
-    }
-  }
-
   Future<void> _getCurrentPosition() async {
-    _currentPosition = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    final orderModel = context.read<OrderListModel>();
+    await orderModel.getCurrentPosition();
+    _currentPosition = orderModel.currentPosition;
   }
 
   Future<void> _setCameraToCurrentLocation() async {
-    print(StackTrace.current);
-
     final mapController = await _controller.future;
     await _getCurrentPosition();
-    final _current = CameraPosition(
-        target: LatLng(_currentPosition.latitude, _currentPosition.longitude),
-        zoom: 14);
-    setState(() {
-      mapController.animateCamera(CameraUpdate.newCameraPosition(_current));
-    });
-    if (context.read<UserSession>().selectedUserSessionType ==
-        UserSessionType.delivering) {
-      await _addOrderMarkers();
-    }
-  }
-
-  Future<void> _addOrderMarkers() async {
-    final model = context.read<OrderListModel>();
-    final mapController = await _controller.future;
-
-    if (_markers.isNotEmpty) {
-      _markers.clear();
-    }
-    _markers.addAll(model.markers);
-
-    await _getCurrentPosition();
-
-    // print(model.currentOrder.street);
-
-    directions = await DirectionsRepository().getDirections(
-        origin: LatLng(_currentPosition.latitude, _currentPosition.longitude),
-        destination: LatLng(model.currentOrder.lat, model.currentOrder.lng));
-
-    await _createPolylines(
-        _currentPosition.latitude,
-        _currentPosition.longitude,
-        model.currentOrder.lat,
-        model.currentOrder.lng);
 
     setState(
       () {
-        print('${_polylines.isNotEmpty} bounds ${directions.bounds}');
         mapController.animateCamera(
-          _polylines.isNotEmpty
-              ? CameraUpdate.newLatLngBounds(directions.bounds, 100.0)
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+                target: LatLng(
+                    _currentPosition.latitude, _currentPosition.longitude),
+                zoom: 14),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _setCameraToRoute() async {
+    final model = context.read<OrderListModel>();
+    final mapController = await _controller.future;
+
+    setState(
+      () {
+        mapController.animateCamera(
+          model.polylines.isNotEmpty
+              ? CameraUpdate.newLatLngBounds(model.directions.bounds, 100.0)
               : CameraUpdate.newCameraPosition(
                   CameraPosition(
-                      target: LatLng(_currentPosition.latitude,
-                          _currentPosition.longitude),
+                      target: LatLng(model.currentPosition.latitude,
+                          model.currentPosition.longitude),
                       zoom: 14),
                 ),
         );
@@ -205,50 +157,29 @@ class _AdaptiveNavState extends State<AdaptiveNav>
     );
   }
 
-  Future<void> getDirections(OrderListModel model) async {}
-
-  Future<void> _createPolylines(
-    double startLatitude,
-    double startLongitude,
-    double destinationLatitude,
-    double destinationLongitude,
-  ) async {
-    if (_polylines.isNotEmpty) {
-      _polylines.clear();
-    }
-
-    const id = PolylineId('poly');
-    final polyline = Polyline(
-      polylineId: id,
-      color: Colors.black,
-      width: 6,
-      points: directions.polylinePoints
-          .map((e) => LatLng(e.latitude, e.longitude))
-          .toList(),
-    );
-    _polylines[id] = polyline;
-
-    // _changeInfo(_markers);
-  }
-
   Widget _buildMap() {
-    return GoogleMap(
-      initialCameraPosition: _initialLocation,
-      // mapToolbarEna
-      //bled: true,
-      myLocationEnabled: true,
-      myLocationButtonEnabled: false,
-      zoomGesturesEnabled: true,
-      zoomControlsEnabled: false,
-      markers: _markers,
-      onMapCreated: (GoogleMapController controller) {
-        if (!_controller.isCompleted) {
-          _controller.complete(controller);
-        } else {
-          _controller.isCompleted;
-        }
+    return Consumer<OrderListModel>(
+      builder: (context, model, _) {
+        return GoogleMap(
+          initialCameraPosition: _initialLocation,
+          // mapToolbarEna
+          //bled: true,
+          myLocationEnabled: true,
+          myLocationButtonEnabled: false,
+          zoomGesturesEnabled: true,
+          zoomControlsEnabled: false,
+          markers: model.markers,
+          onMapCreated: (GoogleMapController controller) {
+            if (!_controller.isCompleted) {
+              _controller.complete(controller);
+            } else {
+              _controller.isCompleted;
+            }
+          },
+          polylines: Set<Polyline>.of(model.polylines.values),
+          padding: const EdgeInsets.only(bottom: 100),
+        );
       },
-      polylines: Set<Polyline>.of(_polylines.values),
     );
   }
 
@@ -279,7 +210,8 @@ class _AdaptiveNavState extends State<AdaptiveNav>
                 panelController: _panelController,
                 fabHeight: _fabHeight,
                 scrollController: _scrollController,
-                getCurrentLocation: _setCameraToCurrentLocation),
+                getCurrentLocation: _setCameraToCurrentLocation,
+                setRoute: _setCameraToRoute),
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(18.0),
                 topRight: Radius.circular(18.0)),
@@ -328,6 +260,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
 
   @override
   Widget build(BuildContext context) {
+    print('fabHeight $_fabHeight');
     return Scaffold(
       body: _bodyStack(context),
       floatingActionButton: Padding(

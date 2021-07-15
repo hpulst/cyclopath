@@ -25,44 +25,5 @@
         "email": "mail@web.de",
         "tip": 20,
         "note": "Bitte vor der Tür abstellen"
-    },
-    {
-        "ordernumber": "B612453",
-        "customer": "Nikola Bloch",
-        "street": "Alsterchaussee 24",
-        "city": "Hamburg",
-        "postal": "20149",
-        "lat": 53.57321332352189,
-        "lng": 9.996210396983983,
-        "phone": "017694323423",
-        "email": "",
-        "tip": 0.50,
-        "note": ""
-    },
-    {
-        "ordernumber": "B234264",
-        "customer": "Paul Ehrlich",
-        "street": "Linnering 1",
-        "city": "Hamburg",
-        "postal": "22299",
-        "lat": 53.59728888917068,
-        "lng": 10.009023270698373,
-        "phone": "017694323423",
-        "email": "mail@planetarium.de",
-        "tip": 0.5,
-        "note": "2 Stock im Hintergebäude"
-    },
-    {
-        "ordernumber": "B644264",
-        "customer": "Vitalik Buterin",
-        "street": "Bischöflich-Geistlicher-Rat-Josef-Zinnbauer-Straße 8",
-        "city": "Dingolfing",
-        "postal": "84130",
-        "lat": 48.6287939873682,
-        "lng": 12.499868102688845,
-        "phone": "+49 17694323423",
-        "email": "",
-        "tip": 2.5,
-        "note": "Burrata Bowl mit Olivenöl bitte ohne KakaoNibs stattdessen Tomaten wenn möglich! Burrata Bowl mit Essig bitte ohne Oliven stattdessen Avocado! Lieferung bitte auf Station 5H, Eingang durch die Zentrale Notaufnahme, mit den grünen Fahrstühlen in Etage 5! Dankeschön!! :-)"
     }
 ]

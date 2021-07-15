@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:cyclopath/custom_widgets/order_list_button.dart';
+import 'package:cyclopath/custom_widgets/route_timer.dart';
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:cyclopath/pages/orderlist_page.dart';
@@ -13,11 +15,11 @@ class DeliveringSheet extends StatefulWidget {
   const DeliveringSheet({
     Key? key,
     required this.panelController,
-    required this.getCurrentLocation,
+    required this.setRoute,
   }) : super(key: key);
 
   final PanelController panelController;
-  final VoidCallback getCurrentLocation;
+  final VoidCallback setRoute;
 
   @override
   _DeliveringSheetState createState() => _DeliveringSheetState();
@@ -32,14 +34,17 @@ class _DeliveringSheetState extends State<DeliveringSheet> {
     //         curve: Curves.decelerate);
     // });
     super.initState();
-    widget.getCurrentLocation();
+    context.read<OrderListModel>().createRoute();
+    widget.panelController.close();
+    widget.setRoute();
+    print('Called again? Very sad');
   }
 
   @override
   Widget build(BuildContext context) {
     return OrderCard(
       panelController: widget.panelController,
-      getCurrentLocation: widget.getCurrentLocation,
+      setRoute: widget.setRoute,
     );
   }
 }
@@ -48,66 +53,76 @@ class OrderCard extends StatelessWidget {
   const OrderCard({
     Key? key,
     required this.panelController,
-    required this.getCurrentLocation,
+    required this.setRoute,
   }) : super(key: key);
 
   final PanelController panelController;
-  final VoidCallback getCurrentLocation;
+  final VoidCallback setRoute;
+
+  void setSession(BuildContext context) {
+    print('its a me, ordercard');
+
+    Future.delayed(
+      const Duration(
+        milliseconds: 1,
+      ),
+      () {
+        context.read<UserSession>().selectedUserSessionType =
+            UserSessionType.returning;
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<OrderListModel>(
-      builder: (context, orderList, _) {
-        print('orderList.hasActiveOrders : ${orderList.hasActiveOrders}');
-        if (!orderList.hasActiveOrders) {
-          context.read<UserSession>().selectedUserSessionType =
-              UserSessionType.returning;
-          // return const Center(
-          //   child: CircularProgressIndicator(),
-          // );
-        }
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-          child: Column(
-            children: [
-              OrderPreviewCard(
-                street: orderList.currentOrder.street,
-                customer: orderList.currentOrder.customer,
-                note: orderList.currentOrder.note,
-                selectedDeliveryTime:
-                    orderList.currentOrder.selectedDeliveryTime,
-                id: orderList.currentOrder.id,
-                panelController: panelController,
-                getCurrentLocation: getCurrentLocation,
-              ),
-              const SizedBox(height: 10),
-              if (orderList.currentOrder.note.isNotEmpty)
-                OrderListTile(
-                  listTileText: orderList.currentOrder.note,
-                  listTileColor: Colors.red.shade100,
-                  icon: Icons.warning_rounded,
-                  iconColor: Colors.red,
-                ),
-              if (orderList.currentOrder.tip > 0.0)
-                OrderListTile(
-                  listTileText:
-                      '${orderList.currentOrder.tip.toStringAsFixed(orderList.currentOrder.tip.truncateToDouble() == orderList.currentOrder.tip ? 0 : 2)}€ Trinkgeld',
-                  icon: Icons.favorite,
-                ),
-              if (orderList.currentOrder.email.isNotEmpty)
-                OrderListTile(
-                  listTileText: orderList.currentOrder.email,
-                  icon: Icons.mail_outline_rounded,
-                ),
-              OrderListTile(
-                listTileText: orderList.currentOrder.ordernumber,
-                icon: Icons.airplane_ticket_rounded,
-              ),
-              _OrderPhone(phone: orderList.currentOrder.phone),
-            ],
+    final hasActiveOrders =
+        context.select((OrderListModel model) => model.hasActiveOrders);
+
+    if (!hasActiveOrders) {
+      setSession(context);
+    }
+    final currentOrder =
+        context.select((OrderListModel model) => model.currentOrder);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+      child: Column(
+        children: [
+          OrderPreviewCard(
+            street: currentOrder.street,
+            customer: currentOrder.customer,
+            note: currentOrder.note,
+            selectedDeliveryTime: currentOrder.selectedDeliveryTime,
+            id: currentOrder.id,
+            panelController: panelController,
+            setRoute: setRoute,
           ),
-        );
-      },
+          const SizedBox(height: 10),
+          if (currentOrder.note.isNotEmpty)
+            OrderListTile(
+              listTileText: currentOrder.note,
+              listTileColor: Colors.red.shade100,
+              icon: Icons.warning_rounded,
+              iconColor: Colors.red,
+            ),
+          if (currentOrder.tip > 0.0)
+            OrderListTile(
+              listTileText:
+                  '${currentOrder.tip.toStringAsFixed(currentOrder.tip.truncateToDouble() == currentOrder.tip ? 0 : 2)}€ Trinkgeld',
+              icon: Icons.favorite,
+            ),
+          if (currentOrder.email.isNotEmpty)
+            OrderListTile(
+              listTileText: currentOrder.email,
+              icon: Icons.mail_outline_rounded,
+            ),
+          OrderListTile(
+            listTileText: currentOrder.ordernumber,
+            icon: Icons.airplane_ticket_rounded,
+          ),
+          _OrderPhone(phone: currentOrder.phone),
+        ],
+      ),
     );
   }
 }
@@ -121,7 +136,7 @@ class OrderPreviewCard extends StatelessWidget {
     required this.selectedDeliveryTime,
     required this.id,
     required this.panelController,
-    required this.getCurrentLocation,
+    required this.setRoute,
   }) : super(key: key);
 
   final String street;
@@ -130,7 +145,7 @@ class OrderPreviewCard extends StatelessWidget {
   final DateTime selectedDeliveryTime;
   final String id;
   final PanelController panelController;
-  final VoidCallback getCurrentLocation;
+  final VoidCallback setRoute;
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +166,7 @@ class OrderPreviewCard extends StatelessWidget {
                 style: const TextStyle(fontSize: 25),
               ),
             ),
-            const _OrderListButton(),
+            const OrderListButton(),
           ],
         ),
         Row(
@@ -161,8 +176,8 @@ class OrderPreviewCard extends StatelessWidget {
               maxLines: 2,
             ),
             const Text(' • '),
-            _OrderTimer(
-              selectedDeliveryTime: selectedDeliveryTime,
+            OrderTimer(
+              duration: selectedDeliveryTime.difference(DateTime.now()),
             ),
           ],
         ),
@@ -191,37 +206,8 @@ class OrderPreviewCard extends StatelessWidget {
         ),
         _OrderCompleteSlide(
           id: id,
-          getCurrentLocation: getCurrentLocation,
+          setRoute: setRoute,
           panelController: panelController,
-        ),
-      ],
-    );
-  }
-}
-
-class _OrderListButton extends StatelessWidget {
-  const _OrderListButton({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        IconButton(
-          padding: EdgeInsets.zero,
-          onPressed: () => {
-            Navigator.push<void>(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const OrderListPage(),
-              ),
-            ),
-          },
-          icon: const Icon(
-            Icons.list_rounded,
-            size: 35,
-          ),
         ),
       ],
     );
@@ -310,77 +296,30 @@ class _OrderPhone extends StatelessWidget {
   }
 }
 
-class _OrderTimer extends StatefulWidget {
-  const _OrderTimer({required this.selectedDeliveryTime});
-  final DateTime selectedDeliveryTime;
-
-  @override
-  _OrderTimerState createState() => _OrderTimerState();
-}
-
-class _OrderTimerState extends State<_OrderTimer> {
-  final DateTime _dateTime = DateTime.now();
-  late Timer _timer;
-  late Duration _diff;
-
-  @override
-  void initState() {
-    super.initState();
-    startTimer(
-      widget.selectedDeliveryTime.difference(_dateTime),
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _timer.cancel();
-  }
-
-  void startTimer(Duration duration) {
-    _diff = duration;
-
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (Timer timer) => setState(
-        () {
-          _diff = _diff - const Duration(seconds: 1);
-        },
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // final selectedDeliveryTime =
-    //     TimeOfDay.fromDateTime(widget.selectedDeliveryTime).format(context);
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final sDuration =
-        '${twoDigits(_diff.inMinutes.abs())}:${twoDigits(_diff.inSeconds.remainder(60).abs())}';
-
-    return Text(
-      _diff.isNegative ? 'vor ' + sDuration : 'in ' + sDuration,
-      style: TextStyle(
-        fontWeight: FontWeight.bold,
-        color: _diff.isNegative
-            ? Colors.red.shade600
-            : Theme.of(context).primaryColor,
-      ),
-    );
-  }
-}
-
 class _OrderCompleteSlide extends StatelessWidget {
   const _OrderCompleteSlide({
     Key? key,
     required this.id,
-    required this.getCurrentLocation,
+    required this.setRoute,
     required this.panelController,
   }) : super(key: key);
 
   final String id;
-  final VoidCallback getCurrentLocation;
+  final VoidCallback setRoute;
   final PanelController panelController;
+
+  void setSession(BuildContext context) {
+    print('its a me, ordercompleteslied');
+    Future.delayed(
+      const Duration(
+        milliseconds: 1,
+      ),
+      () {
+        context.read<UserSession>().selectedUserSessionType =
+            UserSessionType.returning;
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -388,33 +327,31 @@ class _OrderCompleteSlide extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: GestureDetector(
-        onTapDown: (TapDownDetails details) {
+      child: SlideAction(
+        key: _listKey,
+        onSubmit: () {
           panelController.close();
+          Future.delayed(
+            const Duration(seconds: 1),
+            () async {
+              final model = context.read<OrderListModel>();
+              final order = model.orderById(id).copyWith(newcomplete: true);
+              model.updateOrder(order);
+
+              if (model.hasActiveOrders) {
+                await model.createRoute();
+                setRoute();
+              } else {
+                setSession(context);
+              }
+            },
+          );
         },
-        child: SlideAction(
-          key: _listKey,
-          onSubmit: () {
-            Future.delayed(
-              const Duration(seconds: 1),
-              () {
-                final model = context.read<OrderListModel>();
-                final order = model.orderById(id).copyWith(newcomplete: true);
-                model.updateOrder(order);
-                print('has active orders?');
-                print(model.hasActiveOrders);
-                // model.createMarkers();
-                model.removeMarker(order.id);
-                getCurrentLocation();
-              },
-            );
-          },
-          height: 52,
-          sliderButtonIconPadding: 10,
-          text: 'Zugestellt',
-          innerColor: Colors.white,
-          outerColor: Colors.black,
-        ),
+        // height: 52,
+        // sliderButtonIconPadding: 10,
+        text: 'Zugestellt',
+        innerColor: Colors.white,
+        outerColor: Colors.black,
       ),
     );
   }

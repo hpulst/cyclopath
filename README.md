@@ -38,32 +38,22 @@ A Courrier app that includes functionality that allows the courier to receive or
 - [ ] Offline capability using package 'retry'
 - [ ] time.periodic remote config
 - [ ] Delivery sound
-- [ ] Show navigation Button
 
-**Start of Day (SOD) 18.06:**
+**Start of Day (SOD) 14.07:**
 
-- [ ] Destination marker with distance & duration
-- [ ] Move CameraPosition to bound
+- [ ] Destination window of marker with distance & duration
+- [ ] Polish returning screen
+- [ ] Insert sound feature
+- [ ]
 
 **End of Day (EOD) 18.06:**
   
 **End of Week (EOW) 24:**
 
-- [ ] publish App
-
-
+- [ ] Show navigation Button
+- [ ] Publish App in App Stores
 
 **Current Feature Sprint:**
 
-- update polylines when location changes
-  - call getcurrentposition
-  - call getPolylines
-  - update marker (duration, distance)
-  - upadate CameraPosition
-
-- create polylines when active Orders available
- - 
-
-**Name all possible solutions:**
+**Name all possible solutions for setting Cameraposition:**
   
-- 
