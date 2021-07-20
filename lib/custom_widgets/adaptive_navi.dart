@@ -14,6 +14,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'bottom_drawer.dart';
 
@@ -72,14 +73,13 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       navigationButton: false,
     ),
     Destination(
-      type: UserSessionType.waiting,
-      textLabel: UserSessionType.waiting.title,
-      showIcon: false,
-      panelHeightClosed: _panelHeightClosed,
-      panelSnapping: true,
-      locationButton: true,
-      navigationButton: true,
-    ),
+        type: UserSessionType.waiting,
+        textLabel: UserSessionType.waiting.title,
+        showIcon: false,
+        panelHeightClosed: _panelHeightClosed,
+        panelSnapping: true,
+        locationButton: false,
+        navigationButton: false),
     Destination(
       type: UserSessionType.delivering,
       textLabel: UserSessionType.delivering.title,
@@ -98,7 +98,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       textLabel: UserSessionType.returning.title,
       showIcon: false,
       // panelHeightOpen: .70,
-      panelHeightClosed: 140,
+      panelHeightClosed: 170,
       panelSnapping: false,
       // initFabHeight: _initFabHeight + 160,
       locationButton: true,
@@ -140,9 +140,9 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   Future<void> _setCameraToRoute() async {
     final model = context.read<OrderListModel>();
     final mapController = await _controller.future;
-
     setState(
       () {
+        mapController.showMarkerInfoWindow(MarkerId(model.currentOrder.id));
         mapController.animateCamera(
           model.polylines.isNotEmpty
               ? CameraUpdate.newLatLngBounds(model.directions.bounds, 100.0)
@@ -157,10 +157,34 @@ class _AdaptiveNavState extends State<AdaptiveNav>
     );
   }
 
+  Future<void> _launchMapsUrl() async {
+    final model = context.read<OrderListModel>();
+
+    final lat = model.destinationLatitude;
+    final lng = model.destinationLongitude;
+
+    final googleMapsUrl =
+        'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=bicycling&dir_action=navigate';
+
+    // final appleMapsUrl = 'https://maps.apple.com/?q=$lat,$lng';
+
+    if (await canLaunch(googleMapsUrl)) {
+      await launch(googleMapsUrl);
+      // }
+      // else if (await canLaunch(appleMapsUrl)) {
+      //   await launch(appleMapsUrl);
+
+    } else {
+      throw 'Could not launch URL';
+    }
+  }
+
   Widget _buildMap() {
     return Consumer<OrderListModel>(
       builder: (context, model, _) {
         return GoogleMap(
+          mapToolbarEnabled: true,
+
           initialCameraPosition: _initialLocation,
           // mapToolbarEna
           //bled: true,
@@ -168,7 +192,8 @@ class _AdaptiveNavState extends State<AdaptiveNav>
           myLocationButtonEnabled: false,
           zoomGesturesEnabled: true,
           zoomControlsEnabled: false,
-          markers: model.markers,
+
+          markers: Set<Marker>.of(model.markers.values),
           onMapCreated: (GoogleMapController controller) {
             if (!_controller.isCompleted) {
               _controller.complete(controller);
@@ -230,16 +255,32 @@ class _AdaptiveNavState extends State<AdaptiveNav>
             child: Positioned(
               right: 17.0,
               bottom: _fabHeight,
-              child: FloatingActionButton(
-                heroTag: 'btn1',
-                onPressed: () {
-                  _setCameraToCurrentLocation();
-                },
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.gps_fixed,
-                  color: Theme.of(context).primaryColor,
-                ),
+              child: Column(
+                children: [
+                  FloatingActionButton(
+                    heroTag: 'btn1',
+                    onPressed: () {
+                      _setCameraToCurrentLocation();
+                    },
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.gps_fixed,
+                      color: Theme.of(context).iconTheme.color,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  FloatingActionButton(
+                    heroTag: 'btn0',
+                    onPressed: () {
+                      _launchMapsUrl();
+                    },
+                    backgroundColor: Colors.blue[900],
+                    child: Icon(
+                      Icons.directions,
+                      color: Theme.of(context).accentColor,
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -260,7 +301,6 @@ class _AdaptiveNavState extends State<AdaptiveNav>
 
   @override
   Widget build(BuildContext context) {
-    print('fabHeight $_fabHeight');
     return Scaffold(
       body: _bodyStack(context),
       floatingActionButton: Padding(

@@ -17,6 +17,7 @@ class DirectionsRepository {
       'origin': '${origin.latitude},${origin.longitude}',
       'destination': '${destination.latitude},${destination.longitude}',
       'key': googleAPIKey,
+      'mode': 'bicycling',
     };
 
     final uri = Uri.https(_baseUrl, _basePath, queryParameters);

@@ -46,6 +46,7 @@ class BottomDrawerDestinations extends StatelessWidget {
       default:
         return WaitingSheet(
           panelController: panelController,
+          setRoute: setRoute,
         );
     }
   }
@@ -55,7 +56,6 @@ class BottomDrawerDestinations extends StatelessWidget {
     final selectedUserSessionType = context
         .select((UserSession session) => session.selectedUserSessionType);
 
-    print('Who are you? $selectedUserSessionType');
     return MediaQuery.removePadding(
       context: context,
       removeTop: true,

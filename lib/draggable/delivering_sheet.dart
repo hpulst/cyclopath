@@ -28,17 +28,17 @@ class DeliveringSheet extends StatefulWidget {
 class _DeliveringSheetState extends State<DeliveringSheet> {
   @override
   void initState() {
-    //   WidgetsBinding.instance?.addPostFrameCallback((_) async {
-    //     await widget.panelController.animatePanelToSnapPoint(
-    //         duration: const Duration(microseconds: 500),
-    //         curve: Curves.decelerate);
-    // });
     super.initState();
-    context.read<OrderListModel>().createRoute();
-    widget.panelController.close();
     widget.setRoute();
-    print('Called again? Very sad');
   }
+
+  @override
+  // void didChangeDependencies() {
+  //   context.select((OrderListModel order) => order.currentOrder);
+
+  //   widget.setRoute();
+  //   super.didChangeDependencies();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +60,6 @@ class OrderCard extends StatelessWidget {
   final VoidCallback setRoute;
 
   void setSession(BuildContext context) {
-    print('its a me, ordercard');
-
     Future.delayed(
       const Duration(
         milliseconds: 1,
@@ -289,7 +287,7 @@ class _OrderPhone extends StatelessWidget {
           const SizedBox(
             height: 2,
           ),
-          const Text('Anrufen'),
+          const Text('KundInnen anrufen'),
         ],
       ),
     );
@@ -309,7 +307,6 @@ class _OrderCompleteSlide extends StatelessWidget {
   final PanelController panelController;
 
   void setSession(BuildContext context) {
-    print('its a me, ordercompleteslied');
     Future.delayed(
       const Duration(
         milliseconds: 1,
@@ -332,8 +329,9 @@ class _OrderCompleteSlide extends StatelessWidget {
         onSubmit: () {
           panelController.close();
           Future.delayed(
-            const Duration(seconds: 1),
+            const Duration(milliseconds: 100),
             () async {
+              // TODO(h): Vibrations
               final model = context.read<OrderListModel>();
               final order = model.orderById(id).copyWith(newcomplete: true);
               model.updateOrder(order);
@@ -341,14 +339,14 @@ class _OrderCompleteSlide extends StatelessWidget {
               if (model.hasActiveOrders) {
                 await model.createRoute();
                 setRoute();
+                print('setRoiute');
               } else {
                 setSession(context);
               }
             },
           );
         },
-        // height: 52,
-        // sliderButtonIconPadding: 10,
+        animationDuration: const Duration(milliseconds: 100),
         text: 'Zugestellt',
         innerColor: Colors.white,
         outerColor: Colors.black,

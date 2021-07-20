@@ -29,21 +29,21 @@ A Courrier app that includes functionality that allows the courier to receive or
 **Nice to have features:**
 
 - [x] View route preview on order
+- [x] Destination window of marker with distance & duration
 - [ ] See VerticalProgressIndicator when going online
-- [ ] Push-notification sync
 - [ ] SharedPreferences to store login info
-- [ ] Switch to black design
+- [ ] Push-notification sync
+- [ ] Switch to black design on login page
 - [ ] Get realtime updates with Cloud Firestore
 - [ ] Order repository using Firebase as a data source
 - [ ] Offline capability using package 'retry'
 - [ ] time.periodic remote config
-- [ ] Delivery sound
 
-**Start of Day (SOD) 14.07:**
+**Start of Day (SOD) 19.07:**
 
-- [ ] Destination window of marker with distance & duration
 - [ ] Polish returning screen
 - [ ] Insert sound feature
+  - [ ] Delivery sound
 
 **End of Day (EOD):**
   
@@ -51,8 +51,8 @@ A Courrier app that includes functionality that allows the courier to receive or
 
 - [ ] Show navigation Button
 - [ ] Publish App in App Stores
+- [ ]
 
 **Current Feature Sprint:**
 
-**Name all possible solutions for setting Cameraposition:**
-  
+**Name all possible solutions for setting currentOrder:**

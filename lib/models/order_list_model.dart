@@ -17,12 +17,12 @@ class OrderListModel extends ChangeNotifier {
 
   final List<Order> _orderQueue;
   final OrderRepository repository;
-  final Set<Marker> _markers = {};
   final Map<PolylineId, Polyline> _polylines = {};
-  final String _selectedOrder = '';
+  final Map<MarkerId, Marker> _markers = <MarkerId, Marker>{};
 
   bool _isLoading = false;
 
+  late Order _currentOrder;
   late Directions _directions;
   late Position _currentPosition;
   late BitmapDescriptor customIcon;
@@ -30,9 +30,9 @@ class OrderListModel extends ChangeNotifier {
   Map<PolylineId, Polyline> get polylines => _polylines;
   Position get currentPosition => _currentPosition;
   Directions get directions => _directions;
-  Set<Marker> get markers => _markers;
+  Map<MarkerId, Marker> get markers => _markers;
   List<Order> get orderQueue => _orderQueue;
-  String get selectedOrder => _selectedOrder;
+  Order get currentOrder => _currentOrder;
   bool get isLoading => _isLoading;
 
   Future loadOrders() async {
@@ -41,7 +41,9 @@ class OrderListModel extends ChangeNotifier {
     notifyListeners();
     return repository.loadOrders().then((loadedOrders) {
       _orderQueue.addAll(loadedOrders);
+      setCurrentOrder();
       _createMarkers();
+      createRoute();
       _isLoading = false;
       notifyListeners();
     }).catchError((dynamic error) {
@@ -58,6 +60,7 @@ class OrderListModel extends ChangeNotifier {
         'assets/images/green_salad_windows.png');
 
     _markers.clear();
+
     for (final office in offices.offices!) {
       final marker = Marker(
         markerId: MarkerId(office.name!),
@@ -69,38 +72,71 @@ class OrderListModel extends ChangeNotifier {
           snippet: office.address,
         ),
       );
-      _markers.add(marker);
+      _markers[MarkerId(office.name!)] = marker;
       notifyListeners();
     }
   }
 
   void _createMarkers() {
-    _markers.addAll(
-      _orderQueue.where((order) => !order.complete).map(
-        (order) {
-          return Marker(
-            markerId: MarkerId(order.id),
-            position: LatLng(order.lat, order.lng),
-            infoWindow: InfoWindow(
-              title: '${_orderQueue.indexOf(order) + 1}. ${order.customer}',
-              snippet: order.street,
-            ),
-          );
+    if (_markers.isNotEmpty) {
+      _markers.clear();
+    }
+    final uncompleteOrders =
+        _orderQueue.where((order) => !order.complete).toList();
+
+    for (final order in uncompleteOrders) {
+      final marker = Marker(
+        markerId: MarkerId(order.id),
+        position: LatLng(order.lat, order.lng),
+        infoWindow: InfoWindow(
+          // title: "heloooo",
+          title: '${_orderQueue.indexOf(order) + 1}. ${order.customer}',
+          snippet: order.street,
+        ),
+        onTap: () {
+          _currentOrder = order;
+          notifyListeners();
+          createRoute();
         },
-      ),
-    );
+      );
+
+      _markers[marker.markerId] = marker;
+    }
+
     notifyListeners();
-    createRoute();
+  }
+
+  // Future<void> _toggleVisible(MarkerId markerId) async {
+  //   final Marker marker = _markers[MarkerId()]!;
+  //     markers[markerId] = marker.copyWith(
+  //       visibleParam: !marker.visible,
+  //     );
+
+  // }
+
+  void _changeMarkerInfo() {
+    print('_changeMarkerInfo');
+    final selectedMarkerId = MarkerId(_currentOrder.id);
+
+    if (_markers.containsKey(selectedMarkerId)) {
+      final marker = _markers[selectedMarkerId]!;
+      const icon = Icons.pedal_bike;
+      // final distance =
+      //     ' $icon ${_directions.totalDuration} ${_directions.totalDistance} ';
+
+      _markers[selectedMarkerId] = marker.copyWith(
+        infoWindowParam: InfoWindow(
+          title: '${_directions.totalDuration} • ${_directions.totalDistance} ',
+        ),
+      );
+    }
   }
 
   void removeMarker(String id) {
-    _markers.removeWhere((element) => element.markerId == MarkerId(id));
-    // notifyListeners();
-  }
-
-  void removeCompletedMarkers(MarkerId markerId) {
-    // _markers.clear();
-    notifyListeners();
+    final selectedMarkerId = MarkerId(id);
+    if (_markers.containsKey(selectedMarkerId)) {
+      _markers.remove(selectedMarkerId);
+    }
   }
 
   void clearCompleted() {
@@ -109,17 +145,14 @@ class OrderListModel extends ChangeNotifier {
     _uploadItems();
   }
 
-// showMarkerInfoWindow
-
   void updateOrder(Order order) {
     final oldOrder = _orderQueue.firstWhere((it) => it.id == order.id);
     final replaceIndex = _orderQueue.indexOf(oldOrder);
     _orderQueue.replaceRange(replaceIndex, replaceIndex + 1, [order]);
     removeMarker(order.id);
+    setCurrentOrder();
     // getCurrentPosition();
-
     // notifyListeners();
-
     _uploadItems();
   }
 
@@ -132,21 +165,9 @@ class OrderListModel extends ChangeNotifier {
         desiredAccuracy: LocationAccuracy.high);
   }
 
-  Future<void> addOrderMarkers(OrderListModel model) async {
-    // await getCurrentPosition();
-
-    // TODO(master): is there a better way then to call getDirections from here?
-    // await getDirections();
-  }
-
   Future<void> createRoute() async {
-    // if (_markers.isNotEmpty) {
-    //   _markers.clear();
-    // }
-    // _markers.addAll(markers);
-
     hasActiveOrders
-        ? await getDirections(currentOrder.lat, currentOrder.lng)
+        ? await getDirections(_currentOrder.lat, _currentOrder.lng)
         : await getDirections(storeLatitudeHamburg, storeLongitudeHamburg);
   }
 
@@ -156,14 +177,18 @@ class OrderListModel extends ChangeNotifier {
       origin: LatLng(_currentPosition.latitude, _currentPosition.longitude),
       destination: LatLng(destinationLatitude, destinationLongitude),
     );
+    print('getDirections');
     notifyListeners();
     createPolylines();
+    _changeMarkerInfo();
   }
 
   void createPolylines() {
     if (_polylines.isNotEmpty) {
       _polylines.clear();
     }
+
+    print(_directions.totalDistance);
 
     const id = PolylineId('poly');
     final polyline = Polyline(
@@ -181,10 +206,14 @@ class OrderListModel extends ChangeNotifier {
     return _orderQueue.firstWhere((it) => it.id == id);
   }
 
-  Order get currentOrder {
-    print(' currentOrder');
-    // print(StackTracye.current);
-    return orderQueue.firstWhere((Order order) => !order.complete);
+  void setCurrentOrder() {
+    final contain = orderQueue.where((Order order) => !order.complete);
+    if (contain.isNotEmpty) {
+      print(contain.first.customer);
+
+      _currentOrder = orderQueue.firstWhere((Order order) => !order.complete);
+      notifyListeners();
+    }
   }
 
   int get numCompleted =>
@@ -197,7 +226,9 @@ class OrderListModel extends ChangeNotifier {
 
   bool get hasActiveOrders => numUncompleted > 0;
 
-  String get routeDuration => directions.totalDistance;
+  double get destinationLatitude =>
+      hasActiveOrders ? _currentOrder.lat : storeLatitudeHamburg;
 
-  String get routeDistance => directions.totalDistance;
+  double get destinationLongitude =>
+      hasActiveOrders ? _currentOrder.lng : storeLongitudeHamburg;
 }

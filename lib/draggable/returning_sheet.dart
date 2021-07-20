@@ -29,7 +29,9 @@ class _ReturningSheetState extends State<ReturningSheet> {
 
   @override
   void initState() {
-    context.read<OrderListModel>().createRoute();
+    final model = context.read<OrderListModel>();
+    model.createOfficeMarkers();
+    model.createRoute();
     widget.setRoute();
     super.initState();
   }
@@ -38,8 +40,8 @@ class _ReturningSheetState extends State<ReturningSheet> {
   Widget build(BuildContext context) {
     final String duration =
         context.read<OrderListModel>().directions.totalDuration;
-    // var d = DataTime.parse(duration);
-    print(duration);
+    // final Duration d = DataTime.parse(duration);
+    print('Duration: $duration');
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
@@ -47,12 +49,12 @@ class _ReturningSheetState extends State<ReturningSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             // crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Expanded(
-              const Text(
-                'Wir erwarten dich in ',
+              Text(
+                'Wir erwarten dich in ${duration}',
                 style: TextStyle(fontSize: 22),
               ),
               OrderTimer(duration: Duration(minutes: 20)),

@@ -36,7 +36,7 @@ class AppTheme {
       ),
       iconTheme: const IconThemeData(
         color: _primaryColor,
-        // size: 30,
+        size: 30,
       ),
     );
   }
