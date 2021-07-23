@@ -144,8 +144,8 @@ class _AdaptiveNavState extends State<AdaptiveNav>
               CameraUpdate.newLatLngBounds(model.directions.bounds, 100.0));
 
           // if (model.hasActiveOrders) {
-          // mapController.showMarkerInfoWindow(model.destinationMarkerId);
-          print('${model.destinationMarkerId}');
+          mapController.showMarkerInfoWindow(model.destinationMarkerId);
+          // print('${model.destinationMarkerId}');
           // print('showMarkerInfoWindow');
           // final b = mapController.isMarkerInfoWindowShown;
           // print(b);

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cyclopath/custom_widgets/order_list_button.dart';
+import 'package:cyclopath/custom_widgets/order_list_tiles.dart';
 import 'package:cyclopath/custom_widgets/route_timer.dart';
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-import 'package:url_launcher/url_launcher.dart' as url_launcher;
 import 'package:vibration/vibration.dart';
 
 class DeliveringSheet extends StatefulWidget {
@@ -120,7 +119,7 @@ class OrderCard extends StatelessWidget {
             listTileText: currentOrder.ordernumber,
             icon: Icons.airplane_ticket_rounded,
           ),
-          _OrderPhone(phone: currentOrder.phone),
+          OrderPhone(phone: currentOrder.phone),
         ],
       ),
     );
@@ -210,88 +209,6 @@ class OrderPreviewCard extends StatelessWidget {
           panelController: panelController,
         ),
       ],
-    );
-  }
-}
-
-class OrderListTile extends StatelessWidget {
-  const OrderListTile({
-    Key? key,
-    required this.listTileText,
-    required this.icon,
-    this.visible = true,
-    this.listTileColor,
-    this.iconColor = Colors.black,
-  }) : super(key: key);
-
-  final String listTileText;
-  final Color? listTileColor;
-  final IconData icon;
-  final bool visible;
-  final Color iconColor;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Card(
-        color: listTileColor,
-        elevation: 2,
-        child: ListTile(
-          minLeadingWidth: 20,
-          leading: Icon(
-            icon,
-            color: iconColor,
-          ),
-          title: Text(
-            listTileText,
-            maxLines: 10,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _OrderPhone extends StatelessWidget {
-  const _OrderPhone({
-    Key? key,
-    required this.phone,
-  }) : super(key: key);
-
-  final String phone;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        children: [
-          Material(
-            color: Colors.white,
-            child: Ink(
-              decoration: const ShapeDecoration(
-                color: Colors.black,
-                shape: CircleBorder(),
-              ),
-              child: IconButton(
-                padding: const EdgeInsets.all(15),
-                onPressed: () => url_launcher.launch('tel://$phone'),
-                enableFeedback: true,
-                tooltip: phone,
-                icon: const Icon(
-                  Icons.phone,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(
-            height: 2,
-          ),
-          const Text('KundInnen anrufen'),
-        ],
-      ),
     );
   }
 }

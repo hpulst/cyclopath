@@ -74,13 +74,22 @@ class OrderCard extends StatelessWidget {
                     phone: order.phone,
                   ),
                 ),
-                _OrderTimer(
-                  selectedDeliveryTime: order.selectedDeliveryTime,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _OrderTimer(
+                      selectedDeliveryTime: order.selectedDeliveryTime,
+                    ),
+                    const SizedBox(height: 25),
+                    const Icon(
+                      Icons.expand_more_rounded,
+                    )
+                  ],
                 ),
               ],
             ),
           ),
-          _OrderButtons(),
+          // _OrderButtons(),
         ],
       ),
     );
@@ -176,9 +185,12 @@ class _OrderDescription extends StatelessWidget {
           ),
         ),
         const Padding(
-          padding: EdgeInsets.only(bottom: 4),
+          padding: EdgeInsets.only(bottom: 10),
         ),
         _OrderNote(note: note),
+        const Padding(
+          padding: EdgeInsets.only(bottom: 10),
+        ),
       ],
     );
   }
