@@ -19,11 +19,12 @@ Order _$OrderFromJson(Map<String, dynamic> json) {
     email: json['email'] as String,
     note: json['note'] as String,
     tip: (json['tip'] as num).toDouble(),
-    complete: json['complete'] as bool? ?? false,
+    complete: json['complete'] as bool?,
     id: json['id'] as String?,
     selectedDeliveryTime: json['selectedDeliveryTime'] == null
         ? null
         : DateTime.parse(json['selectedDeliveryTime'] as String),
+    queueNumber: (json['queueNumber'] as num?)?.toDouble(),
   );
 }
 
@@ -42,4 +43,5 @@ Map<String, dynamic> _$OrderToJson(Order instance) => <String, dynamic>{
       'tip': instance.tip,
       'complete': instance.complete,
       'selectedDeliveryTime': instance.selectedDeliveryTime.toIso8601String(),
+      'queueNumber': instance.queueNumber,
     };

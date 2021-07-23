@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'locations.g.dart';
+part 'storeLocations.g.dart';
 
 @JsonSerializable()
 class LatLng {
@@ -77,33 +78,18 @@ class Locations {
   final List<Region>? regions;
 }
 
-// Future<Locations> getOffices() async {
-//   const googleLocationsURL = 'https://about.google/static/data/locations.json';
+Future getOffices(String homeStoreId) async {
+  var office = Office();
 
-//   // Retrieve the locations of Google offices
-//   try {
-//     // final response = await http.get(Uri.parse(googleLocationsURL));
-
-//     var a = Locations.fromJson(json.decode());
-
-//     if (response.statusCode == 200) {
-//       return Locations.fromJson(json.decode(response.body));
-//     } else {
-//       throw HttpException(
-//           'Unexpected status code ${response.statusCode}:'
-//           ' ${response.reasonPhrase}',
-//           uri: Uri.parse(googleLocationsURL));
-//     }
-//   } catch (err, stacktrace) {
-//     print(err);
-//     return Locations();
-//   }
-// }
-
-Future<Locations> getOffices() async {
-  final jsonLocations = await _loadAssets();
-
-  return Locations.fromJson(json.decode(jsonLocations));
+  try {
+    final jsonLocations = await _loadAssets();
+    final locations = Locations.fromJson(json.decode(jsonLocations));
+    return office =
+        locations.offices!.firstWhere((element) => element.id == homeStoreId);
+  } on Exception catch (e) {
+    debugPrint('Error caught: $e');
+    return office;
+  }
 }
 
 Future<String> _loadAssets() {

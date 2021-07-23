@@ -7,9 +7,6 @@ A Courrier app that includes functionality that allows the courier to receive or
 - [ ] Sign in as a courier
   - [ ] Sign out
 
-- [ ] View status(call Store/online/offline/riding stats/logout)
-  - [ ] Top left appbar Icon
-
 - [ ] View order details
   - [x] View delivery location
   - [x] View direction on map using flutter_polyline_points
@@ -30,29 +27,35 @@ A Courrier app that includes functionality that allows the courier to receive or
 
 - [x] View route preview on order
 - [x] Destination window of marker with distance & duration
+- [x] Show navigation Button
 - [ ] See VerticalProgressIndicator when going online
 - [ ] SharedPreferences to store login info
 - [ ] Push-notification sync
 - [ ] Switch to black design on login page
 - [ ] Get realtime updates with Cloud Firestore
-- [ ] Order repository using Firebase as a data source
 - [ ] Offline capability using package 'retry'
 - [ ] time.periodic remote config
+- [ ] Insert sound feature
+  - [ ] Delivery sound
+- [ ] View status(call Store/online/offline/riding stats/logout)
 
 **Start of Day (SOD) 19.07:**
 
-- [ ] Polish returning screen
-- [ ] Insert sound feature
-  - [ ] Delivery sound
+- [ ] Polish orderlist screen
+- [ ] FAB Position
 
 **End of Day (EOD):**
-  
+
+- [ ] Create User with shift-timer and earnings
+- [ ] Polish returning screen
+
 **End of Week (EOW):**
 
-- [ ] Show navigation Button
 - [ ] Publish App in App Stores
-- [ ]
+- [ ] Add screenshots to github page
 
 **Current Feature Sprint:**
+
+Duration as String with Format "6 min" or "1 hour 34 min"
 
 **Name all possible solutions for setting currentOrder:**

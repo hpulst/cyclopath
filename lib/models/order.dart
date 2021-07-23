@@ -17,11 +17,12 @@ class Order {
     this.email = '',
     this.note = '',
     this.tip = 0,
-    this.complete = false,
+    bool? complete,
     String? id,
     DateTime? selectedDeliveryTime,
     this.queueNumber,
-  })  : id = id ?? const Uuid().v4(),
+  })  : complete = complete ?? false,
+        id = id ?? const Uuid().v4(),
         selectedDeliveryTime = selectedDeliveryTime ??
             DateTime.now().add(
               const Duration(minutes: 5 + 2 * 3),

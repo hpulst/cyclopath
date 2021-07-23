@@ -16,7 +16,7 @@ class UserSession with ChangeNotifier {
         _selectedUserSessionType = sessionType;
         break;
       case UserSessionType.delivering:
-        Future.delayed(const Duration(seconds: 2), () {
+        Future.delayed(const Duration(seconds: 1), () {
           _selectedUserSessionType = sessionType;
         });
         break;

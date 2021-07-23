@@ -4,8 +4,7 @@ import 'package:cyclopath/custom_widgets/simple_dialog.dart';
 import 'package:cyclopath/models/destination_model.dart';
 import 'package:cyclopath/models/directions_model.dart';
 import 'package:cyclopath/models/directions_repository.dart';
-import 'package:cyclopath/models/locations.dart' as locations;
-import 'package:cyclopath/models/map_model.dart';
+import 'package:cyclopath/models/storeLocations.dart' as locations;
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
@@ -18,9 +17,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'bottom_drawer.dart';
 
-// static const double _initFabHeight = 220.0;
 const double storeLatitudeHamburg = 53.55744486901641;
 const double storeLongitudeHamburg = 9.989580614218664;
+const String storeIdHamburg = 'hamburg';
 
 const initialTarget = LatLng(storeLatitudeHamburg, storeLongitudeHamburg);
 const _initialLocation = CameraPosition(
@@ -45,12 +44,9 @@ class _AdaptiveNavState extends State<AdaptiveNav>
 
   final Completer<GoogleMapController> _controller = Completer();
   final _bottomDrawerKey = GlobalKey(debugLabel: 'Bottom Drawer');
-  final double _snapPoint = .45;
 
   double _panelHeightOpen = 0;
   double _fabHeight = 0;
-
-  // final Map<PolylineId, Polyline> _polylines = {};
 
   final _navigationDestinations = <Destination>[
     Destination(
@@ -98,7 +94,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       textLabel: UserSessionType.returning.title,
       showIcon: false,
       // panelHeightOpen: .70,
-      panelHeightClosed: 170,
+      panelHeightClosed: 150,
       panelSnapping: false,
       // initFabHeight: _initFabHeight + 160,
       locationButton: true,
@@ -130,7 +126,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
             CameraPosition(
                 target: LatLng(
                     _currentPosition.latitude, _currentPosition.longitude),
-                zoom: 14),
+                zoom: 15),
           ),
         );
       },
@@ -140,21 +136,26 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   Future<void> _setCameraToRoute() async {
     final model = context.read<OrderListModel>();
     final mapController = await _controller.future;
-    setState(
-      () {
-        mapController.showMarkerInfoWindow(MarkerId(model.currentOrder.id));
-        mapController.animateCamera(
-          model.polylines.isNotEmpty
-              ? CameraUpdate.newLatLngBounds(model.directions.bounds, 100.0)
-              : CameraUpdate.newCameraPosition(
-                  CameraPosition(
-                      target: LatLng(model.currentPosition.latitude,
-                          model.currentPosition.longitude),
-                      zoom: 14),
-                ),
-        );
-      },
-    );
+
+    if (model.polylines.isNotEmpty) {
+      setState(
+        () {
+          mapController.animateCamera(
+              CameraUpdate.newLatLngBounds(model.directions.bounds, 100.0));
+
+          // if (model.hasActiveOrders) {
+          // mapController.showMarkerInfoWindow(model.destinationMarkerId);
+          print('${model.destinationMarkerId}');
+          // print('showMarkerInfoWindow');
+          // final b = mapController.isMarkerInfoWindowShown;
+          // print(b);
+          // print(mapController.showMarkerInfoWindow(model.destinationMarkerId));
+          // }
+        },
+      );
+    } else {
+      await _setCameraToCurrentLocation();
+    }
   }
 
   Future<void> _launchMapsUrl() async {
@@ -184,15 +185,11 @@ class _AdaptiveNavState extends State<AdaptiveNav>
       builder: (context, model, _) {
         return GoogleMap(
           mapToolbarEnabled: true,
-
           initialCameraPosition: _initialLocation,
-          // mapToolbarEna
-          //bled: true,
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
           zoomGesturesEnabled: true,
           zoomControlsEnabled: false,
-
           markers: Set<Marker>.of(model.markers.values),
           onMapCreated: (GoogleMapController controller) {
             if (!_controller.isCompleted) {
@@ -202,7 +199,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
             }
           },
           polylines: Set<Polyline>.of(model.polylines.values),
-          padding: const EdgeInsets.only(bottom: 100),
+          padding: const EdgeInsets.only(bottom: 130, top: 30),
         );
       },
     );
@@ -236,7 +233,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
                 fabHeight: _fabHeight,
                 scrollController: _scrollController,
                 getCurrentLocation: _setCameraToCurrentLocation,
-                setRoute: _setCameraToRoute),
+                setCameraToRoute: _setCameraToRoute),
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(18.0),
                 topRight: Radius.circular(18.0)),
@@ -274,7 +271,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
                     onPressed: () {
                       _launchMapsUrl();
                     },
-                    backgroundColor: Colors.blue[900],
+                    backgroundColor: Theme.of(context).primaryColor,
                     child: Icon(
                       Icons.directions,
                       color: Theme.of(context).accentColor,
@@ -285,16 +282,6 @@ class _AdaptiveNavState extends State<AdaptiveNav>
             ),
           );
         }),
-        // Positioned(
-        //     top: 0,
-        //     child: ClipRRect(
-        //         child: BackdropFilter(
-        //             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        //             child: Container(
-        //               width: MediaQuery.of(context).size.width,
-        //               height: MediaQuery.of(context).padding.top,
-        //               color: Colors.transparent,
-        //             )))),
       ],
     );
   }

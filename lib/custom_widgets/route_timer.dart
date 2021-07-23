@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class OrderTimer extends StatefulWidget {
-  const OrderTimer({Key? key, required this.duration}) : super(key: key);
+  const OrderTimer({Key? key, required this.duration, this.fontSize})
+      : super(key: key);
 
+  final double? fontSize;
   final Duration duration;
 
   @override
@@ -53,6 +55,8 @@ class _OrderTimerState extends State<OrderTimer> {
       _diff.isNegative ? 'vor ' + sDuration : 'in ' + sDuration,
       style: TextStyle(
         fontWeight: FontWeight.bold,
+        fontSize:
+            widget.fontSize ?? DefaultTextStyle.of(context).style.fontSize,
         color: _diff.isNegative
             ? Colors.red.shade600
             : Theme.of(context).primaryColor,

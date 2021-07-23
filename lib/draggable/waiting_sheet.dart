@@ -11,12 +11,12 @@ class WaitingSheet extends StatefulWidget {
     Key? key,
     this.model,
     required this.panelController,
-    required this.setRoute,
+    required this.setCameraToRoute,
   }) : super(key: key);
 
   final UserSession? model;
   final PanelController panelController;
-  final VoidCallback setRoute;
+  final VoidCallback setCameraToRoute;
 
   @override
   _WaitingSheetState createState() => _WaitingSheetState();
@@ -25,7 +25,9 @@ class WaitingSheet extends StatefulWidget {
 class _WaitingSheetState extends State<WaitingSheet> {
   @override
   void initState() {
+    // Future.delayed(const Duration(seconds: 2), () {
     context.read<OrderListModel>().loadOrders();
+    // });
     super.initState();
   }
 
@@ -35,8 +37,9 @@ class _WaitingSheetState extends State<WaitingSheet> {
         milliseconds: 1,
       ),
       () {
-        widget.panelController.close();
         Vibration.vibrate();
+        widget.panelController.close();
+        // widget.setCameraToRoute;
         context.read<UserSession>().selectedUserSessionType =
             UserSessionType.delivering;
       },

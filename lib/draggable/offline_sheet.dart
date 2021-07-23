@@ -24,7 +24,7 @@ class _OfflineSheetState extends State<OfflineSheet> {
       (_) async {
         if (widget.panelController.isAttached) {
           await widget.panelController.animatePanelToSnapPoint(
-              duration: const Duration(microseconds: 500),
+              duration: const Duration(microseconds: 900),
               curve: Curves.decelerate);
         }
       },
@@ -34,7 +34,6 @@ class _OfflineSheetState extends State<OfflineSheet> {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      // padding: const EdgeInsets.all(12),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
@@ -138,7 +137,7 @@ class ShiftStarts extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.all(20),
                       minimumSize: const Size(260, 0.0),
-                      // side: const BorderSide(width: .5),
+                      side: const BorderSide(width: 1.0, color: Colors.grey),
                     ),
                     child: shiftTimer(i, context),
                   ),

@@ -4,6 +4,7 @@ import 'package:cyclopath/custom_widgets/order_list_button.dart';
 import 'package:cyclopath/custom_widgets/route_timer.dart';
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
+import 'package:cyclopath/utils/map_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:slide_to_act/slide_to_act.dart';
@@ -13,35 +14,32 @@ class ReturningSheet extends StatefulWidget {
   const ReturningSheet({
     Key? key,
     required this.panelController,
-    required this.setRoute,
+    required this.setCameraToRoute,
   }) : super(key: key);
 
   final PanelController panelController;
-  final VoidCallback setRoute;
+  final VoidCallback setCameraToRoute;
 
   @override
   _ReturningSheetState createState() => _ReturningSheetState();
 }
 
 class _ReturningSheetState extends State<ReturningSheet> {
-  late Timer _timer;
-  late Duration _diff;
-
   @override
   void initState() {
+    super.initState();
+
     final model = context.read<OrderListModel>();
+
     model.createOfficeMarkers();
     model.createRoute();
-    widget.setRoute();
-    super.initState();
+    widget.setCameraToRoute();
   }
 
   @override
   Widget build(BuildContext context) {
-    final String duration =
-        context.read<OrderListModel>().directions.totalDuration;
-    // final Duration d = DataTime.parse(duration);
-    print('Duration: $duration');
+    final durationInSeconds = context
+        .select((OrderListModel order) => order.directions.totalDurationValue);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
@@ -49,26 +47,24 @@ class _ReturningSheetState extends State<ReturningSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            // crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Expanded(
-              Text(
-                'Wir erwarten dich in ${duration}',
+              const Text(
+                'Wir erwarten dich ',
                 style: TextStyle(fontSize: 22),
               ),
-              OrderTimer(duration: Duration(minutes: 20)),
-              // ),
-              // ),
+              OrderTimer(
+                duration: Duration(seconds: durationInSeconds),
+                fontSize: 22.0,
+              ),
+              const Spacer(),
               const OrderListButton(),
             ],
           ),
           const SizedBox(
-            height: 20,
+            height: 10,
           ),
           _ReturnCompleteSlide(
-            // id: id,
-            setRoute: widget.setRoute,
+            setCameraToRoute: widget.setCameraToRoute,
             panelController: widget.panelController,
           ),
         ],
@@ -81,12 +77,12 @@ class _ReturnCompleteSlide extends StatelessWidget {
   const _ReturnCompleteSlide({
     Key? key,
     // required this.id,
-    required this.setRoute,
+    required this.setCameraToRoute,
     required this.panelController,
   }) : super(key: key);
 
   // final String id;
-  final VoidCallback setRoute;
+  final VoidCallback setCameraToRoute;
   final PanelController panelController;
 
   void setSession(BuildContext context) {
@@ -103,8 +99,6 @@ class _ReturnCompleteSlide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // const _listKey = ValueKey('slider');
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: GestureDetector(
@@ -112,7 +106,6 @@ class _ReturnCompleteSlide extends StatelessWidget {
           panelController.close();
         },
         child: SlideAction(
-          // key: _listKey,
           onSubmit: () {
             Future.delayed(
               const Duration(seconds: 1),

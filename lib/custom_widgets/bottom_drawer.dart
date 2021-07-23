@@ -13,14 +13,14 @@ class BottomDrawerDestinations extends StatelessWidget {
     required this.fabHeight,
     required this.scrollController,
     required this.getCurrentLocation(),
-    required this.setRoute(),
+    required this.setCameraToRoute(),
   });
 
   final PanelController panelController;
   final double fabHeight;
   final ScrollController scrollController;
   final VoidCallback getCurrentLocation;
-  final VoidCallback setRoute;
+  final VoidCallback setCameraToRoute;
 
   Widget _showBottomSheet({
     required PanelController panelController,
@@ -35,18 +35,18 @@ class BottomDrawerDestinations extends StatelessWidget {
       case UserSessionType.delivering:
         return DeliveringSheet(
           panelController: panelController,
-          setRoute: setRoute,
+          setCameraToRoute: setCameraToRoute,
         );
       case UserSessionType.returning:
         return ReturningSheet(
           panelController: panelController,
-          setRoute: setRoute,
+          setCameraToRoute: setCameraToRoute,
         );
 
       default:
         return WaitingSheet(
           panelController: panelController,
-          setRoute: setRoute,
+          setCameraToRoute: setCameraToRoute,
         );
     }
   }

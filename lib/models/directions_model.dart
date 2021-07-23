@@ -6,13 +6,15 @@ class Directions {
     required this.bounds,
     required this.polylinePoints,
     required this.totalDistance,
-    required this.totalDuration,
+    required this.totalDurationText,
+    required this.totalDurationValue,
   });
 
   final LatLngBounds bounds;
   final List<PointLatLng> polylinePoints;
   final String totalDistance;
-  final String totalDuration;
+  final String totalDurationText;
+  final int totalDurationValue;
 
   factory Directions.fromMap(Map<String, dynamic> map) {
     // Check if route is not available
@@ -32,14 +34,16 @@ class Directions {
       southwest: LatLng(southwest['lat'], southwest['lng']),
     );
 
-    // Distance & Durationuz
+    // Distance & Duration
     var distance = '';
-    var duration = '';
+    var durationText = '';
+    var durationValue = 0;
 
     if ((data['legs'] as List).isNotEmpty) {
       final leg = data['legs'][0];
       distance = leg['distance']['text'];
-      duration = leg['duration']['text'];
+      durationText = leg['duration']['text'];
+      durationValue = leg['duration']['value'];
     }
 
     return Directions(
@@ -47,7 +51,8 @@ class Directions {
       polylinePoints:
           PolylinePoints().decodePolyline(data['overview_polyline']['points']),
       totalDistance: distance,
-      totalDuration: duration,
+      totalDurationText: durationText,
+      totalDurationValue: durationValue,
     );
   }
 }

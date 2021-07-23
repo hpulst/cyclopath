@@ -90,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(
                   width: double.infinity,
-                  height: 50.0,
+                  height: 60.0,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       textStyle: const TextStyle(
@@ -105,9 +105,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(
-                  height: 40,
+                  height: 10,
                 ),
-                // ),
                 TextButton(
                   onPressed: () {
                     showDialog(
@@ -128,7 +127,10 @@ class _LoginPageState extends State<LoginPage> {
                       },
                     );
                   },
-                  child: const Text('Zugangsdaten vergessen?'),
+                  child: const Text(
+                    'Zugangsdaten vergessen?',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 )
               ],
             ),

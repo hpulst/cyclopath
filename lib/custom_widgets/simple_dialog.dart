@@ -12,23 +12,29 @@ class SimpleDialogWidget extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
       ),
+      title: const Center(
+          child: Text('STADTSALAT', style: TextStyle(fontSize: 26))),
       children: [
+        const SizedBox(
+          height: 20,
+        ),
+        SimpleDialogItem(
+          // icon: Icons.pedal_bike_rounded,
+          icon: Icons.account_circle,
+          text: 'Marco Pantani',
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        const Divider(
+          color: Colors.grey,
+        ),
         const SizedBox(
           height: 20,
         ),
         SimpleDialogItem(
           icon: Icons.phone,
           text: 'Store anrufen',
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        const SizedBox(
-          height: 20,
-        ),
-        SimpleDialogItem(
-          icon: Icons.pedal_bike_rounded,
-          text: 'Statistik',
           onPressed: () {
             Navigator.pop(context);
           },
@@ -44,10 +50,13 @@ class SimpleDialogWidget extends StatelessWidget {
           },
         ),
         const SizedBox(
-          height: 50,
+          height: 20,
         ),
         const Divider(
           color: Colors.grey,
+        ),
+        const SizedBox(
+          height: 20,
         ),
         SimpleDialogItem(
           icon: Icons.logout_rounded,
@@ -56,6 +65,23 @@ class SimpleDialogWidget extends StatelessWidget {
           onPressed: () {
             Navigator.pop(context);
           },
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        const Divider(
+          color: Colors.grey,
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            Text('Schichtdauer: 69 min'),
+            Text(' • '),
+            Text('Trinkgeld: 4.20 €'),
+          ],
         ),
       ],
     );
@@ -86,7 +112,7 @@ class SimpleDialogItem extends StatelessWidget {
         children: [
           Icon(icon, size: 36.0, color: color),
           Padding(
-            padding: const EdgeInsetsDirectional.only(start: 16.0),
+            padding: const EdgeInsetsDirectional.only(start: 16.0, end: 50),
             child: Text(text, style: Theme.of(context).textTheme.headline5),
           ),
         ],
