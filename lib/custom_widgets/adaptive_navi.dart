@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:cyclopath/custom_widgets/simple_dialog.dart';
 import 'package:cyclopath/models/destination_model.dart';
 import 'package:cyclopath/models/directions_model.dart';
-import 'package:cyclopath/models/directions_repository.dart';
-import 'package:cyclopath/models/storeLocations.dart' as locations;
+import 'package:cyclopath/models/store_locations.dart' as locations;
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +26,12 @@ const _initialLocation = CameraPosition(
   zoom: 12,
 );
 
+typedef SetCameraToRoute = Future<void> Function(
+    LatLngBounds bounds, MarkerId markerId);
+
 class AdaptiveNav extends StatefulWidget {
+  const AdaptiveNav({Key? key}) : super(key: key);
+
   @override
   _AdaptiveNavState createState() => _AdaptiveNavState();
 }
@@ -40,7 +44,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   late BitmapDescriptor customIcon;
   late PanelController _panelController;
   late Position _currentPosition;
-  late Directions directions;
+  // late Directions directions;
 
   final Completer<GoogleMapController> _controller = Completer();
   final _bottomDrawerKey = GlobalKey(debugLabel: 'Bottom Drawer');
@@ -105,7 +109,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
   @override
   void initState() {
     super.initState();
-    _setCameraToCurrentLocation();
+    setCameraToCurrentLocation();
     _panelController = PanelController();
   }
 
@@ -115,7 +119,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
     _currentPosition = orderModel.currentPosition;
   }
 
-  Future<void> _setCameraToCurrentLocation() async {
+  Future<void> setCameraToCurrentLocation() async {
     final mapController = await _controller.future;
     await _getCurrentPosition();
 
@@ -133,28 +137,24 @@ class _AdaptiveNavState extends State<AdaptiveNav>
     );
   }
 
-  Future<void> _setCameraToRoute() async {
+  Future<void> _setCameraToRoute(LatLngBounds bounds, MarkerId markerId) async {
     final model = context.read<OrderListModel>();
     final mapController = await _controller.future;
-
+    print('setCameraToRoute again??? ');
     if (model.polylines.isNotEmpty) {
       setState(
         () {
           mapController.animateCamera(
               CameraUpdate.newLatLngBounds(model.directions.bounds, 100.0));
 
-          // if (model.hasActiveOrders) {
           mapController.showMarkerInfoWindow(model.destinationMarkerId);
-          // print('${model.destinationMarkerId}');
           // print('showMarkerInfoWindow');
           // final b = mapController.isMarkerInfoWindowShown;
           // print(b);
-          // print(mapController.showMarkerInfoWindow(model.destinationMarkerId));
-          // }
         },
       );
     } else {
-      await _setCameraToCurrentLocation();
+      await setCameraToCurrentLocation();
     }
   }
 
@@ -184,7 +184,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
     return Consumer<OrderListModel>(
       builder: (context, model, _) {
         return GoogleMap(
-          mapToolbarEnabled: true,
+          mapToolbarEnabled: false,
           initialCameraPosition: _initialLocation,
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
@@ -232,7 +232,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
                 panelController: _panelController,
                 fabHeight: _fabHeight,
                 scrollController: _scrollController,
-                getCurrentLocation: _setCameraToCurrentLocation,
+                getCurrentLocation: setCameraToCurrentLocation,
                 setCameraToRoute: _setCameraToRoute),
             borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(18.0),
@@ -257,7 +257,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
                   FloatingActionButton(
                     heroTag: 'btn1',
                     onPressed: () {
-                      _setCameraToCurrentLocation();
+                      setCameraToCurrentLocation();
                     },
                     backgroundColor: Colors.white,
                     child: Icon(
@@ -274,7 +274,7 @@ class _AdaptiveNavState extends State<AdaptiveNav>
                     backgroundColor: Theme.of(context).primaryColor,
                     child: Icon(
                       Icons.directions,
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ),
                 ],

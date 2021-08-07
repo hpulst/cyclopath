@@ -6,16 +6,16 @@ A Courrier app that includes functionality that allows the courier to receive or
 
 <table>
     <tr>
-        <td><img src="./images/screenshot_login.jpg" width="200" /></td> 
-        <td><img src="./images/screenshot_offline.jpg" width="200" /></td> 
-        <td><img src="./images/screenshot_waiting.jpg" width="200" /></td> 
-        <td><img src="./images/screenshot_route.jpg" width="200" /></td> 
+        <td><img src="./images/screenshot_login.jpg" width="200" /></td>
+        <td><img src="./images/screenshot_offline.jpg" width="200" /></td>
+        <td><img src="./images/screenshot_waiting.jpg" width="200" /></td>
+        <td><img src="./images/screenshot_route.jpg" width="200" /></td>
     </tr>
     <tr>
-        <td><img src="./images/screenshot_order.jpg" width="200" /></td> 
-        <td><img src="./images/screenshot_orderlist.jpg" width="200" /></td> 
-        <td><img src="./images/screenshot_dialog.jpg" width="200" /></td> 
-        <td><img src="./images/screenshot_returning.jpg" width="200" /></td> 
+        <td><img src="./images/screenshot_order.jpg" width="200" /></td>
+        <td><img src="./images/screenshot_orderlist.jpg" width="200" /></td>
+        <td><img src="./images/screenshot_dialog.jpg" width="200" /></td>
+        <td><img src="./images/screenshot_returning.jpg" width="200" /></td>
     </tr>
 </table>
 
@@ -37,7 +37,7 @@ A Courrier app that includes functionality that allows the courier to receive or
   - [x] Tap to close
   - [x] Drag to close
 
-- [ ] View order details
+- [x] View order details
   - [x] View delivery location
   - [x] View direction on map using flutter_polyline_points
   - [x] Button to start turn-by-turn navigation
@@ -54,7 +54,10 @@ A Courrier app that includes functionality that allows the courier to receive or
 - [ ] See VerticalProgressIndicator when going online
 - [ ] Push-notification
 - [ ] Get realtime updates with Cloud Firestore
+- [ ] Offline capability using package 'retry'
+- [ ] time.periodic remote config
 - [ ] Insert sound feature
   - [ ] Delivery sound
 - [ ] Blast colorful confetti all over the screen when deliveries complete
 - [ ] Automatically change status of user to "waiting" when close to store
+- [ ] Make every Map available  

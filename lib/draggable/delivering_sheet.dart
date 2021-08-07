@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cyclopath/custom_widgets/adaptive_navi.dart';
 import 'package:cyclopath/custom_widgets/order_list_tiles.dart';
 import 'package:cyclopath/custom_widgets/route_timer.dart';
 import 'package:cyclopath/models/order_list_model.dart';
@@ -18,7 +19,7 @@ class DeliveringSheet extends StatefulWidget {
   }) : super(key: key);
 
   final PanelController panelController;
-  final VoidCallback setCameraToRoute;
+  final SetCameraToRoute setCameraToRoute;
 
   @override
   _DeliveringSheetState createState() => _DeliveringSheetState();
@@ -28,21 +29,31 @@ class _DeliveringSheetState extends State<DeliveringSheet> {
   @override
   void initState() {
     widget.panelController.close();
-    setCamera(widget.setCameraToRoute);
     super.initState();
   }
 
-  void setCamera(VoidCallback setCameraToRoute) {
-    Future.delayed(
-      const Duration(milliseconds: 500),
-      () async {
-        setCameraToRoute();
-      },
-    );
-  }
+  // void setCamera(VoidCallback setCameraToRoute) {
+  //   Future.delayed(
+  //     const Duration(milliseconds: 500),
+  //     () async {
+  //       setCameraToRoute();
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
+    final hasPolyLines =
+        context.select((OrderListModel model) => model.polylines.isNotEmpty);
+
+    if (hasPolyLines) {
+      final routeBounds =
+          context.select((OrderListModel model) => model.routeBounds);
+      final markerId =
+          context.select((OrderListModel model) => model.destinationMarkerId);
+      widget.setCameraToRoute(routeBounds, markerId);
+    }
+
     return OrderCard(
       panelController: widget.panelController,
       setCameraToRoute: widget.setCameraToRoute,
@@ -58,7 +69,7 @@ class OrderCard extends StatelessWidget {
   }) : super(key: key);
 
   final PanelController panelController;
-  final VoidCallback setCameraToRoute;
+  final SetCameraToRoute setCameraToRoute;
 
   void setSession(BuildContext context) {
     Future.delayed(
@@ -144,7 +155,7 @@ class OrderPreviewCard extends StatelessWidget {
   final DateTime selectedDeliveryTime;
   final String id;
   final PanelController panelController;
-  final VoidCallback setCameraToRoute;
+  final SetCameraToRoute setCameraToRoute;
 
   @override
   Widget build(BuildContext context) {
@@ -222,8 +233,8 @@ class _OrderCompleteSlide extends StatelessWidget {
   }) : super(key: key);
 
   final String id;
-  final VoidCallback setCameraToRoute;
   final PanelController panelController;
+  final SetCameraToRoute setCameraToRoute;
 
   void setSession(BuildContext context) {
     Future.delayed(
@@ -256,8 +267,9 @@ class _OrderCompleteSlide extends StatelessWidget {
               model.updateOrder(order);
 
               if (model.hasActiveOrders) {
-                await model.createRoute();
-                setCameraToRoute();
+                // await model.createRoute();
+                await setCameraToRoute(
+                    model.routeBounds, model.destinationMarkerId);
               } else {
                 setSession(context);
               }

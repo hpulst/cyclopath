@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:cyclopath/custom_widgets/adaptive_navi.dart';
 import 'package:cyclopath/custom_widgets/order_list_tiles.dart';
 import 'package:cyclopath/custom_widgets/route_timer.dart';
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
-import 'package:cyclopath/utils/map_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:slide_to_act/slide_to_act.dart';
@@ -18,7 +18,7 @@ class ReturningSheet extends StatefulWidget {
   }) : super(key: key);
 
   final PanelController panelController;
-  final VoidCallback setCameraToRoute;
+  final SetCameraToRoute setCameraToRoute;
 
   @override
   _ReturningSheetState createState() => _ReturningSheetState();
@@ -33,7 +33,7 @@ class _ReturningSheetState extends State<ReturningSheet> {
 
     model.createOfficeMarkers();
     model.createRoute();
-    widget.setCameraToRoute();
+    widget.setCameraToRoute(model.routeBounds, model.destinationMarkerId);
   }
 
   @override
@@ -76,14 +76,12 @@ class _ReturningSheetState extends State<ReturningSheet> {
 class _ReturnCompleteSlide extends StatelessWidget {
   const _ReturnCompleteSlide({
     Key? key,
-    // required this.id,
     required this.setCameraToRoute,
     required this.panelController,
   }) : super(key: key);
 
-  // final String id;
-  final VoidCallback setCameraToRoute;
   final PanelController panelController;
+  final SetCameraToRoute setCameraToRoute;
 
   void setSession(BuildContext context) {
     Future.delayed(

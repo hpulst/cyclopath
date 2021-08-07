@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'storeLocations.g.dart';
+part 'store_locations.g.dart';
 
 @JsonSerializable()
 class LatLng {

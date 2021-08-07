@@ -1,4 +1,3 @@
-import 'package:cyclopath/models/map_model.dart';
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:cyclopath/pages/login_page.dart';
@@ -31,7 +30,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
             create: (_) => OrderListModel(repository: OrderRepository())
               ..createOfficeMarkers()
-              ..getCurrentPosition()
+            // ..getCurrentPosition()
             // ..loadOrders(),
             ),
         ChangeNotifierProvider(
@@ -39,13 +38,13 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        theme: AppTheme.light(),
+        theme: light(),
         title: 'Cyclopath',
-        home: user == null ? LoginPage() : AdaptiveNav(),
+        home: user == null ? const LoginPage() : const AdaptiveNav(),
         debugShowCheckedModeBanner: false,
         routes: {
-          '/login': (context) => LoginPage(),
-          '/map': (context) => AdaptiveNav()
+          '/login': (context) => const LoginPage(),
+          '/map': (context) => const AdaptiveNav()
         },
       ),
     );

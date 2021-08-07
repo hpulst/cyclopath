@@ -5,9 +5,10 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class OfflineSheet extends StatefulWidget {
   const OfflineSheet({
+    Key? key,
     this.model,
     required this.panelController,
-  });
+  }) : super(key: key);
 
   final PanelController panelController;
   final UserSession? model;
@@ -35,7 +36,7 @@ class _OfflineSheetState extends State<OfflineSheet> {
   Widget build(BuildContext context) {
     return ListView(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+      // physics: const NeverScrollableScrollPhysics(),
       children: [
         const SizedBox(height: 22.0),
         Row(
@@ -51,7 +52,7 @@ class _OfflineSheetState extends State<OfflineSheet> {
         ShiftStarts(
           panelController: widget.panelController,
         ),
-        Container(
+        SizedBox(
           height: 200,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -86,7 +87,7 @@ class ShiftStarts extends StatelessWidget {
   Widget build(BuildContext context) {
     final List timingButtons = <Widget>[];
 
-    for (var i = 0; i < 7; i++) {
+    for (var i = 0; i < 10; i++) {
       timingButtons.add(
         Padding(
           padding: const EdgeInsets.all(5.0),
@@ -98,8 +99,6 @@ class ShiftStarts extends StatelessWidget {
                       panelController.close();
                       Future.delayed(
                         const Duration(
-                          // milliseconds: panelController.value == 1 ? 300 : 120,
-
                           milliseconds: 120,
                         ),
                         () {
@@ -113,7 +112,6 @@ class ShiftStarts extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.all(20),
                       minimumSize: const Size(260, 0.0),
-                      // side: const BorderSide(width: .5),
                     ),
                     child: shiftTimer(i, context),
                   )
@@ -122,8 +120,6 @@ class ShiftStarts extends StatelessWidget {
                       panelController.close();
                       Future.delayed(
                         const Duration(
-                          // milliseconds: panelController.value == 1 ? 300 : 120,
-
                           milliseconds: 120,
                         ),
                         () {
@@ -157,7 +153,7 @@ class ShiftStarts extends StatelessWidget {
     return Text(
       i < 2
           ? i < 1
-              ? '${fiveBelow().format(context)} (vor ${now.minute % 5} Minuten)'
+              ? '${fiveBefore().format(context)} (vor ${now.minute % 5} Minuten)'
               : 'JETZT'
           : TimeOfDay.fromDateTime(
               timely.add(
@@ -170,7 +166,7 @@ class ShiftStarts extends StatelessWidget {
     );
   }
 
-  TimeOfDay fiveBelow() => TimeOfDay.fromDateTime(
+  TimeOfDay fiveBefore() => TimeOfDay.fromDateTime(
         DateTime.now().subtract(
           Duration(minutes: now.minute % 5),
         ),

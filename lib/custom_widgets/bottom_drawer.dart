@@ -7,25 +7,28 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import 'adaptive_navi.dart';
+
 class BottomDrawerDestinations extends StatelessWidget {
   const BottomDrawerDestinations({
+    Key? key,
     required this.panelController,
     required this.fabHeight,
     required this.scrollController,
-    required this.getCurrentLocation(),
-    required this.setCameraToRoute(),
-  });
+    required this.getCurrentLocation,
+    required this.setCameraToRoute,
+  }) : super(key: key);
 
   final PanelController panelController;
   final double fabHeight;
   final ScrollController scrollController;
   final VoidCallback getCurrentLocation;
-  final VoidCallback setCameraToRoute;
+  final SetCameraToRoute setCameraToRoute;
 
   Widget _showBottomSheet({
-    required PanelController panelController,
+    // required PanelController panelController,
     required UserSessionType selectedUserSessionType,
-    required VoidCallback getCurrentLocation,
+    // required VoidCallback getCurrentLocation,
   }) {
     switch (selectedUserSessionType) {
       case UserSessionType.offline:
@@ -46,7 +49,6 @@ class BottomDrawerDestinations extends StatelessWidget {
       default:
         return WaitingSheet(
           panelController: panelController,
-          setCameraToRoute: setCameraToRoute,
         );
     }
   }
@@ -89,8 +91,8 @@ class BottomDrawerDestinations extends StatelessWidget {
                 : panelController.open(),
             child: _showBottomSheet(
               selectedUserSessionType: selectedUserSessionType,
-              panelController: panelController,
-              getCurrentLocation: getCurrentLocation,
+              // panelController: panelController,
+              // getCurrentLocation: getCurrentLocation,
             ),
           ),
         ],

@@ -1,4 +1,3 @@
-import 'package:cyclopath/models/order.dart';
 import 'package:cyclopath/models/order_list_model.dart';
 import 'package:cyclopath/models/user_session.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +10,10 @@ class WaitingSheet extends StatefulWidget {
     Key? key,
     this.model,
     required this.panelController,
-    required this.setCameraToRoute,
   }) : super(key: key);
 
   final UserSession? model;
   final PanelController panelController;
-  final VoidCallback setCameraToRoute;
 
   @override
   _WaitingSheetState createState() => _WaitingSheetState();
@@ -39,7 +36,6 @@ class _WaitingSheetState extends State<WaitingSheet> {
       () {
         Vibration.vibrate();
         widget.panelController.close();
-        // widget.setCameraToRoute;
         context.read<UserSession>().selectedUserSessionType =
             UserSessionType.delivering;
       },

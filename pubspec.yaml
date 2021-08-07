@@ -19,7 +19,6 @@ dependencies:
   google_maps_flutter: null
   http: ^0.13.3
   json_serializable: null
-  pedantic: null
   provider: ^5.0.0
   shared_preferences: ^2.0.5
   slide_to_act: ^2.0.1
@@ -27,11 +26,14 @@ dependencies:
   url_launcher: ^6.0.9
   uuid: ^3.0.4
   vibration: ^1.7.4-nullsafety.0
+  google_directions_api: ^0.9.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: null
+  flutter_lints: ^1.0.4
+
 
 flutter:
   uses-material-design: true
